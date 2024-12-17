@@ -1,6 +1,6 @@
 import Table, { ColumnsType } from "antd/es/table";
 import providerApi from "../apis/provider.api";
-import { API_STATUS, ImportStatus, selectPageSize } from "../constants/general.constant";
+import { API_STATUS, ImportStatus, selectPageSize, Type } from "../constants/general.constant";
 import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
@@ -33,6 +33,9 @@ const InvoiceImport: React.FC = () => {
 
   const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
 	const navigate = useNavigate();
+
+	// const properties = localStorage.getItem('properties');
+	// console.log(properties);
 
 	let stt: number = 1;
 	const columnInvoiceHistoryImport: ColumnsType<IInvoiceImportResponse> = [
@@ -164,7 +167,8 @@ const InvoiceImport: React.FC = () => {
 
 	const [invImportReq, setInvImportReq] = useState<IInventoryImportPageRequest>({
 		page: 1,
-		size: 20
+		size: 20,
+		classification: false
 	});
 
 	const getListInvImport = async () => {
@@ -189,6 +193,7 @@ const InvoiceImport: React.FC = () => {
 			...value,
 			page: invImportReq.page,
 			size: invImportReq.size,
+			classification: invImportReq.classification
 		});
 
 		console.log(invImportReq);

@@ -3,15 +3,12 @@ import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
-
-import "../../../../assets/css/page.css";
-import "../../../../assets/css/supplier.css";
 import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";
-import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
 import { IProperty } from "../../interfaces/property";
 import { IDrugInvSummaryResponse } from "../../interfaces/summaryInvoice";
 import { renderText } from "../common";
-
+import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
+import "../../assets/css/supplier.css";
 const { RangePicker } = DatePicker;
 
 interface IInvSummaryWithImportInvProps {

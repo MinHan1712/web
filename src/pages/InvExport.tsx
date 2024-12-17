@@ -134,7 +134,8 @@ const InvoiceExport: React.FC = () => {
 
 	const [invImportReq, setInvImportReq] = useState<IInventoryImportPageRequest>({
 		page: 1,
-		size: 20
+		size: 20,
+		classification: true
 	});
 
 	const getListInvImport = async () => {
@@ -159,6 +160,7 @@ const InvoiceExport: React.FC = () => {
 			...value,
 			page: invImportReq.page,
 			size: invImportReq.size,
+			classification: invImportReq.classification
 		});
 
 		console.log(invImportReq);

@@ -1,19 +1,17 @@
+import { PlusCircleOutlined } from "@ant-design/icons";
+import { Button, Empty, Flex, Pagination, Select, Tag } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
-import providerApi from "../apis/provider.api";
-import { API_STATUS, selectPageSize } from "../constants/general.constant";
-import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
+import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
-import { IPageResponse } from "../interfaces/common";
-import { Button, Empty, Flex, Pagination, Select, Tag } from "antd";
-import { format } from "date-fns/format";
-import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import '../assets/css/style.css';
-import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
 import drugApi from "../apis/drug.api";
-import ProductSearch from "../components/product/ProductSearch";
+import '../assets/css/style.css';
 import ProductCreate from "../components/product/ProductCreate";
+import ProductSearch from "../components/product/ProductSearch";
 import ProductView from "../components/product/ProductView";
+import { selectPageSize } from "../constants/general.constant";
+import { IPageResponse } from "../interfaces/common";
+import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
 
 const productColumns: ColumnsType<IDrugResponse> = [
 	{

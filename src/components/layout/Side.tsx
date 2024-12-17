@@ -41,12 +41,12 @@ const items: MenuItem[] = [
             },
             {
                 key: '7',
-                label: 'Xuất kho',
+                label: <Link to="./kho/xuatkho" className='text-decoration-none'>Xuất kho</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/xuat-kho.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
             },
             {
                 key: '8',
-                label: 'Kiểm kho',
+                label: <Link to="./kho/kiemkho" className='text-decoration-none'>Kiểm kho</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/kiem-kho.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
             },
         ],

@@ -3,9 +3,10 @@ import { IDrugInvSummaryResponse } from "../interfaces/summaryInvoice";
 import privateClient from "./clients/private.client";
 
 const endpoint = {
-  getList: '/api/inventory/check/search',
+  getList: '/summary/search',
+  create: '/summary',
   update: `provider`,
-  cancel: (id: any) => `/api/inventory/cancel?import_id=${id}`
+  cancel: (id: any) => `/api/summary/cancel?import_id=${id}`
 };
 
 const invoiceSummaryApi = {

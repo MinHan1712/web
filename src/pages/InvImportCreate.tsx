@@ -69,12 +69,6 @@ const InvImportCreate: React.FC = () => {
 		// get list provider
 	}
 
-	let locale = {
-		emptyText: (
-			<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-		)
-	};
-
 	const handleCreateReceipt = () => {
 		navigate({
 			pathname: routes[2].path,

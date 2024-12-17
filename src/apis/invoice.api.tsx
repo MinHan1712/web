@@ -4,7 +4,7 @@ import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider"
 import privateClient from "./clients/private.client";
 
 const endpoint = {
-  getList: '/api/inventory/search',
+  getList: '/inventory/import/search',
   update: `provider`,
   cancel: (id: any) => `/api/inventory/cancel?import_id=${id}`
 };

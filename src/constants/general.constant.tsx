@@ -189,3 +189,10 @@ export const PayMethod = [
   { value: "1", label: "Thanh toán một phần" },
   { value: "3", label: "Chưa thanh toán" }
 ]
+
+export const Type = [
+  { IMPORT_TYPE: "IMPORT_TYPE" },
+  { EXPORT_TYPE: "EXPORT_TYPE" },
+  { PAY_METHOD: "PAY_METHOD" },
+  { INVOICE_SOURCE: "INVOICE_SOURCE" },
+]

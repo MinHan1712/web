@@ -3,9 +3,7 @@ import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
-
-import "../../../../assets/css/page.css";
-import "../../../../assets/css/supplier.css";
+import "../../assets/css/supplier.css";
 import { IDrugInvSummaryResponse } from "../../interfaces/summaryInvoice";
 import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
 import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";

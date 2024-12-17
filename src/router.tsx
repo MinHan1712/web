@@ -1,7 +1,10 @@
 import Customer from "./pages/Customer";
 import CustomerGroup from "./pages/CustomerGroup";
+import InvoiceExport from "./pages/InvExport";
+import InvExportCreate from "./pages/InvExportCreate";
 import InvoiceImport from "./pages/InvImport";
 import InvoiceImportCreate from "./pages/InvImportCreate";
+import InvoiceSummary from "./pages/InvSummary";
 import Product from "./pages/Product";
 import Provider from "./pages/Provider";
 
@@ -30,6 +33,30 @@ const routes = [
 		),
 		state: "kho/taophieunhapkho",
 		path: "kho/taophieunhapkho",
+	},
+	{
+		index: true,
+		element: (
+			<InvoiceExport />
+		),
+		state: "kho/xuatkho",
+		path: "kho/xuatkho",
+	},
+	{
+		index: true,
+		element: (
+			<InvExportCreate />
+		),
+		state: "kho/taophieuxuatkho",
+		path: "kho/taophieuxuatkho",
+	},
+	{
+		index: true,
+		element: (
+			<InvoiceSummary />
+		),
+		state: "kho/kiemkho",
+		path: "kho/kiemkho",
 	},
 	{
 		index: true,

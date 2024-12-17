@@ -35,7 +35,7 @@ export interface IInventoryImportPageRequest extends IPagingAndSortRequest {
     drug_name?: string;
     inventory_code?: string;
     inventory_type?: string;
-    classification?: string;
+    classification?: boolean;
     lot?: string;
     provider_id?: string;
     status?: string;
