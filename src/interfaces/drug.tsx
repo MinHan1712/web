@@ -30,8 +30,8 @@ export interface IDrugResponse {
     active_ingredient?: string
     original_product?: string
     package_desc?: string
-    image_number?: string
-    image_url?: string
+    // image_number?: string
+    // image_url?: string
     drug_group?: string
     drug_classified?: string
     drug_kind?: string

@@ -5,12 +5,12 @@ import { format } from "date-fns";
 import { IImportInventoryDetailCreate } from "../../interfaces/inventoryDetail";
 
 interface Props {
-  // importInvDetails: IImportInventoryDetailCreate[];
+  exportInvDetails: IImportInventoryDetailCreate[];
+  setInvDetails: (value: IImportInventoryDetailCreate[]) => void;
+  confirmDeleteCellToTable: (key: number, index: number) => void;
 }
 
 const InvExportCreateTable = (props: Props) => {
-  let count = 1;
-
   const columnsExportDetail: ColumnsType<IImportInventoryDetailCreate> = [
     {
       title: "Mã sản phẩn",
@@ -94,21 +94,16 @@ const InvExportCreateTable = (props: Props) => {
             min={0}
             value={quantity}
             status={quantity || 0 > 0 ? "" : "error"}
-            name="discount_amount"
+            name="quantity"
             onChange={(e: any) => {
+              var value = parseInt(e?.target?.value.replace(/,/g, '')) || 0;
+              var drugUnit = getDrugUnitById(record.unit_id, record);
 
-              // var value = parseFloat(e?.target?.value.replace(/,/g, ''));
-              // let newData = [...importInvDetails];
-              // value = value ? value : 0;
+              record.quantity = (record.quantity_pre || 0) < value ? record.quantity_pre : value;
+              record.total_amount = (record.quantity || 0) * ((drugUnit === null ? record.price : drugUnit.price * drugUnit.unit_qty) || 0);
+              props.exportInvDetails[index] = record;
 
-
-              // if (value > (newData[index]['quantity_pre'] || 0)) {
-              //     showMessage("error", "Số lượng tồn kho không đủ", "Cảnh báo");
-              //     return;
-              // }
-              // newData[index]['quantity'] = value > (newData[index]['quantity_pre'] || 0) ? (newData[index]['quantity_pre'] || 0) : -value;
-              // newData[index]['total_amount'] = Math.abs(newData[index]['quantity'] || 0) * (newData[index]['total_price'] || 0);
-              // setImportInvDetails(newData);
+              props.setInvDetails(props.exportInvDetails);
             }}
           />
         )
@@ -133,23 +128,21 @@ const InvExportCreateTable = (props: Props) => {
             style={{ textAlign: 'left' }}
             value={record.unit_id}
             onChange={(e: any) => {
-              // let newData = [...importInvDetails];
-              // var units = record.drug_units?.find(x => x.unit_id == e) || { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 };
+              var drugUnit = getDrugUnitById(record.unit_id, record);
+              if (drugUnit === null) {
+                drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
+              }
 
-              // newData[index]['unit_id'] = e;
-              // newData[index]['unit_parent_id'] = units?.unit_parent_id;
+              record.unit_id = e;
+              record.unit_parent_id = drugUnit.unit_parent_id;
+              record.quantity_pre = drugUnit.quantity_pre;
+              record.unit_quantity = drugUnit.unit_qty;
+              record.price = drugUnit.price * drugUnit.unit_qty;
+              record.total_price = drugUnit.price * drugUnit.unit_qty;
+              record.total_amount = 0;
+              record.quantity = 0;
 
-              // newData[index]['quantity_pre'] = (newData[index]['quantity_pre'] || 0) * (newData[index]['unit_quantity'] || 1) / (units?.unit_qty || 1);
-              // newData[index]['total_price'] = (newData[index]['total_price'] || 0) * (units?.unit_qty || 1) / (newData[index]['unit_quantity'] || 1);
-              // newData[index]['unit_quantity'] = units?.unit_qty;
-              // newData[index]['price'] = (newData[index]['price'] || 0) * (units?.unit_qty || 1) / (newData[index]['unit_quantity'] || 1);
-              // newData[index]['total_amount'] = 0;
-              // newData[index]['quantity'] = 0
-
-              // // newData[index]['price'] = units?.import_price;
-              // // newData[index]['cur_price'] = units && units.price || 0;
-              // // newData[index]['total_amount'] = (newData[index]['quantity'] || 0) * (newData[index]['price'] || 0) * ((newData[index]['vat_percent'] || 0) + 100) / 100 - (newData[index]['discount_amount'] || 0);
-              // setImportInvDetails(newData);
+              props.exportInvDetails[index] = record;
             }}
             options={unitOptions}
           />
@@ -190,13 +183,13 @@ const InvExportCreateTable = (props: Props) => {
       key: "key",
       width: "50px",
       align: "right",
-      render: (_: any, record: IImportInventoryDetailCreate) => {
+      render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <Popconfirm
             placement="topLeft"
             title={"Bạn có muốn xóa khách hàng này?"}
             description={""}
-            // onConfirm={() => confirmDeleteCellToTable(record.key || 0)}
+            onConfirm={() => props.confirmDeleteCellToTable(record.key || 0, index)}
             okText="Đồng ý"
             cancelText="Hủy"
           >
@@ -207,13 +200,13 @@ const InvExportCreateTable = (props: Props) => {
     },
   ];
 
-  // useEffect(() => {
-  //   form.setFieldsValue({ ...props.InvImportReq });
-  // }, [props.InvImportReq]);
+  const getDrugUnitById: any = (unitId: number, data: IImportInventoryDetailCreate) => {
+    if (data === null || data.drug_units === null || data.drug_units === undefined || data.drug_units.length === 0) {
+      return null;
+    }
 
-  // const eventSummitForm = (formValue: ICustomerPageRequest) => {
-  //   props.triggerFormEvent(formValue);
-  // }
+    return data.drug_units.find(x => x.unit_id === unitId.toString()) || null;
+  }
 
   return (
     <>
@@ -232,7 +225,7 @@ const InvExportCreateTable = (props: Props) => {
             scroll={{ x: 900 }}
             className="table table-hover provider-table"
             columns={columnsExportDetail}
-            // dataSource={[...importInvDetails]}
+            dataSource={props.exportInvDetails}
             pagination={false}
           />
         </div>

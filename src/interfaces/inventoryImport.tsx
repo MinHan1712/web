@@ -54,13 +54,13 @@ export interface IDrugInvProductPageRequest extends IPagingAndSortRequest {
     drug_name?: string;
     exp_date?: string;
     quantity?: string;
-    classification?: string;
+    classification?: boolean;
     status?: boolean
     drg_store_id?: string;
 }
 
 export interface IDrgInvProductResponse {
-    id?: string;
+    id: string;
     inventory_id?: string;
     drug_id?: string;
     quantity?: string;

@@ -31,13 +31,6 @@ const items: MenuItem[] = [
                 key: '6',
                 label: <Link to="./kho/nhapkho" className='text-decoration-none'>Nhập kho</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/nhap-kho.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
-                children: [
-                    {
-                        key: '13',
-                        label: <Link to="./kho/taophieunhapkho" className='text-decoration-none'>Tạo phiếu nhập kho</Link>,
-                        disabled: true
-                    },
-                ]
             },
             {
                 key: '7',

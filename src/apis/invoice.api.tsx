@@ -1,11 +1,13 @@
 import { IPageResponse, IResponse } from "../interfaces/common";
-import { IInvoiceImportResponse } from "../interfaces/inventoryImport";
+import { IDrgInvProductResponse, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
 import privateClient from "./clients/private.client";
 
 const endpoint = {
   getList: '/inventory/import/search',
+  getListInvProduct: '/inventory/products',
   update: `provider`,
+  create: '/api/inventory',
   cancel: (id: any) => `/api/inventory/cancel?import_id=${id}`
 };
 
@@ -14,6 +16,19 @@ const invoiceApi = {
     try {
       const response = await privateClient.post<IPageResponse<IInvoiceImportResponse[]>>(
         endpoint.getList,
+        // params depends BE to update params for suit cab be obj, ary, etc...
+        params
+      );
+      // console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getListInvProduct: async (params: any): Promise<IPageResponse<IDrgInvProductResponse[]>> => {
+    try {
+      const response = await privateClient.post<IPageResponse<IDrgInvProductResponse[]>>(
+        endpoint.getListInvProduct,
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
@@ -36,8 +51,7 @@ const invoiceApi = {
   create: async (params: any): Promise<IResponse<IInvoiceImportResponse>> => {
     try {
       const response = await privateClient.post<IResponse<IInvoiceImportResponse>>(
-        endpoint.update,
-        // params depends BE to update params for suit cab be obj, ary, etc...
+        endpoint.create,
         params
       );
       console.log(response);

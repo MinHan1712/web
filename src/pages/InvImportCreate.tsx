@@ -37,7 +37,7 @@ const InvImportCreate: React.FC = () => {
 
 	const [invImportCreateReq, setInvImportCreateReq] = useState<ICreateInvImport>({
 		info: {
-		},
+		}, 
 		products: []
 	});
 
@@ -102,6 +102,24 @@ const InvImportCreate: React.FC = () => {
 			console.log(err);
 		} finally { setLoading(false); }
 	}
+
+	// const getListProduct = async () => {
+	// 	setLoading(true);
+	// 	try {
+	// 		const response = await invoiceApi.getListInvProduct(invProductReq);
+	// 		console.log(response)
+
+	// 		// if (response.meta[0].code !== API_STATUS.SUCCESS) {
+	// 		// 	//error
+	// 		// 	return;
+	// 		// }
+	// 		if (response.data !== undefined && response.data != null && response.data.length > 0) {
+	// 			setProductRes(prevState => [...prevState, ...response.data]);
+	// 		}
+	// 	} catch (err) {
+	// 		console.log(err);
+	// 	} finally { setLoading(false); }
+	// }
 
 	// useEffect(() => {
 	// 	setIsReload(false);

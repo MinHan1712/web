@@ -28,7 +28,7 @@ export interface IDrugInventoryDetailResponse {
 
 
 export interface IImportInventoryDetailCreate {
-    key: number;
+    key?: number;
     inventory_detail_id?: string;
     drug_id?: string;
     drug_code?: string;

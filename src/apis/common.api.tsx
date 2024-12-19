@@ -3,17 +3,16 @@ import { IProperty } from "../interfaces/property";
 import privateClient from "./clients/private.client";
 
 const endpoint = {
-  getListProperties: '/api/inventory/type',
+  getListProperties: (type: any) => `/api/inventory/type?type=${type}`,
 };
 
 const commonApi = {
-  getProperties: async (): Promise<IPageResponse<Map<string, IProperty[]>>> => {
+  getProperties: async (type: string): Promise<IPageResponse<IProperty[]>> => {
     try {
-      const response = await privateClient.post<IPageResponse<Map<string, IProperty[]>>>(
-        endpoint.getListProperties,
+      const response = await privateClient.get<IPageResponse<IProperty[]>>(
+        endpoint.getListProperties(type),
       );
       console.log(response);
-      localStorage.setItem("properties", JSON.stringify(response.data));
       return response.data;
     } catch (error) {
       throw error;

@@ -198,14 +198,8 @@ const InvoiceImport: React.FC = () => {
 
 		console.log(invImportReq);
 
-		// get list provider
+		// create a new instance
 	}
-
-	let locale = {
-		emptyText: (
-			<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-		)
-	};
 
 	const handleCreateReceipt = () => {
 		navigate({
