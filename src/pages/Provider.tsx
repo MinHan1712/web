@@ -29,7 +29,7 @@ const columnsProvider: ColumnsType<IProviderResponse> = [
 		title: "Tên NCC",
 		dataIndex: "provider_name",
 		key: "provider_name",
-		width: "17%",
+		width: "20%",
 		render: (text) => (
 			<div className="style-text-limit-number-line2">
 				<span>{text}</span>
@@ -121,7 +121,25 @@ const Provider: React.FC = () => {
 		page: 1,
 		size: 20,
 		totalElements: 0,
-		data: []
+		data: [{
+			provider_id: "P123456",
+			provider_code: "PROV001",
+			provider_name: "Provider Example Inc.",
+			drg_store_id: "STORE001",
+			phone: "+84 123 456 789",
+			email: "contact@providerexample.com",
+			amount: 1000,
+			amount_debt: 500,
+			website: "https://www.providerexample.com",
+			tax_no: "123456789",
+			city: "Hanoi",
+			address: "123 Example Street, Hanoi, Vietnam",
+			status: true,
+			zipcode: "100000",
+			note: "This provider has been in business for 10 years.",
+			created_date: new Date("2023-01-01T00:00:00Z"),
+			updated_date: new Date("2024-01-01T00:00:00Z")
+		}]
 	});
 
 	const [providerReq, setProviderReq] = useState<IProviderPageRequest>({
@@ -140,7 +158,7 @@ const Provider: React.FC = () => {
 			// 	return;
 			// }
 
-			setProviderRes(response);
+			// setProviderRes(response);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -187,8 +205,8 @@ const Provider: React.FC = () => {
 			<div className="table-wrapper">
 				<Table
 					rowKey={(record) => record.provider_id}
+					scroll={{ x: 240 }}
 					size="small"
-					scroll={{ x: 1024 }}
 					bordered={false}
 					components={{
 						header: {

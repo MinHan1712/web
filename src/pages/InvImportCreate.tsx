@@ -90,7 +90,7 @@ const InvImportCreate: React.FC = () => {
 			const response = await providerApi.getList(provider);
 			console.log(response)
 
-			setOptionsProvider(response.data.map((provider: IProviderResponse) => {
+			setOptionsProvider(response.data.data.map((provider: IProviderResponse) => {
 				return {
 					value: provider.provider_id,
 					label: provider.provider_name

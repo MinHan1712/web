@@ -151,14 +151,14 @@ const InvExportCreateTable = (props: Props) => {
     },
     {
       title: "Đơn giá",
-      dataIndex: "total_price",
-      key: "total_price",
+      dataIndex: "price",
+      key: "price",
       width: "10%",
       align: "right",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <h5>
-            <span>{Math.abs(record.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+            <span>{Math.abs(record.price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
           </h5>
         )
       },

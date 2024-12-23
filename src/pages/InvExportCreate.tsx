@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Empty, Flex, Form, Modal, notification, Select, SelectProps, Spin } from "antd";
+import { Button, DatePicker, Empty, Flex, Form, Input, Modal, notification, Select, SelectProps, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns/format";
 import dayjs from 'dayjs';
@@ -27,7 +27,24 @@ const InvExportCreate: React.FC = () => {
 		size: 20,
 		classification: false
 	});
-	const [productRes, setProductRes] = useState<IDrgInvProductResponse[]>([]);
+	const [productRes, setProductRes] = useState<IDrgInvProductResponse[]>([
+		{
+			id: "1",
+			inventory_id: "1",
+			drug_id: "1",
+			quantity: "100",
+			base_quantity: 100,
+			drug_unit_id: "1",
+			unit_parent_id: "1",
+			price: 10,
+			lot: "1",
+			vat_percent: 10,
+			drug_name: 'bha',
+			total_price: 0,
+			sum_quantity: 0,
+			sum_base_quantity: 0,
+		}
+	]);
 
 
 	const navigate = useNavigate();
@@ -46,10 +63,15 @@ const InvExportCreate: React.FC = () => {
 	useEffect(() => {
 		invImportCreateReq.info.amount = invImportCreateReq.products?.reduce((a, b) => a + (b.total_amount || 0), 0);
 		setInvImportCreateReq(invImportCreateReq);
+		form.setFieldsValue({
+			amount:  invImportCreateReq.products?.reduce((a, b) => a + (b.total_amount || 0), 0)
+		})
+		console.log(invImportCreateReq);
 	}, [invImportCreateReq]);
 
 	const createInvExport = () => {
 		setLoadingScreen(true);
+		console.log(invImportCreateReq);
 		const response = invoiceApi.create(invImportCreateReq);
 		console.log(response)
 		setLoadingScreen(false);
@@ -111,7 +133,7 @@ const InvExportCreate: React.FC = () => {
 			}
 
 			var unit = value.units && value.units.find(x => x.unit_id == value.drug_unit_id);
-			console.log((value.total_price || 0) / (unit?.unit_qty || 1), unit?.unit_qty)
+			// console.log((value.total_price || 0) / (unit?.unit_qty || 1), unit?.unit_qty)
 			var data = {
 				key: key,
 				inventory_detail_id: value.id,
@@ -293,7 +315,8 @@ const InvExportCreate: React.FC = () => {
 											<span style={{ fontWeight: "550", fontSize: "14px" }}>Tổng giá trị</span>
 										}
 									>
-										<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+										<Input></Input>
+										{/* <p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p> */}
 									</Form.Item>
 								</div>
 
