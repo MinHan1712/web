@@ -9,9 +9,9 @@ const endPoint = {
 };
 
 const customerApi = {
-	getList: async (params: any): Promise<IPageResponse<ICustomerResponse[]>> => {
+	getList: async (params: any): Promise<IResponse<IPageResponse<ICustomerResponse[]>>> => {
 		try {
-			const response = await privateClient.post<IPageResponse<ICustomerResponse[]>>(
+			const response = await privateClient.post<IResponse<IPageResponse<ICustomerResponse[]>>>(
 				endPoint.getList,
 				// params depends BE to update params for suit cab be obj, ary, etc...
 				params

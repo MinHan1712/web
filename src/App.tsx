@@ -1,17 +1,18 @@
-import './App.css';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import routes from './router';
-import AppLayout from './pages/AppLayout';
 import { useEffect } from 'react';
-import commonApi from './apis/common.api';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
+import AppLayout from './pages/AppLayout';
+import routes from './router';
+import { setExportType, setImportType, setPaymentMethods, setUnits } from './utils/local';
 
 function App() {
-  // useEffect(() => {
-  //   let properties = JSON.parse(localStorage.getItem("properties") || "[]")
-  //   if(properties === null || properties.length === 0){
-  //     commonApi.getProperties();
-  //   }
-  // }, []);
+  useEffect(() => {
+    setImportType();
+    setExportType();
+    setPaymentMethods();
+    setInvSourceFile();
+    setUnits();
+  }, []);
 
   return (
     <BrowserRouter>
@@ -38,3 +39,7 @@ function App() {
 }
 
 export default App;
+function setInvSourceFile() {
+  throw new Error('Function not implemented.');
+}
+

@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import routes from "../router";
 import InvImportView from "../components/Invoice/InvImportView";
 import { IProperty } from "../interfaces/property";
+import { getImportType, getListImportTypeOption, getPayMethods } from "../utils/local";
 
 
 const InvoiceImport: React.FC = () => {
@@ -26,12 +27,12 @@ const InvoiceImport: React.FC = () => {
 	const [openViewDate, setOpenviewDate] = useState(false);
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
 	const [isReload, setIsReload] = useState(false);
+
 	const [provides, setProvider] = useState<SelectProps<string>['options']>([]);
-	const [importType, setImportType] = useState<SelectProps<string>['options']>([]);
-
+	const [importTypeOptions, setImportTypeOptions] = useState<SelectProps<string>['options']>([]);
 	const [listImportType, setListImportType] = useState<IProperty[]>([]);
+	const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
 
-  const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
 	const navigate = useNavigate();
 
 	// const properties = localStorage.getItem('properties');
@@ -182,7 +183,31 @@ const InvoiceImport: React.FC = () => {
 			// 	return;
 			// }
 
-			setInvImportRes(response);
+			setInvImportRes(response.data);
+		} catch (err) {
+			console.log(err);
+		} finally { setLoading(false); }
+	}
+
+	const getListProvider = async () => {
+		setLoading(true);
+		try {
+			let provider: IProviderPageRequest = {
+				page: 0,
+				size: 0
+			}
+
+			const response = await providerApi.getList(provider);
+			console.log(response)
+
+			setProvider(response.data.data.map((provider: IProviderResponse) => {
+				return {
+					value: provider.provider_id,
+					label: provider.provider_name
+				}
+			}));
+
+
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -208,6 +233,14 @@ const InvoiceImport: React.FC = () => {
 	};
 
 	useEffect(() => {
+		setImportTypeOptions(getListImportTypeOption);
+		setListImportType(getImportType);
+		setListPayMenthods(getPayMethods);
+		getListInvImport();
+		getListProvider();
+	}, []);
+
+	useEffect(() => {
 		setIsReload(false);
 		getListInvImport();
 		console.log('request', invImportReq);
@@ -226,13 +259,13 @@ const InvoiceImport: React.FC = () => {
 						<span>Thêm mới</span>
 					</Button>
 				</Flex>
-				<InvImportSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} Provides={provides} ImportType={importType} />
+				<InvImportSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} Provides={provides} ImportType={importTypeOptions} />
 			</Flex>
 			<div className="table-wrapper">
 				<Table
 					rowKey={(record) => record.inventory_id}
 					size="small"
-					scroll={{ x: 1024 }}
+					scroll={{ x: 240 }}
 					bordered={false}
 					components={{
 						header: {
@@ -305,7 +338,7 @@ const InvoiceImport: React.FC = () => {
 				importTypes={listImportType}
 
 			/>
-		
+
 		</>
 	);
 };

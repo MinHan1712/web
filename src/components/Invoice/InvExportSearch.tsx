@@ -128,7 +128,7 @@ const InvExportSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...props.exportType || []]} //TODO
+                  }, ...props.exportType || []]}
                 />
               </Form.Item>
 

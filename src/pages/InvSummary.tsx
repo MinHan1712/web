@@ -15,6 +15,7 @@ import { IDrugInvSummaryPageRequest, IDrugInvSummaryResponse } from "../interfac
 import routes from "../router";
 import InvSummarySearch from "../components/summary/InvSummarySearch";
 import InvSummaryView from "../components/summary/InvSummaryView";
+import { getListImportTypeOption } from "../utils/local";
 
 
 const InvoiceSummary: React.FC = () => {
@@ -24,7 +25,7 @@ const InvoiceSummary: React.FC = () => {
   const [dataItem, setDataItem] = useState({ summary_id: '0' });
   const [isReload, setIsReload] = useState(false);
   const [user, setUser] = useState<SelectProps<string>['options']>([]);
-  const [importType, setImportType] = useState<SelectProps<string>['options']>([]);
+  const [importTypeOptions, setImportTypeOptions] = useState<SelectProps<string>['options']>([]);
 
   const [listImportType, setListImportType] = useState<IProperty[]>([]);
 
@@ -134,7 +135,7 @@ const InvoiceSummary: React.FC = () => {
       // 	return;
       // }
 
-      setInvSummaryRes(response);
+      setInvSummaryRes(response.data);
     } catch (err) {
       console.log(err);
     } finally { setLoading(false); }
@@ -163,6 +164,10 @@ const InvoiceSummary: React.FC = () => {
       pathname: routes[2].path,
     });
   };
+
+  useEffect(() => {
+    setImportTypeOptions(getListImportTypeOption)
+  }, [])
 
   useEffect(() => {
     setIsReload(false);
@@ -194,7 +199,7 @@ const InvoiceSummary: React.FC = () => {
           }}
           rowKey={(record) => record.summary_id}
           size="small"
-          scroll={{ x: 1024 }}
+          scroll={{ x: 240 }}
           bordered={false}
           components={{
             header: {

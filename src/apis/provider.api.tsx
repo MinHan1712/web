@@ -8,9 +8,9 @@ const providerEndpoint = {
 };
 
 const providerApi = {
-	getList: async (params: any): Promise<IPageResponse<IProviderResponse[]>> => {
+	getList: async (params: any): Promise<IResponse<IPageResponse<IProviderResponse[]>>> => {
 		try {
-			const response = await privateClient.post<IPageResponse<IProviderResponse[]>>(
+			const response = await privateClient.post<IResponse<IPageResponse<IProviderResponse[]>>>(
 				providerEndpoint.getList,
 				// params depends BE to update params for suit cab be obj, ary, etc...
 				params

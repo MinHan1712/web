@@ -14,6 +14,7 @@ import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
 import routes from "../router";
+import { getExportType, getListExportTypeOption } from "../utils/local";
 
 
 const InvoiceExport: React.FC = () => {
@@ -22,10 +23,9 @@ const InvoiceExport: React.FC = () => {
 	const [openViewDate, setOpenviewDate] = useState(false);
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
 	const [isReload, setIsReload] = useState(false);
-	const [users, setUsers] = useState<SelectProps<string>['options']>([]);
+	const [users, setUsers] = useState<SelectProps<string>['options']>([]); //TODO
 	const [exportType, setExportType] = useState<SelectProps<string>['options']>([]);
 	const [listTypeExports, setListTypeExports] = useState<IProperty[]>([]);
-	const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
 	const navigate = useNavigate();
 
 	let stt: number = 1;
@@ -149,7 +149,7 @@ const InvoiceExport: React.FC = () => {
 			// 	return;
 			// }
 
-			setInvImportRes(response);
+			setInvImportRes(response.data);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -183,6 +183,10 @@ const InvoiceExport: React.FC = () => {
 	useEffect(() => {
 		setIsReload(false);
 		getListInvImport();
+
+		setExportType(getListExportTypeOption);
+		setListTypeExports(getExportType);
+
 		console.log('request', invImportReq);
 	}, [invImportReq, isReload])
 
@@ -205,7 +209,7 @@ const InvoiceExport: React.FC = () => {
 				<Table
 					rowKey={(record) => record.inventory_id}
 					size="small"
-					scroll={{ x: 1024 }}
+					scroll={{ x: 240 }}
 					bordered={false}
 					components={{
 						header: {

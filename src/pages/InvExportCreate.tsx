@@ -8,13 +8,23 @@ import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import '../assets/css/style.css';
 import InvExportCreateTable from "../components/Invoice/InvExportCreateTable";
-import { formItemLayout } from "../constants/general.constant";
+import { API_STATUS, formItemLayout } from "../constants/general.constant";
 import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
+import { getListExportTypeOption } from "../utils/local";
 
+
+// interface IInvExportContext {
+//   data: ICreateInvImport;
+//   setInvExport: (newData: ICreateInvImport) => void;
+// }
+
+
+// const InvExportContext = createContext<IInvExportContext | undefined>(undefined);
 
 const InvExportCreate: React.FC = () => {
 	const [key, setKey] = useState(0);
 	const { confirm } = Modal;
+
 
 	const [loadingScreen, setLoadingScreen] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -40,7 +50,7 @@ const InvExportCreate: React.FC = () => {
 
 	useEffect(() => {
 		getListProduct();
-		// setOptionsExportType(getProperties());
+		setOptionsExportType(getListExportTypeOption);
 	}, []);
 
 	useEffect(() => {
@@ -61,12 +71,12 @@ const InvExportCreate: React.FC = () => {
 			const response = await invoiceApi.getListInvProduct(invProductReq);
 			console.log(response)
 
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-			if (response.data !== undefined && response.data != null && response.data.length > 0) {
-				setProductRes(prevState => [...prevState, ...response.data]);
+			if (response.meta[0].code !== API_STATUS.SUCCESS) {
+				return;
+			}
+
+			if (response.data !== undefined && response.data != null && response.data.data.length > 0) {
+				setProductRes(prevState => [...prevState, ...response.data.data]);
 			}
 		} catch (err) {
 			console.log(err);
@@ -180,6 +190,7 @@ const InvExportCreate: React.FC = () => {
 
 	return (
 		<>
+			{/* <InvExportContext.Provider value={{ invImportCreateReq, setInvProductReq }}> */}
 			<Spin tip="Loading..." spinning={loadingScreen}>
 				<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
 					<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
@@ -261,7 +272,7 @@ const InvExportCreate: React.FC = () => {
 											options={[{
 												value: '',
 												label: 'Tất cả'
-											}, ...optionsExportType || []]} //TODO
+											}, ...optionsExportType || []]}
 										/>
 									</Form.Item>
 								</div>
@@ -322,8 +333,11 @@ const InvExportCreate: React.FC = () => {
 					</Flex>
 				</Flex>
 			</Spin>
+			{/* </InvExportContext.Provider> */}
 		</>
 	);
 };
+
+// export const useFormContext = () => useContext(FormContext);
 
 export default InvExportCreate;

@@ -12,9 +12,9 @@ const endpoint = {
 };
 
 const invoiceApi = {
-  getList: async (params: any): Promise<IPageResponse<IInvoiceImportResponse[]>> => {
+  getList: async (params: any): Promise<IResponse<IPageResponse<IInvoiceImportResponse[]>>> => {
     try {
-      const response = await privateClient.post<IPageResponse<IInvoiceImportResponse[]>>(
+      const response = await privateClient.post<IResponse<IPageResponse<IInvoiceImportResponse[]>>>(
         endpoint.getList,
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
@@ -25,9 +25,9 @@ const invoiceApi = {
       throw error;
     }
   },
-  getListInvProduct: async (params: any): Promise<IPageResponse<IDrgInvProductResponse[]>> => {
+  getListInvProduct: async (params: any): Promise<IResponse<IPageResponse<IDrgInvProductResponse[]>>> => {
     try {
-      const response = await privateClient.post<IPageResponse<IDrgInvProductResponse[]>>(
+      const response = await privateClient.post<IResponse<IPageResponse<IDrgInvProductResponse[]>>>(
         endpoint.getListInvProduct,
         // params depends BE to update params for suit cab be obj, ary, etc...
         params

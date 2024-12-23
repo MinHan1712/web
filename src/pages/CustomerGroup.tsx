@@ -110,7 +110,7 @@ const CustomerGroup: React.FC = () => {
       // 	return;
       // }
 
-      setCustomerGroupRes(response);
+      setCustomerGroupRes(response.data);
       console.log(customerGroupRes);
     } catch (err) {
       console.log(err);
@@ -158,7 +158,7 @@ const CustomerGroup: React.FC = () => {
         <Table
           rowKey={(record) => record.customer_group_id}
           size="small"
-          scroll={{ x: 1024 }}
+          scroll={{ x: 240 }}
           bordered={false}
           components={{
             header: {

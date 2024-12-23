@@ -1,17 +1,17 @@
+import { PlusCircleOutlined } from "@ant-design/icons";
+import { Button, Empty, Flex, Pagination, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
-import providerApi from "../apis/provider.api";
-import { API_STATUS, selectPageSize } from "../constants/general.constant";
-import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
+import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
-import { IPageResponse } from "../interfaces/common";
-import { Button, Empty, Flex, Pagination, Select } from "antd";
-import { format } from "date-fns/format";
-import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import providerApi from "../apis/provider.api";
+import '../assets/css/style.css';
+import ProviderCreate from "../components/provider/ProviderCreate";
 import ProviderSearch from "../components/provider/ProviderSearch";
 import ProviderView from "../components/provider/ProviderView";
-import ProviderCreate from "../components/provider/ProviderCreate";
-import '../assets/css/style.css';
+import { selectPageSize } from "../constants/general.constant";
+import { IPageResponse } from "../interfaces/common";
+import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
 
 const columnsProvider: ColumnsType<IProviderResponse> = [
 	{
@@ -140,7 +140,7 @@ const Provider: React.FC = () => {
 			// 	return;
 			// }
 
-			setProviderRes(response);
+			setProviderRes(response.data);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -188,7 +188,7 @@ const Provider: React.FC = () => {
 				<Table
 					rowKey={(record) => record.provider_id}
 					size="small"
-					scroll={{ x: 1024 }}
+					scroll={{ x: 240 }}
 					bordered={false}
 					components={{
 						header: {

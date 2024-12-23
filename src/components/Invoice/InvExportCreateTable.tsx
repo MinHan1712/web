@@ -11,6 +11,9 @@ interface Props {
 }
 
 const InvExportCreateTable = (props: Props) => {
+
+  // const { invImportCreateReq, setInvProductReq } = useContext(InvExport);
+
   const columnsExportDetail: ColumnsType<IImportInventoryDetailCreate> = [
     {
       title: "Mã sản phẩn",
@@ -97,6 +100,7 @@ const InvExportCreateTable = (props: Props) => {
             name="quantity"
             onChange={(e: any) => {
               var value = parseInt(e?.target?.value.replace(/,/g, '')) || 0;
+              var totalAmntCurrent = record.total_amount;
               var drugUnit = getDrugUnitById(record.unit_id, record);
 
               record.quantity = (record.quantity_pre || 0) < value ? record.quantity_pre : value;

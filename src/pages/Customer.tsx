@@ -157,7 +157,7 @@ const Customer = () => {
     try {
       const response = await customerApi.getList(customerReq);
       console.log(response)
-      setCustomerRes(response);
+      setCustomerRes(response.data);
     } catch (err) {
       console.log(err);
     } finally { setLoading(false); }
@@ -198,7 +198,7 @@ const Customer = () => {
         <Table
           rowKey={(record) => record.customer_id}
           size="small"
-          scroll={{ x: 1024 }}
+          scroll={{ x: 240 }}
           bordered={false}
           components={{
             header: {

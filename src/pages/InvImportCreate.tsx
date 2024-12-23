@@ -2,7 +2,7 @@ import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Empty, Flex, Form, Input, Select, SelectProps } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from 'dayjs';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import providerApi from "../apis/provider.api";
@@ -14,12 +14,15 @@ import { ICreateInvImport, IImportInventoryCreate } from "../interfaces/inventor
 import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
 import routes from "../router";
 import ProductCreate from "../components/product/ProductCreate";
+import { getListImportTypeOption, getListPayMenthodsOption } from "../utils/local";
 
 const InvImportCreate: React.FC = () => {
 	const [form] = Form.useForm<IImportInventoryCreate>();
+
 	const [optionsProvider, setOptionsProvider] = useState<SelectProps<string>['options']>([]);
 	const [optionPaymentMethods, setOptionPaymentMethods] = useState<SelectProps<string>['options']>([]);
 	const [optionsImportType, setOptionsImportType] = useState<SelectProps<string>['options']>([]);
+
 	const [isDebt, setIsDebt] = useState(false);
 	const [openProvider, setOpenProvider] = useState(false);
 	const [openProduct, setOpenProduct] = useState(false);
@@ -31,15 +34,21 @@ const InvImportCreate: React.FC = () => {
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
 	const [isReload, setIsReload] = useState(false);
 	const [provides, setProvider] = useState<SelectProps<string>['options']>([]);
-	const [importType, setImportType] = useState<SelectProps<string>['options']>([]);
 	const navigate = useNavigate();
 
 
 	const [invImportCreateReq, setInvImportCreateReq] = useState<ICreateInvImport>({
 		info: {
-		}, 
+		},
 		products: []
 	});
+
+	useEffect(() => {
+		setOptionsImportType(getListImportTypeOption);
+		setOptionPaymentMethods(getListPayMenthodsOption);
+
+		getListProvider();
+	}, []);
 
 	const getCreateInvImport = async () => {
 		setLoading(true);
@@ -90,7 +99,7 @@ const InvImportCreate: React.FC = () => {
 			const response = await providerApi.getList(provider);
 			console.log(response)
 
-			setOptionsProvider(response.data.map((provider: IProviderResponse) => {
+			setOptionsProvider(response.data.data.map((provider: IProviderResponse) => {
 				return {
 					value: provider.provider_id,
 					label: provider.provider_name
@@ -211,7 +220,7 @@ const InvImportCreate: React.FC = () => {
 										options={[{
 											value: '',
 											label: 'Tất cả'
-										}, ...optionPaymentMethods || []]} //TODO
+										}, ...optionPaymentMethods || []]}
 									/>
 								</Form.Item>
 							</div>
@@ -247,7 +256,7 @@ const InvImportCreate: React.FC = () => {
 										options={[{
 											value: '',
 											label: 'Tất cả'
-										}, ...optionsImportType || []]} //TODO
+										}, ...optionsImportType || []]}
 									/>
 								</Form.Item>
 							</div>

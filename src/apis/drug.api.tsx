@@ -11,9 +11,9 @@ const endPoint = {
 };
 
 const drugApi = {
-	getList: async (params: any): Promise<IPageResponse<IDrugResponse[]>> => {
+	getList: async (params: any): Promise<IResponse<IPageResponse<IDrugResponse[]>>> => {
 		try {
-			const response = await privateClient.post<IPageResponse<IDrugResponse[]>>(
+			const response = await privateClient.post<IResponse<IPageResponse<IDrugResponse[]>>>(
 				endPoint.getList,
 				// params depends BE to update params for suit cab be obj, ary, etc...
 				params
@@ -24,9 +24,9 @@ const drugApi = {
 			throw error;
 		}
 	},
-	getListInv: async (params: any): Promise<IPageResponse<IDrugResponse[]>> => {
+	getListInv: async (params: any): Promise<IResponse<IPageResponse<IDrugResponse[]>>> => {
 		try {
-			const response = await privateClient.get<IPageResponse<IDrugResponse[]>>(
+			const response = await privateClient.get<IResponse<IPageResponse<IDrugResponse[]>>>(
 				endPoint.getInv(params),
 			);
 			// console.log(response);

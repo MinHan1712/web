@@ -191,7 +191,7 @@ const Product: React.FC = () => {
 			// 	return;
 			// }
 
-			setProductRes(response);
+			setProductRes(response.data);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -238,7 +238,7 @@ const Product: React.FC = () => {
 				<Table
 					rowKey={(record) => record.drug_id}
 					size="small"
-					scroll={{ x: 1024 }}
+					scroll={{ x: 240 }}
 					bordered={false}
 					components={{
 						header: {
