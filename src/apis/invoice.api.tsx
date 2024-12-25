@@ -7,8 +7,8 @@ const endpoint = {
   getList: '/inventory/import/search',
   getListInvProduct: '/inventory/products',
   update: `provider`,
-  create: '/api/inventory',
-  cancel: (id: any) => `/api/inventory/cancel?import_id=${id}`
+  create: 'inventory',
+  cancel: (id: any) => `/inventory/cancel?import_id=${id}`
 };
 
 const invoiceApi = {
@@ -25,9 +25,9 @@ const invoiceApi = {
       throw error;
     }
   },
-  getListInvProduct: async (params: any): Promise<IResponse<IPageResponse<IDrgInvProductResponse[]>>> => {
+  getListInvProduct: async (params: any): Promise<IPageResponse<IDrgInvProductResponse[]>> => {
     try {
-      const response = await privateClient.post<IResponse<IPageResponse<IDrgInvProductResponse[]>>>(
+      const response = await privateClient.post<IPageResponse<IDrgInvProductResponse[]>>(
         endpoint.getListInvProduct,
         // params depends BE to update params for suit cab be obj, ary, etc...
         params

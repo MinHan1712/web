@@ -191,7 +191,7 @@ const Product: React.FC = () => {
 			// 	return;
 			// }
 
-			setProductRes(response.data);
+			setProductRes(response);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }

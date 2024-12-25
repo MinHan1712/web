@@ -3,14 +3,14 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import AppLayout from './pages/AppLayout';
 import routes from './router';
-import { setExportType, setImportType, setPaymentMethods, setUnits } from './utils/local';
+import { setExportType, setImportType, setInvSource, setPaymentMethods, setUnits } from './utils/local';
 
 function App() {
   useEffect(() => {
     setImportType();
     setExportType();
     setPaymentMethods();
-    setInvSourceFile();
+    setInvSource();
     setUnits();
   }, []);
 
@@ -39,7 +39,4 @@ function App() {
 }
 
 export default App;
-function setInvSourceFile() {
-  throw new Error('Function not implemented.');
-}
 

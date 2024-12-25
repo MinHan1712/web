@@ -1,18 +1,19 @@
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Empty, Flex, Form, Input, Popconfirm, Select, SelectProps } from "antd";
-import { formItemLayout, ImportStatus, vat } from "../../constants/general.constant";
-import { useEffect } from "react";
-import { ICustomerPageRequest } from "../../interfaces/customer";
-import dayjs from 'dayjs';
-import { IInventoryImportPageRequest } from "../../interfaces/inventoryImport";
+import { DeleteOutlined } from "@ant-design/icons";
+import { DatePicker, Empty, Input, notification, Popconfirm, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
+import dayjs from 'dayjs';
+import { vat } from "../../constants/general.constant";
 import { IImportInventoryDetailCreate } from "../../interfaces/inventoryDetail";
+import { useUserContextImport } from "../../pages/InvImportCreate";
+
 
 interface Props {
-  // importInvDetails: IImportInventoryDetailCreate[];
+  confirmDeleteCellToTable: (key: number, index: number) => void;
 }
 
 const InvImportCreateTable = (props: Props) => {
+  const { invImportCreateReq, setInvImportCreateReq } = useUserContextImport();
+
   let count = 1;
 
   const columnsInvImportDetail: ColumnsType<IImportInventoryDetailCreate> = [
@@ -56,9 +57,9 @@ const InvImportCreateTable = (props: Props) => {
             value={record.lot}
             status={record.lot ? "" : "warning"}
             onChange={(e: any) => {
-              // let newData = [...importInvDetails];
-              // newData[index]['lot'] = e?.target?.value;
-              // setImportInvDetails(newData);
+              record.lot = e?.target?.value;
+              invImportCreateReq.products[index] = record;
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
             id="lot"
           />
@@ -80,9 +81,9 @@ const InvImportCreateTable = (props: Props) => {
             status={record.exp_date ? "" : 'warning'}
             value={record.exp_date ? dayjs(record.exp_date) : null}
             onChange={(date, dateString) => {
-              // let newData = [...importInvDetails];
-              // newData[index]['exp_date'] = date && dayjs(date, 'YYYY-MM-DD').format('YYYY-MM-DD') || '';
-              // setImportInvDetails(newData);
+              record.exp_date = date && dayjs(date, 'YYYY-MM-DD').format('YYYY-MM-DD') || '';
+              invImportCreateReq.products[index] = record;
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
         )
@@ -103,15 +104,16 @@ const InvImportCreateTable = (props: Props) => {
             name="quantity"
             status={record.quantity || 0 > 0 ? "" : "error"}
             onChange={(e: any) => {
+              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              var totalAmntCurrent = record.total_amount || 0;
+              var drugUnit = getDrugUnitById(record.unit_id, record);
 
-              // var value = parseFloat(e?.target?.value.replace(/,/g, ''));
-              // let newData = [...importInvDetails];
+              record.quantity = Math.min(record.quantity_pre || 0, value);
+              record.total_amount = (record.quantity || 0) * ((drugUnit === null ? record.price : drugUnit.price * drugUnit.unit_qty) || 0);
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
 
-              // value = value ? value : 0;
-
-              // newData[index]['quantity'] = value || 0;
-              // newData[index]['total_amount'] = (newData[index]['quantity'] || 0) * ((newData[index]['price'] || 0) - (newData[index]['discount_amount'] || 0)) * ((newData[index]['vat_percent'] || 0) + 100) / 100;
-              // setImportInvDetails(newData);
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
         )
@@ -135,14 +137,24 @@ const InvImportCreateTable = (props: Props) => {
             style={{ textAlign: 'left' }}
             value={record.unit_id}
             onChange={(e: any) => {
-              // let newData = [...importInvDetails];
-              // var units = record.drug_units?.find(x => x.unit_id == e) || { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 };
-              // newData[index]['unit_id'] = e;
-              // newData[index]['unit_parent_id'] = units?.unit_parent_id;
-              // newData[index]['price'] = units?.import_price;
-              // newData[index]['cur_price'] = units && units.price || 0;
-              // newData[index]['total_amount'] = (newData[index]['quantity'] || 0) * ((newData[index]['price'] || 0) - (newData[index]['discount_amount'] || 0)) * ((newData[index]['vat_percent'] || 0) + 100) / 100;
-              // setImportInvDetails(newData);
+              var drugUnit = getDrugUnitById(record.unit_id, record);
+              var totalAmntCurrent = record.total_amount || 0;
+              if (drugUnit === null) {
+                drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
+              }
+
+              record.unit_id = e;
+              record.unit_parent_id = drugUnit.unit_parent_id;
+              record.quantity_pre = drugUnit.quantity_pre;
+              record.unit_quantity = drugUnit.unit_qty;
+              record.price = drugUnit.price * drugUnit.unit_qty;
+              record.total_price = drugUnit.price * drugUnit.unit_qty;
+              record.total_amount = 0;
+              record.quantity = 0;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent;
+
+              invImportCreateReq.products[index] = record;
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
             options={unitOptions}
           />
@@ -165,25 +177,29 @@ const InvImportCreateTable = (props: Props) => {
             addonAfter="đ"
             name="price"
             onChange={(e: any) => {
+              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              if (value < (record.discount_amount || 0) * (record.quantity || 0)) {
+                notification["error"]({
+                  message: "Lỗi",
+                  description: 'Giá nhập không được nhỏ hơn giảm giá',
+                });
+              }
 
-              // var value = parseFloat(e?.target?.value.replace(/,/g, ''));
-              // let newData = [...importInvDetails];
+              if (value < (record.cur_price || 0)) {
+                notification["warning"]({
+                  message: "Cảnh bảo",
+                  description: 'Giá nhập cao hơn giá bán, vui lòng kiểm tra lại',
+                });
+              }
 
-              // value = value ? value : 0;
+              var totalAmntCurrent = record.total_amount || 0;
+              record.price = value;
+              record.total_amount = (record.quantity || 0) * (record.price || 0) - (record.discount_amount || 0) * ((record.vat_percent || 0) + 100) / 100;
 
-              // if (value < (newData[index]['discount_amount'] || 0) * ((newData[index]['quantity'] || 0))) {
-              //     showMessage("error", "Giảm nhập không được nhỏ hơn giảm giá", 'Lỗi');
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
 
-              // }
-
-              // if (value > (newData[index]['cur_price'] || 0)) {
-              //     showMessage('warning', "Giá nhập cao hơn giá bán, vui lòng kiểm tra lại", 'Cảnh bảo');
-              // }
-
-              // newData[index]['price'] = value || 0;
-              // newData[index]['total_amount'] = (newData[index]['quantity'] || 0) * ((newData[index]['price'] || 0) - (newData[index]['discount_amount'] || 0)) * ((newData[index]['vat_percent'] || 0) + 100) / 100;
-
-              // setImportInvDetails(newData);
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
         )
@@ -205,26 +221,31 @@ const InvImportCreateTable = (props: Props) => {
             addonAfter="đ"
             name="discount_amount"
             onChange={(e: any) => {
+              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              var total_sum_current = (record.total_amount || 0) + (record.discount_amount || 0) * (record.quantity || 0)
 
-              // var value = parseFloat(e?.target?.value.replace(/,/g, ''));
-              // let newData = [...importInvDetails];
-              // let total_sum_current = (newData[index]['total_amount'] || 0) + (newData[index]['discount_amount'] || 0) * (newData[index]['quantity'] || 0);
-              // console.log('value', value, total_sum_current);
-              // value = value ? value * (newData[index]['quantity'] || 0) : 0;
-              // if (value > total_sum_current) {
-              //     showMessage("error", "Giảm giá không được lớn hơn tổng tiền", 'Lỗi');
-              //     return;
-              // }
+              if (value > total_sum_current) {
+                notification["error"]({
+                  message: "Lỗi",
+                  description: 'Giảm giá không được lớn hơn tổng tiền',
+                });
+              }
 
-              // if (!value) {
-              //     newData[index]['discount_amount'] = 0;
-              // }
+              if (value < (record.cur_price || 0)) {
+                notification["warning"]({
+                  message: "Cảnh bảo",
+                  description: 'Giá nhập cao hơn giá bán, vui lòng kiểm tra lại',
+                });
+              }
 
-              // newData[index]['discount_amount'] = value / (newData[index]['quantity'] || 1);
-              // newData[index]['total_amount'] = total_sum_current - (newData[index]['discount_amount'] || 0) * (newData[index]['quantity'] || 0);
+              var totalAmntCurrent = record.total_amount || 0;
+              record.discount_amount = value / (record.quantity || 1);
+              record.total_amount = total_sum_current - (record.discount_amount || 0) * (record.quantity || 0);
 
-              // setImportInvDetails(newData);
-              // console.log(newData);
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
         )
@@ -243,10 +264,14 @@ const InvImportCreateTable = (props: Props) => {
             defaultValue={record.vat_percent || '0%'}
             value={record.vat_percent || 0}
             onChange={(e: any) => {
-              // let newData = [...importInvDetails];
-              // newData[index]['vat_percent'] = e;
-              // newData[index]['total_amount'] = (newData[index]['quantity'] || 0) * ((newData[index]['price'] || 0) - (newData[index]['discount_amount'] || 0)) * (((newData[index]['vat_percent'] || 0) + 100) / 100);
-              // setImportInvDetails(newData);
+              var totalAmntCurrent = record.total_amount || 0;
+              record.vat_percent = e;
+              record.total_amount = (record.quantity || 0) * (record.price || 0) - (record.discount_amount || 0) * (((record.vat_percent || 0) + 100) / 100);
+
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
             options={vat}
           />
@@ -261,24 +286,9 @@ const InvImportCreateTable = (props: Props) => {
       align: "center",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
-          <Input
-            size="middle"
-            min={0}
-            value={(record.total_amount?.toString() || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            addonAfter="đ"
-            name="total_amount"
-            onChange={(e: any) => {
-
-              // var value = parseFloat(e?.target?.value.replace(/,/g, ''));
-              // let newData = [...importInvDetails];
-              // value = value ? value : 0;
-
-              // newData[index]['total_amount'] = value || 0;
-
-              // newData[index]['price'] = ((newData[index]['total_amount'] || 0) - (newData[index]['discount_amount'] || 0) * (newData[index]['quantity'] || 0)) / (((newData[index]['vat_percent'] || 0) + 100) / 100);
-              // setImportInvDetails(newData);
-            }}
-          />
+          <h5>
+            <span>{Math.abs(record.total_amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          </h5>
         )
       },
     },
@@ -288,13 +298,13 @@ const InvImportCreateTable = (props: Props) => {
       key: "key",
       width: "40px",
       align: "center",
-      render: (_: any, record: IImportInventoryDetailCreate) => {
+      render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <Popconfirm
             placement="topLeft"
             title={"Bạn có muốn xóa thuốc này?"}
             description={""}
-            // onConfirm={() => confirmDeleteCellToTable(record.key || 0)}
+            onConfirm={() => props.confirmDeleteCellToTable(record.key || 0, index)}
             okText="Đồng ý"
             cancelText="Hủy"
           >
@@ -305,27 +315,17 @@ const InvImportCreateTable = (props: Props) => {
     },
   ];
 
-  // useEffect(() => {
-  //   form.setFieldsValue({ ...props.InvImportReq });
-  // }, [props.InvImportReq]);
+  const getDrugUnitById: any = (unitId: number, data: IImportInventoryDetailCreate) => {
+    if (data === null || data.drug_units === null || data.drug_units === undefined || data.drug_units.length === 0) {
+      return null;
+    }
 
-  // const eventSummitForm = (formValue: ICustomerPageRequest) => {
-  //   props.triggerFormEvent(formValue);
-  // }
-
-  const CustomerStyleContent: React.CSSProperties = {
-    margin: '8px 0px',
-    background: '#fff',
-    border: '1px solid #fff',
-    borderRadius: '6px',
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-
+    return data.drug_units.find(x => x.unit_id === unitId.toString()) || null;
   }
+
   return (
     <>
-      <div className="table-wrapper" style={{width: '100%'}}>
+      <div className="table-wrapper" style={{ width: '100%' }}>
         <div className="table-container">
           <Table locale={{
             emptyText: (
@@ -340,7 +340,7 @@ const InvImportCreateTable = (props: Props) => {
             scroll={{ x: 900 }}
             className="table table-hover provider-table"
             columns={columnsInvImportDetail}
-            // dataSource={[...importInvDetails]}
+            dataSource={invImportCreateReq.products}
             pagination={false}
           />
         </div>

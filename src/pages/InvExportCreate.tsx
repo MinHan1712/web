@@ -3,7 +3,7 @@ import { Button, DatePicker, Empty, Flex, Form, Modal, notification, Select, Sel
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns/format";
 import dayjs from 'dayjs';
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import '../assets/css/style.css';
@@ -12,15 +12,33 @@ import { API_STATUS, formItemLayout } from "../constants/general.constant";
 import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
 import { getListExportTypeOption } from "../utils/local";
 
+export interface UserContextType {
+	invImportCreateReq: ICreateInvImport | {
+		info: {
+			amount: 0,
+			// discount_vat: 0,
+			// discount_amount: 0,
+			// amount_debt: 0,
+			// amount_paid: 0,
+		},
+		products: []
+	};
+	setInvImportCreateReq: React.Dispatch<React.SetStateAction<ICreateInvImport | {
+		info: {
+			amount: 0,
+		},
+		products: []
+	}>>;
+}
 
-// interface IInvExportContext {
-//   data: ICreateInvImport;
-//   setInvExport: (newData: ICreateInvImport) => void;
-// }
-
-
-// const InvExportContext = createContext<IInvExportContext | undefined>(undefined);
-
+const UserContext = createContext<UserContextType | undefined>(undefined);
+export const useUserContextExport = (): UserContextType => {
+	const context = useContext(UserContext);
+	if (!context) {
+		throw new Error('useUserContext must be used within a UserProvider');
+	}
+	return context;
+};
 const InvExportCreate: React.FC = () => {
 	const [key, setKey] = useState(0);
 	const { confirm } = Modal;
@@ -39,24 +57,20 @@ const InvExportCreate: React.FC = () => {
 	});
 	const [productRes, setProductRes] = useState<IDrgInvProductResponse[]>([]);
 
-
 	const navigate = useNavigate();
 
 	const [invImportCreateReq, setInvImportCreateReq] = useState<ICreateInvImport>({
 		info: {
+			amount: 0,
 		},
 		products: []
 	});
+
 
 	useEffect(() => {
 		getListProduct();
 		setOptionsExportType(getListExportTypeOption);
 	}, []);
-
-	useEffect(() => {
-		invImportCreateReq.info.amount = invImportCreateReq.products?.reduce((a, b) => a + (b.total_amount || 0), 0);
-		setInvImportCreateReq(invImportCreateReq);
-	}, [invImportCreateReq]);
 
 	const createInvExport = () => {
 		setLoadingScreen(true);
@@ -69,15 +83,15 @@ const InvExportCreate: React.FC = () => {
 		setLoading(true);
 		try {
 			const response = await invoiceApi.getListInvProduct(invProductReq);
-			console.log(response)
+			console.log(response, response.data)
 
-			if (response.meta[0].code !== API_STATUS.SUCCESS) {
-				return;
-			}
+			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
+			// 	return;
+			// }
 
-			if (response.data !== undefined && response.data != null && response.data.data.length > 0) {
-				setProductRes(prevState => [...prevState, ...response.data.data]);
-			}
+			// if (response.data !== undefined && response.data != null && response.data.data.length > 0) {
+			setProductRes(prevState => [...prevState, ...response.data]);
+			// }
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -96,6 +110,12 @@ const InvExportCreate: React.FC = () => {
 	}
 
 	const triggerFormEvent = (value: IImportInventoryCreate) => {
+		value = {
+			...value,
+			amount: invImportCreateReq.info.amount,
+			// process_date: dayjs(value.process_date, "YYYY-MM-DD").format("YYYY-MM-DD") || ''
+		}
+
 		console.log(value);
 		setInvImportCreateReq({
 			...invImportCreateReq,
@@ -171,7 +191,7 @@ const InvExportCreate: React.FC = () => {
 		}
 
 		confirm({
-			title: 'Bạn có đồng ý nhập kho?',
+			title: 'Bạn có đồng ý xuất kho?',
 			okText: "Đồng ý",
 			cancelText: 'Hủy',
 			async onOk() {
@@ -190,154 +210,155 @@ const InvExportCreate: React.FC = () => {
 
 	return (
 		<>
-			{/* <InvExportContext.Provider value={{ invImportCreateReq, setInvProductReq }}> */}
-			<Spin tip="Loading..." spinning={loadingScreen}>
-				<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
-					<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
-						<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
-							<h5 style={{ width: '150px', display: 'flex', alignItems: 'center' }}>Thêm sản phẩm</h5>
-							<Select
-								className="d-flex w-100 form-select-search "
-								style={{ minHeight: '30px' }}
-								size="middle"
-								optionLabelProp="label"
-								loading={loading}
-								onPopupScroll={onScrollSelectProduct}
-								onSelect={(e: string) => {
-									addNewRowdetail(productRes.find(x => x.id == e) || { id: '0' });
-								}}
-								notFoundContent={productRes ? <Empty description="Không có dữ liệu" /> : null}
-							>
-								{productRes?.map((value: IDrgInvProductResponse) => (
-									<Select.Option key={value.id} value={value.id} label={value.drug_name}>
-										<div className="item-search-info-container">
-											<div className="drug_info">
-												<div className="info_top">
-													<h4 className="item-name">
-														<span>{value.drug_name || ''}</span>
-													</h4>
-													<h4 className="item-price">{(value.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</h4>
-												</div>
-												<div className="info_bottom">
-													<p className="item-code">{value.drug_code}</p>
-													<p className="item-info-other">HSD:  <strong>{value.exp_date ? format(new Date(value.exp_date), 'dd-MM-yyyy') : ''}- </strong>Số lô:  <strong>{value.lot || ''}- </strong>Tồn:  <strong>{value.sum_base_quantity || 0}</strong> {value.units?.find(x => x.unit_id == value.unit_parent_id)?.unit_name || value.unit_name || ''}</p>
+			<UserContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
+				<Spin tip="Loading..." spinning={loadingScreen}>
+					<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
+							<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
+								<h5 style={{ width: '150px', display: 'flex', alignItems: 'center' }}>Thêm sản phẩm</h5>
+								<Select
+									className="d-flex w-100 form-select-search "
+									style={{ minHeight: '30px' }}
+									size="middle"
+									optionLabelProp="label"
+									loading={loading}
+									onPopupScroll={onScrollSelectProduct}
+									onSelect={(e: string) => {
+										addNewRowdetail(productRes.find(x => x.id == e) || { id: '0' });
+									}}
+									notFoundContent={productRes ? <Empty description="Không có dữ liệu" /> : null}
+								>
+									{productRes?.map((value: IDrgInvProductResponse) => (
+										<Select.Option key={value.id} value={value.id} label={value.drug_name}>
+											<div className="item-search-info-container">
+												<div className="drug_info">
+													<div className="info_top">
+														<h4 className="item-name">
+															<span>{value.drug_name || ''}</span>
+														</h4>
+														<h4 className="item-price">{(value.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</h4>
+													</div>
+													<div className="info_bottom">
+														<p className="item-code">{value.drug_code}</p>
+														<p className="item-info-other">HSD:  <strong>{value.exp_date ? format(new Date(value.exp_date), 'dd-MM-yyyy') : ''}- </strong>Số lô:  <strong>{value.lot || ''}- </strong>Tồn:  <strong>{value.sum_base_quantity || 0}</strong> {value.units?.find(x => x.unit_id == value.unit_parent_id)?.unit_name || value.unit_name || ''}</p>
+													</div>
 												</div>
 											</div>
-										</div>
-									</Select.Option>
-								))}
-							</Select>
-						</Flex>
-						<InvExportCreateTable exportInvDetails={invImportCreateReq.products} setInvDetails={(value) => setInvImportCreateReq({ ...invImportCreateReq, products: value })}
-							confirmDeleteCellToTable={confirmDeleteCellToTable} />
-					</Flex>
-
-					<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '30%' }}>
-						<Form form={form} name="Customer_filter" className="common-form wrapper-form"
-							style={{ width: '100%', background: '#fff', padding: '10px' }}
-							onFinish={triggerFormEvent}>
-							<Flex gap="middle" vertical justify="flex-start" align={'center'}
-								style={{ width: '100%', padding: '5px' }}>
-
-								<div style={{ width: '100%' }}>
-									<Form.Item
-										{...formItemLayout}
-										labelAlign={"left"}
-										name={'process_date'}
-										label={
-											<span style={{ fontWeight: "550", fontSize: "14px" }}>Ngày thực tế</span>
-										}
-									>
-										<DatePicker format={"DD/MM/YYYY"}
-											value={invImportCreateReq.info.process_date ? dayjs(invImportCreateReq.info.process_date) : dayjs()}
-											className="form-input d-flex" size="middle" placeholder='Ngày thực tế' />
-									</Form.Item>
-								</div>
-
-								<div style={{ width: '100%' }}>
-									<Form.Item
-										{...formItemLayout}
-										labelAlign={"left"}
-										name={'import_type'}
-										label={
-											<span style={{ fontWeight: "550", fontSize: "14px" }}>Loại nhập</span>
-										}
-									>
-										<Select
-											className="d-flex"
-											size="middle"
-											id={'import_type'}
-											placeholder="Loại nhập"
-											value={invImportCreateReq.info.import_type}
-											options={[{
-												value: '',
-												label: 'Tất cả'
-											}, ...optionsExportType || []]}
-										/>
-									</Form.Item>
-								</div>
-
-								<div style={{ width: '100%' }}>
-									<Form.Item
-										{...formItemLayout}
-										name='note'
-										labelAlign={"left"}
-										style={{ height: 'auto' }}
-										label={
-											<span style={{ fontWeight: "550", fontSize: "14px" }}>Ghi chú</span>
-										}
-									>
-										<TextArea
-											placeholder="Ghi chú"
-											className='note'
-											value={invImportCreateReq.info.note}
-										/>
-									</Form.Item>
-								</div>
-
-								<div style={{ width: '100%' }}>
-									<Form.Item
-										{...formItemLayout}
-										name='amount'
-										labelAlign={"left"}
-										label={
-											<span style={{ fontWeight: "550", fontSize: "14px" }}>Tổng giá trị</span>
-										}
-									>
-										<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
-									</Form.Item>
-								</div>
-
-								<Flex gap="middle" justify="flex-end" align={'center'} style={{ width: '100%' }}>
-									<Button
-										className="button btn-delete d-flex flex-row justify-content-center align-content-center mb-2"
-										type="primary"
-										onClick={() => { navigate('/kho/xuatkho') }}
-									>
-										<DeleteOutlined />
-										<span>Hủy bỏ</span>
-									</Button>
-									<Button
-										className="button btn-add d-flex flex-row justify-content-center align-content-center mb-2"
-										type="primary"
-										onClick={() => {
-											form.submit();
-										}}
-									>
-										<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
-										<span>Nhập kho</span>
-									</Button>
-								</Flex>
+										</Select.Option>
+									))}
+								</Select>
 							</Flex>
-						</Form>
+							<InvExportCreateTable
+								confirmDeleteCellToTable={confirmDeleteCellToTable} />
+						</Flex>
+
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '30%' }}>
+							<Form form={form} name="Customer_filter" className="common-form wrapper-form"
+								style={{ width: '100%', background: '#fff', padding: '10px' }}
+								onFinish={triggerFormEvent}>
+								<Flex gap="middle" vertical justify="flex-start" align={'center'}
+									style={{ width: '100%', padding: '5px' }}>
+
+									<div style={{ width: '100%' }}>
+										<Form.Item
+											{...formItemLayout}
+											labelAlign={"left"}
+											name={'process_date'}
+											label={
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Ngày thực tế</span>
+											}
+										>
+											<DatePicker format={"DD/MM/YYYY"}
+												value={invImportCreateReq.info.process_date ? dayjs(invImportCreateReq.info.process_date) : dayjs()}
+												className="form-input d-flex" size="middle" placeholder='Ngày thực tế' />
+										</Form.Item>
+									</div>
+
+									<div style={{ width: '100%' }}>
+										<Form.Item
+											{...formItemLayout}
+											labelAlign={"left"}
+											name={'import_type'}
+											label={
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Loại nhập</span>
+											}
+										>
+											<Select
+												className="d-flex"
+												size="middle"
+												id={'import_type'}
+												placeholder="Loại nhập"
+												value={invImportCreateReq.info.import_type}
+												options={[{
+													value: '',
+													label: 'Tất cả'
+												}, ...optionsExportType || []]}
+											/>
+										</Form.Item>
+									</div>
+
+									<div style={{ width: '100%' }}>
+										<Form.Item
+											{...formItemLayout}
+											name='note'
+											labelAlign={"left"}
+											style={{ height: 'auto' }}
+											label={
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Ghi chú</span>
+											}
+										>
+											<TextArea
+												placeholder="Ghi chú"
+												className='note'
+												value={invImportCreateReq.info.note}
+											/>
+										</Form.Item>
+									</div>
+
+									<div style={{ width: '100%' }}>
+										<Form.Item
+											{...formItemLayout}
+											name='amount'
+											labelAlign={"left"}
+											label={
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Tổng giá trị</span>
+											}
+										>
+											<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+										</Form.Item>
+									</div>
+
+									<Flex gap="middle" justify="flex-end" align={'center'} style={{ width: '100%' }}>
+										<Button
+											className="button btn-delete d-flex flex-row justify-content-center align-content-center mb-2"
+											type="primary"
+											onClick={() => { navigate('/kho/xuatkho') }}
+										>
+											<DeleteOutlined />
+											<span>Hủy bỏ</span>
+										</Button>
+										<Button
+											className="button btn-add d-flex flex-row justify-content-center align-content-center mb-2"
+											type="primary"
+											onClick={() => {
+												form.submit();
+											}}
+										>
+											<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
+											<span>Nhập kho</span>
+										</Button>
+									</Flex>
+								</Flex>
+							</Form>
+						</Flex>
 					</Flex>
-				</Flex>
-			</Spin>
+				</Spin>
+			</UserContext.Provider>
 			{/* </InvExportContext.Provider> */}
 		</>
 	);
 };
 
-// export const useFormContext = () => useContext(FormContext);
+
 
 export default InvExportCreate;

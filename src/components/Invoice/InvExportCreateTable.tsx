@@ -3,16 +3,16 @@ import { Empty, Input, Popconfirm, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { IImportInventoryDetailCreate } from "../../interfaces/inventoryDetail";
+import { useUserContextExport } from "../../pages/InvExportCreate";
 
 interface Props {
-  exportInvDetails: IImportInventoryDetailCreate[];
-  setInvDetails: (value: IImportInventoryDetailCreate[]) => void;
   confirmDeleteCellToTable: (key: number, index: number) => void;
 }
 
+
 const InvExportCreateTable = (props: Props) => {
 
-  // const { invImportCreateReq, setInvProductReq } = useContext(InvExport);
+  const { invImportCreateReq, setInvImportCreateReq } = useUserContextExport();
 
   const columnsExportDetail: ColumnsType<IImportInventoryDetailCreate> = [
     {
@@ -99,15 +99,16 @@ const InvExportCreateTable = (props: Props) => {
             status={quantity || 0 > 0 ? "" : "error"}
             name="quantity"
             onChange={(e: any) => {
-              var value = parseInt(e?.target?.value.replace(/,/g, '')) || 0;
-              var totalAmntCurrent = record.total_amount;
+              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              var totalAmntCurrent = record.total_amount || 0;
               var drugUnit = getDrugUnitById(record.unit_id, record);
 
-              record.quantity = (record.quantity_pre || 0) < value ? record.quantity_pre : value;
+              record.quantity = Math.min(record.quantity_pre || 0, value);
               record.total_amount = (record.quantity || 0) * ((drugUnit === null ? record.price : drugUnit.price * drugUnit.unit_qty) || 0);
-              props.exportInvDetails[index] = record;
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
 
-              props.setInvDetails(props.exportInvDetails);
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
         )
@@ -133,6 +134,7 @@ const InvExportCreateTable = (props: Props) => {
             value={record.unit_id}
             onChange={(e: any) => {
               var drugUnit = getDrugUnitById(record.unit_id, record);
+              var totalAmntCurrent = record.total_amount || 0;
               if (drugUnit === null) {
                 drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
               }
@@ -145,8 +147,10 @@ const InvExportCreateTable = (props: Props) => {
               record.total_price = drugUnit.price * drugUnit.unit_qty;
               record.total_amount = 0;
               record.quantity = 0;
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent;
 
-              props.exportInvDetails[index] = record;
+              invImportCreateReq.products[index] = record;
+              setInvImportCreateReq({ ...invImportCreateReq });
             }}
             options={unitOptions}
           />
@@ -229,7 +233,7 @@ const InvExportCreateTable = (props: Props) => {
             scroll={{ x: 900 }}
             className="table table-hover provider-table"
             columns={columnsExportDetail}
-            dataSource={props.exportInvDetails}
+            dataSource={invImportCreateReq.products}
             pagination={false}
           />
         </div>
