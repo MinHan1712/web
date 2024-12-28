@@ -7,9 +7,8 @@ export interface IDrugInvSummaryRequest {
   check_user?: string;
   note?: string;
   summary_type?: string;
-  account_id?: string;
   updated_user?: string;
-  products?: IDrgInvSummaryDetailCreate[];
+  products: IDrgInvSummaryDetailCreate[];
 }
 
 
@@ -26,7 +25,6 @@ export interface IDrgInvSummaryDetailCreate {
   drg_store_id?: string;
   drug_unit_id?: string;
   drug_unit_name?: string;
-  account_id?: string;
   updated_user?: string;
   check_date?: string;
   lot?: string;
@@ -50,7 +48,6 @@ export interface IDrugInvSummaryResponse {
   total_product?: string;
   status?: string;
   note?: string;
-  account_id?: string;
   created_date?: string;
   updated_user?: string;
   updated_date?: string;
@@ -78,7 +75,6 @@ export interface DrugInvSummaryDetailResponse {
   adj_qty?: number;
   inv_qty?: string;
   status?: string;
-  account_id?: string;
   created_date?: string;
   updated_user?: string;
   updated_date?: string;

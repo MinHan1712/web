@@ -2,6 +2,8 @@ import { SelectProps } from "antd";
 import commonApi from "../apis/common.api";
 import { IUnit } from "../interfaces/common";
 import { IProperty } from "../interfaces/property";
+import { IRoleInfoListMenu } from "../interfaces/role";
+import { ILoginResponse } from "../interfaces/login";
 
 
 export const parseJSON = <T>(value: string | null): T | string | null => {
@@ -14,8 +16,6 @@ export const parseJSON = <T>(value: string | null): T | string | null => {
 
 
 export const getLocalStorage = (key: string): any => {
-
-
   return parseJSON(localStorage.getItem(key));
 };
 
@@ -46,6 +46,15 @@ export const getInvSource = (): IProperty[] => {
 
 export const getUnits = (): IUnit[] => {
   return getLocalStorage('units')
+}
+
+export const getRoles = (): IRoleInfoListMenu[] => {
+  return getLocalStorage('roles')
+}
+
+export const setAuth = async (value: ILoginResponse) => {
+  setLocalStorage('store', value);
+  setLocalStorage('token', value.token);
 }
 
 export const setExportType = async () => {
@@ -88,13 +97,21 @@ export const setUnits = async () => {
   }
 }
 
+export const setRoles = async () => {
+  var value = getLocalStorage('roles');
+  if (value == null || value === undefined || (value && value.length < 0)) {
+    const response = commonApi.getUnits();
+    setLocalStorage('roles', (await response).data)
+  }
+}
+
 export const getListOption = <T>(key: string, keyValue: keyof T, keyLabel: keyof T): SelectProps<string>['options'] => {
   const list = getLocalStorage(key);
 
   return list && list?.map((item: T) => ({
     value: item[keyValue],
     label: item[keyLabel],
-  }));
+  })) || [];
 };
 
 export const getListExportTypeOption = () => {
@@ -113,6 +130,10 @@ export const getListInvSourceOption = () => {
   return getListOption<IProperty>('inv_sources', 'unit_cd', 'value');
 }
 
-export const getListCommonSettingOption = () => {
+export const getListUnitOption = () => {
   return getListOption<IUnit>('units', 'unit_id', 'unit_name');
+}
+
+export const getListRoleOption = () => {
+  return getListOption<IRoleInfoListMenu>('roles', 'role_id', 'role_code');
 }

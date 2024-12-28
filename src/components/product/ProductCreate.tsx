@@ -5,7 +5,7 @@ import {
   QuestionCircleOutlined
 } from "@ant-design/icons";
 import type { TabsProps } from "antd";
-import { Button, Empty, Flex, Form, InputNumber, Modal, Popconfirm, Select, Table, Tabs, Tooltip } from "antd";
+import { Button, Empty, Flex, Form, InputNumber, Modal, notification, Popconfirm, Select, Table, Tabs, Tooltip } from "antd";
 import { useState } from "react";
 import '../../assets/css/style.css';
 import { IDrugRequest } from "../../interfaces/drug";
@@ -14,6 +14,7 @@ import ProductCreateAvg from "./ProductCreateAvg";
 import { ColumnsType } from "antd/es/table";
 import { AlignType } from "rc-table/lib/interface";
 import { IDrugUnitCreate } from "../../interfaces/drugUnit";
+import drugApi from "../../apis/drug.api";
 
 interface IModalProductViewProps {
   open: boolean;
@@ -29,7 +30,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
 
   const eventSummitForm = (formValue: IDrugRequest) => {
     setLoading(true);
-    createCustomer(formValue);
+    createDrugToApi(formValue);
   }
 
   const columnsDrugUnit: ColumnsType<IDrugUnitCreate> = [
@@ -164,20 +165,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
     },
   ];
 
-  const createCustomer = async (value: IDrugRequest) => {
-    try {
-      value.drug_units = drugUnitItem;
-      console.log(value);
-      // const response = await customerApi.create(value);
 
-      setDrugUnitItem([]);
-      setKey(0);
-      form.resetFields();
-      props.onCancel();
-    } catch (err) {
-      console.log(err);
-    } finally { setLoading(false); }
-  }
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -190,6 +178,43 @@ const ProductCreate = (props: IModalProductViewProps) => {
       children: <ProductCreateAvg />,
     }
   ];
+
+  const createDrugToApi = async (value: IDrugRequest) => {
+    setLoading(true);
+    value.drug_units = drugUnitItem;
+    console.log(value);
+    return await drugApi.create(value).then((response) => {
+      console.log(response)
+      switch (response.meta[0].code) {
+        case 200:
+          notification['success']({
+            message: "Thông báo",
+            description: 'Thêm thuốc thành công',
+          });
+          setDrugUnitItem([]);
+          setKey(0);
+          form.resetFields();
+          props.onCancel();
+          break;
+
+        default:
+          notification['error']({
+            message: "Lỗi",
+            description: 'Thêm thuốc không thành công',
+          });
+          break;
+      }
+    })
+      .catch(() => {
+        notification['error']({
+          message: "Lỗi",
+          description: 'Thêm thuốc không thành công',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      })
+  }
 
   return (
     <>

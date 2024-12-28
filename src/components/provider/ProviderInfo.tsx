@@ -1,11 +1,11 @@
 
-import { formItemLayout } from "../../constants/general.constant";
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, SyncOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, Col, Flex, Form, Input, Modal, notification, Popconfirm, Row, Tabs } from "antd";
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, SyncOutlined } from "@ant-design/icons";
+import { Button, Flex, Form, Input, notification, Popconfirm } from "antd";
 import { useEffect, useState } from "react";
-import { IProviderDelete, IProviderResponse, IProviderUpdate } from "../../interfaces/provider";
-import '../../assets/css/style.css';
 import providerApi from "../../apis/provider.api";
+import '../../assets/css/style.css';
+import { formItemLayout } from "../../constants/general.constant";
+import { IProviderResponse, IProviderUpdate } from "../../interfaces/provider";
 
 
 interface IProviderInformationProps {
@@ -47,30 +47,64 @@ const ProviderInfo = (props: IProviderInformationProps) => {
             };
             console.log("providerUpdate", providerUpdate);
 
-            const response = await providerApi.update(providerUpdate);
-            handleCloseModalView();
-            props.onCancel();
-            console.log(response)
+            const response = await providerApi.update(providerUpdate).then((response) => {
+                console.log(response)
+                switch (response.meta[0].code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Cập nhập nhà cung cấp thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Cập nhập nhà cung cấp không thành công',
+                        });
+                        break;
+                }
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Cập nhập nhà cung cấp không thành công',
+                    });
+                })
+
         } catch (err) {
             console.log(err);
         } finally { setConfirmLoadingUpdate(false); }
     }
 
-    const handleActiondDelete = () => {
-        try {
-            setConfirmLoadingDelete(true);
-
-            setTimeout(() => {
-                setOpenConfirmDelete(false);
-                setConfirmLoadingDelete(false);
-            }, 2000);
-        } catch {
-            notification['error']({
-                message: "Thông báo",
-                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-            });
-        }
-    };
+    const deleteProvider = async () => {
+        return providerApi.delete(props.data.provider_id)
+            .then((response) => {
+                switch (response.meta[0].code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Xóa nhà cung cấp thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Xóa nhà cung cấp không thành công',
+                        });
+                        break;
+                }
+            })
+            .catch(() => {
+                notification['error']({
+                    message: "Lỗi",
+                    description: 'Xóa nhà cung cấp không thành công',
+                });
+            })
+    }
 
     const handleCloseModalView = () => {
         form.resetFields();
@@ -241,7 +275,7 @@ const ProviderInfo = (props: IProviderInformationProps) => {
                         title="Title"
                         description="Bạn có chắc chắn muốn xoá nhà cung cấp?"
                         open={openConfirmDelete}
-                        onConfirm={handleActiondDelete}
+                        onConfirm={deleteProvider}
                         okText='Đồng ý'
                         cancelText='Hủy'
                         okButtonProps={{ loading: confirmLoadingDelete }}

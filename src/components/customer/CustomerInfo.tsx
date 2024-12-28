@@ -19,6 +19,7 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
     const [form] = Form.useForm<ICustomerResponse>();
     const [isSummitForm, setIsSummitForm] = useState(false);
     const [btnEdit, setBtnEdit] = useState(false);
+    const [action, setAction] = useState(false);
     const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
     const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
     const [confirmLoadingUpdate, setConfirmLoadingUpdate] = useState(false);
@@ -50,7 +51,7 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                 phone: value.phone,
                 source: value.source,
                 note: value.note,
-                status: props.data.status
+                status: action ? props.data.status : false
             };
             console.log("CustomerUpdate", CustomerUpdate);
 
@@ -66,11 +67,8 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
     const handleActiondDelete = () => {
         try {
             setConfirmLoadingDelete(true);
-
-            setTimeout(() => {
-                setOpenConfirmDelete(false);
-                setConfirmLoadingDelete(false);
-            }, 2000);
+            setAction(false);
+            setIsSummitForm(!isSummitForm);
         } catch {
             notification['error']({
                 message: "Thông báo",
@@ -183,7 +181,8 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                 }
                                 rules={[
                                     {
-                                        pattern: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,4})+)$/,
+                                        type: 'email',
+                                        // pattern: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,4})+)$/,
                                         message: 'Định dạng email không đúng',
                                     }
                                 ]}
@@ -363,6 +362,7 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                             if (btnEdit) {
                                 setConfirmLoadingUpdate(true);
                                 setIsSummitForm(!isSummitForm);
+                                setAction(true);
                             }
                         }}
                     >

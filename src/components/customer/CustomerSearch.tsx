@@ -138,7 +138,7 @@ const CustomerSearch = (props: mapCustomerFormSearchToProps) => {
         </Flex>
       </div>
     </>
-  );
+  )
 };
 
 export default CustomerSearch;

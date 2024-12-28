@@ -149,7 +149,6 @@ export const CustonerSource = [
 ];
 
 export const CustonerGroupType = [
-  { value: '', label: 'Tất cả' },
   { value: 'DYNAMIC', label: 'Tự động' },
   { value: 'FIXED', label: 'Cố định' },
 ];
@@ -167,7 +166,6 @@ export const vat = [
 ];
 
 export const ImportStatus = [
-  { value: "null", label: "Tất cả", name: "" },
   { value: "0", label: "Đã hủy", name: "red" },
   { value: "1", label: "Đã hoàn thành", name: "green" },
   { value: "2", label: "Thanh toán một phần", name: "yellow" },
@@ -175,7 +173,6 @@ export const ImportStatus = [
 ]
 
 export const ImportImportType = [
-  { value: "", label: "Tất cả" },
   { value: "YCNK", label: "Yêu cầu nhập kho" },
   { value: "TLK", label: "Trả lại kho" },
   { value: "TLBH", label: "Trả lại bán hàng" },
@@ -183,7 +180,6 @@ export const ImportImportType = [
 ]
 
 export const PayMethod = [
-  { value: "", label: "Tất cả" },
   { value: "0", label: "Tiền mặt" },
   { value: "2", label: "Đã duyệt" },
   { value: "1", label: "Thanh toán một phần" },
@@ -196,3 +192,8 @@ export const Type = [
   { PAY_METHOD: "PAY_METHOD" },
   { INVOICE_SOURCE: "INVOICE_SOURCE" },
 ]
+
+export const activeStatus = [
+  { value: "true", label: "Đang hoạt động" },
+  { value: "false", label: "Không hoạt đông" },
+];

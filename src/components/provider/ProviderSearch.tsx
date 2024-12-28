@@ -63,7 +63,7 @@ const ProviderSearch = (props: mapProviderFormSearchToProps) => {
               </Form.Item>
 
             </div>
-            <div style={{ width: '40%' }}>
+            {/* <div style={{ width: '40%' }}>
               <Form.Item
                 {...formItemLayout}
                 name={'date_search'}
@@ -83,7 +83,7 @@ const ProviderSearch = (props: mapProviderFormSearchToProps) => {
                 //   }} 
                 />
               </Form.Item>
-            </div>
+            </div> */}
           </Flex>
         </Form>
         <Flex gap="middle" justify="flex-end" align={'center'} style={{ width: '100%', paddingBottom: '10px' }}>

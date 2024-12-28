@@ -22,16 +22,6 @@ const customerApi = {
 			throw error;
 		}
 	},
-	// remove: async ({ id }: { id: number }): Promise<IResponse[]>> => {
-	// 	try {
-	// 		const response = await privateClient.delete<IResponse<IResponseUser[]>>(
-	// 			userEndpoint.removeUser({ id })
-	// 		);
-	// 		return response.data;
-	// 	} catch (error) {
-	// 		throw error;
-	// 	}
-	// },
 	create: async (params: any): Promise<IResponse<ICustomerResponse>> => {
 		try {
 			const response = await privateClient.post<IResponse<ICustomerResponse>>(

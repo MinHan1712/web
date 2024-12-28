@@ -16,6 +16,7 @@ export interface UserContextType {
 	invImportCreateReq: ICreateInvImport | {
 		info: {
 			amount: 0,
+			amt_total: 0,
 			// discount_vat: 0,
 			// discount_amount: 0,
 			// amount_debt: 0,
@@ -113,7 +114,7 @@ const InvExportCreate: React.FC = () => {
 		value = {
 			...value,
 			amount: invImportCreateReq.info.amount,
-			// process_date: dayjs(value.process_date, "YYYY-MM-DD").format("YYYY-MM-DD") || ''
+			process_date: value.process_date ? dayjs(value.process_date, "YYYY-MM-DD").format("YYYY-MM-DD") : undefined
 		}
 
 		console.log(value);
@@ -172,9 +173,10 @@ const InvExportCreate: React.FC = () => {
 		}
 	}
 
-	const confirmDeleteCellToTable = (key: number, index: number) => {
+	const confirmDeleteCellToTable = (key: number, index: number) => { //TODO
 		console.log(key, index, invImportCreateReq);
-		invImportCreateReq.products.splice(index, index);
+		//invImportCreateReq.products.splice(index, 1);
+		// invImportCreateReq.products = invImportCreateReq.products.filter(item => item.key === key);
 		if (invImportCreateReq.products.length == 0) setKey(0);
 		console.log(invImportCreateReq);
 		setInvImportCreateReq(invImportCreateReq);

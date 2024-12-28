@@ -207,12 +207,6 @@ const Product: React.FC = () => {
 		// get list provider
 	}
 
-	let locale = {
-		emptyText: (
-			<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-		)
-	};
-
 	useEffect(() => {
 		setIsReload(false);
 		getListProduct();
@@ -236,6 +230,11 @@ const Product: React.FC = () => {
 			</Flex>
 			<div className="table-wrapper">
 				<Table
+					locale={{
+						emptyText: (
+							<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+						)
+					}}
 					rowKey={(record) => record.drug_id}
 					size="small"
 					scroll={{ x: 240 }}

@@ -44,11 +44,6 @@ const InvImportCreate: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [loadingScreen, setLoadingScreen] = useState(false);
 
-	const [pageSize, setPageSize] = useState(Number(selectPageSize[0].value));
-	const [openViewDate, setOpenviewDate] = useState(false);
-	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
-	const [isReload, setIsReload] = useState(false);
-	const [provides, setProvider] = useState<SelectProps<string>['options']>([]);
 	const navigate = useNavigate();
 
 	const [productReq, setProductReq] = useState<IDrugPageRequest>({
@@ -78,18 +73,39 @@ const InvImportCreate: React.FC = () => {
 		console.log(response)
 		setLoadingScreen(false);
 	}
-
+//TODO
 	const triggerFormEvent = (value: IImportInventoryCreate) => {
+		console.log(value, invImportCreateReq);
 		value = {
 			...value,
 			amount: invImportCreateReq.info.amount,
-			amount_debt: invImportCreateReq.info.amount_debt
+			amount_debt: invImportCreateReq.info.amount_debt,
+			amt_total: invImportCreateReq.info.amt_total,
+			process_date: value.process_date ? dayjs(value.process_date, "YYYY-MM-DD").format("YYYY-MM-DD") : undefined,
+			discount_amount: value.discount_amount || 0,
+			discount_vat: value.discount_vat || 0,
+			amount_paid: value.amount_paid && value.amount_paid > 0 ? value.amount_paid : value.amt_total,
+			vat: value.vat || 0
 		}
 
 		console.log(value);
 		setInvImportCreateReq({
 			...invImportCreateReq,
-			info: value
+			info: {
+				amount: invImportCreateReq.info.amount,
+				amount_debt: invImportCreateReq.info.amount_debt,
+				amt_total: invImportCreateReq.info.amt_total,
+				process_date: value.process_date,
+				discount_amount: value.discount_amount || 0,
+				discount_vat: value.discount_vat || 0,
+				amount_paid: value.amount_paid && value.amount_paid > 0 ? value.amount_paid : value.amt_total,
+				vat: value.vat || 0,
+				import_type: value.import_type,
+				note: value.note,
+				provider_id: value.provider_id,
+				pay_method: value.pay_method,
+				classification: false
+			}
 		});
 
 		confirmCreateInvExport();
@@ -114,7 +130,7 @@ const InvImportCreate: React.FC = () => {
 			const response = await providerApi.getList(provider);
 			console.log(response)
 
-			setOptionsProvider(response.data.data.map((provider: IProviderResponse) => {
+			setOptionsProvider(response.data.map((provider: IProviderResponse) => {
 				return {
 					value: provider.provider_id,
 					label: provider.provider_name
@@ -390,6 +406,11 @@ const InvImportCreate: React.FC = () => {
 												value: '',
 												label: 'Tất cả'
 											}, ...vat || []]}
+											onChange={(e: any) => {
+												invImportCreateReq.info.vat = parseInt(e) || 0;
+												invImportCreateReq.info.amt_total = ((invImportCreateReq.info.amount || 0) - (invImportCreateReq.info.discount_amount || 0)) * (((invImportCreateReq.info.vat || 0) + 100) / 100);
+												setInvImportCreateReq({ ...invImportCreateReq });
+											}}
 										/>
 									</Form.Item>
 								</div>
@@ -412,9 +433,9 @@ const InvImportCreate: React.FC = () => {
 											onChange={(e: any) => {
 
 												var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
-												var sum_current = (invImportCreateReq.info.amount || 0) + (invImportCreateReq.info.discount_amount || 0)
+												// var sum_current = (invImportCreateReq.info.amount || 0) + (invImportCreateReq.info.discount_amount || 0)
 
-												if (value > sum_current) {
+												if (value > (invImportCreateReq.info.amount || 0)) {
 													notification["error"]({
 														message: "Lỗi",
 														description: 'Giảm giá không được lớn hơn tổng số tiền',
@@ -422,13 +443,14 @@ const InvImportCreate: React.FC = () => {
 													return;
 												}
 
-												var discountAmtCurrent = (invImportCreateReq.info.discount_amount || 0);
+												// var discountAmtCurrent = (invImportCreateReq.info.discount_amount || 0);
 
 												invImportCreateReq.info.discount_amount = value;
-												invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) + value - discountAmtCurrent;
+												invImportCreateReq.info.amt_total = ((invImportCreateReq.info.amount || 0) - (invImportCreateReq.info.discount_amount || 0)) * (1 + (invImportCreateReq.info.vat || 0) / 100);
+												// invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) + value - discountAmtCurrent;
 
 												if (invImportCreateReq.info.amount_paid && invImportCreateReq.info.amount_paid > 0)
-													invImportCreateReq.info.amount_debt = (invImportCreateReq.info.amount || 0) - (invImportCreateReq.info.amount_paid || 0);
+													invImportCreateReq.info.amount_debt = (invImportCreateReq.info.amt_total || 0) - (invImportCreateReq.info.amount_paid || 0);
 
 												setInvImportCreateReq({ ...invImportCreateReq });
 											}}
@@ -444,7 +466,7 @@ const InvImportCreate: React.FC = () => {
 											<span style={{ fontWeight: "550", fontSize: "14px" }}>Tổng giá trị</span>
 										}
 									>
-										<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+										<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amt_total || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
 									</Form.Item>
 								</div>
 								<div style={{ width: '100%' }}>
@@ -470,7 +492,6 @@ const InvImportCreate: React.FC = () => {
 											}
 										>
 											<Input
-												className="form-input d-flex"
 												size="middle"
 												placeholder={"Đã thanh toán"}
 												name={'amount_paid'}
@@ -480,7 +501,7 @@ const InvImportCreate: React.FC = () => {
 												onChange={(e: any) => {
 													var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
 													invImportCreateReq.info.amount_paid = Math.min(invImportCreateReq.info.amount || 0, value);
-													invImportCreateReq.info.amount_debt = (invImportCreateReq.info.amount || 0) - (invImportCreateReq.info.amount_paid || 0);
+													invImportCreateReq.info.amount_debt = (invImportCreateReq.info.amt_total || 0) - (invImportCreateReq.info.amount_paid || 0);
 
 													setInvImportCreateReq({ ...invImportCreateReq });
 												}}

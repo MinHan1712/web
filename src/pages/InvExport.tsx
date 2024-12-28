@@ -168,12 +168,6 @@ const InvoiceExport: React.FC = () => {
 		// get list provider
 	}
 
-	let locale = {
-		emptyText: (
-			<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-		)
-	};
-
 	const handleCreateReceipt = () => {
 		navigate({
 			pathname: routes[2].path,
@@ -207,6 +201,11 @@ const InvoiceExport: React.FC = () => {
 			</Flex>
 			<div className="table-wrapper">
 				<Table
+					locale={{
+						emptyText: (
+							<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+						)
+					}}
 					rowKey={(record) => record.inventory_id}
 					size="small"
 					scroll={{ x: 240 }}

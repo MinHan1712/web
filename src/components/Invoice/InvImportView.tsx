@@ -7,6 +7,7 @@ import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
 import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";
 import { renderText } from "../common";
 import { IProperty } from "../../interfaces/property";
+import invoiceApi from "../../apis/invoice.api";
 
 interface IModalInvHistoryImportProps {
   open: boolean;
@@ -21,6 +22,27 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
   const cancelInventoryImport = (inventory_id: string) => {
     try {
       console.log(inventory_id);
+      return invoiceApi.cancel(inventory_id, "i")
+        .then((response) => {
+          if (response.meta[0].code === 200) {
+            notification['success']({
+              message: "Thông báo",
+              description: 'Hủy phiếu xuất kho thành công',
+            });
+            props.onCancel();
+          } else {
+            notification['error']({
+              message: "Lỗi",
+              description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+            });
+          }
+        })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+          });
+        })
     } catch {
       notification['error']({
         message: "Thông báo",

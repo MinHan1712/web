@@ -1,0 +1,52 @@
+import { IPageResponse, IResponse } from "../interfaces/common";
+import { IUserWithRoleResponse } from "../interfaces/userManager";
+import privateClient from "./clients/private.client";
+
+const endpoint = {
+  getList: 'employee',
+  update: `/user/update`,
+  create: `/user/create`,
+};
+
+const userApi = {
+  get: async (params: any): Promise<IResponse<IPageResponse<IUserWithRoleResponse[]>>> => {
+    try {
+      const response = await privateClient.post<IResponse<IPageResponse<IUserWithRoleResponse[]>>>(
+        endpoint.getList,
+        params
+      );
+      // console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  create: async (params: any): Promise<IResponse<IUserWithRoleResponse>> => {
+    try {
+      const response = await privateClient.post<IResponse<IUserWithRoleResponse>>(
+        endpoint.create,
+        // params depends BE to update params for suit cab be obj, ary, etc...
+        params
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  update: async (params: any): Promise<IResponse<IUserWithRoleResponse>> => {
+    try {
+      const response = await privateClient.put<IResponse<IUserWithRoleResponse>>(
+        endpoint.update,
+        params
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
+
+export default userApi;

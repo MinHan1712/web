@@ -198,7 +198,7 @@ const InvoiceImport: React.FC = () => {
 			const response = await providerApi.getList(provider);
 			console.log(response)
 
-			setProvider(response.data.data.map((provider: IProviderResponse) => {
+			setProvider(response.data.map((provider: IProviderResponse) => {
 				return {
 					value: provider.provider_id,
 					label: provider.provider_name

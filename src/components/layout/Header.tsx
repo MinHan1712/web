@@ -1,7 +1,8 @@
-import { BellOutlined, HomeOutlined, MenuOutlined, ProfileOutlined } from '@ant-design/icons';
-import { Button, Flex, Layout } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { MenuOutlined, ProfileOutlined } from '@ant-design/icons';
+import { Button, Flex } from 'antd';
 import { Header } from 'antd/es/layout/layout';
+import { useNavigate } from 'react-router-dom';
+import DropDowInfoUser from './dropDowInfoUser';
 
 const HeaderLayout = (props: any) => {
   const navigate = useNavigate();
@@ -50,6 +51,9 @@ const HeaderLayout = (props: any) => {
                 <span>TẠO ĐƠN</span>
               </Button>
             </div>
+            <div className="left-item">
+                <DropDowInfoUser />
+              </div>
           </Flex>
 
 

@@ -1,16 +1,15 @@
-import { Button, Flex, Form, Input, Modal } from "antd";
-import { useEffect, useState } from "react";
-import { IProviderCreate, IProviderResponse } from '../../interfaces/provider';
-import { formItemLayout } from "../../constants/general.constant";
 import {
     CloseCircleOutlined,
-    CloseOutlined,
     EnvironmentOutlined,
     PhoneOutlined,
     PlusCircleOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
+import { Button, Flex, Form, Input, Modal } from "antd";
+import { useState } from "react";
 import providerApi from "../../apis/provider.api";
+import { formItemLayout } from "../../constants/general.constant";
+import { IProviderCreate } from '../../interfaces/provider';
 
 interface IProviderInformationProps {
     open: boolean;
@@ -118,7 +117,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
 
                         </div>
                         <div className="wrapper-column" style={{ width: '40%' }}>
-                            <Form.Item<IProviderResponse>
+                            <Form.Item<IProviderCreate>
                                 {...formItemLayout}
                                 name={'email'}
                                 labelAlign={"left"}
@@ -145,7 +144,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                     </Flex>
                     <Flex gap="middle" justify="space-between" align={'center'} style={{ width: '100%' }}>
                         <div className="wrapper-column" style={{ width: '40%' }}>
-                            <Form.Item<IProviderResponse>
+                            <Form.Item<IProviderCreate>
                                 {...formItemLayout}
                                 labelAlign={"left"}
                                 name={'phone'}
@@ -178,7 +177,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
 
                         </div>
                         <div className="wrapper-column" style={{ width: '40%' }}>
-                            <Form.Item<IProviderResponse>
+                            <Form.Item<IProviderCreate>
                                 {...formItemLayout}
                                 name={'website'}
                                 labelAlign={"left"}
@@ -199,13 +198,20 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                     </Flex>
                     <Flex gap="middle" justify="space-between" align={'center'} style={{ width: '100%' }}>
                         <div className="wrapper-column" style={{ width: '40%' }}>
-                            <Form.Item<IProviderResponse>
+                            <Form.Item<IProviderCreate>
                                 {...formItemLayout}
                                 labelAlign={"left"}
                                 name={'address'}
                                 label={
                                     <span style={{ fontWeight: "550", fontSize: "14px" }}>Địa chỉ</span>
                                 }
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Vui lòng nhập thông tin',
+                                        whitespace: true
+                                    }
+                                ]}
                             >
                                 <Input
                                     className="form-input "
@@ -220,7 +226,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
 
                         </div>
                         <div className="wrapper-column" style={{ width: '40%' }}>
-                            <Form.Item<IProviderResponse>
+                            <Form.Item<IProviderCreate>
                                 {...formItemLayout}
                                 name={'tax_no'}
                                 labelAlign={"left"}

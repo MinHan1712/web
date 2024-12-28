@@ -8,7 +8,7 @@ const endpoint = {
   getListInvProduct: '/inventory/products',
   update: `provider`,
   create: 'inventory',
-  cancel: (id: any) => `/inventory/cancel?import_id=${id}`
+  cancel: (id: any, type: string) => `/inventory/cancel?import_id=${id}&&type=${type}`
 };
 
 const invoiceApi = {
@@ -38,11 +38,12 @@ const invoiceApi = {
       throw error;
     }
   },
-  remove: async (id: any): Promise<IResponse<IInvoiceImportResponse>> => {
+  cancel: async (id: any, type: string): Promise<IResponse<IInvoiceImportResponse>> => {
     try {
-      const response = await privateClient.delete<IResponse<IInvoiceImportResponse>>(
-        endpoint.cancel(id)
+      const response = await privateClient.get<IResponse<IInvoiceImportResponse>>(
+        endpoint.cancel(id, type)
       );
+      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -52,18 +53,6 @@ const invoiceApi = {
     try {
       const response = await privateClient.post<IResponse<IInvoiceImportResponse>>(
         endpoint.create,
-        params
-      );
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  update: async (params: any): Promise<IResponse<IInvoiceImportResponse>> => {
-    try {
-      const response = await privateClient.put<IResponse<IInvoiceImportResponse>>(
-        endpoint.update,
         params
       );
       console.log(response);

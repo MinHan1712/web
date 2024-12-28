@@ -79,7 +79,7 @@ const columnsProvider: ColumnsType<IProviderResponse> = [
 		align: "center" as AlignType,
 		render: (text) => (
 			<div className="style-text-limit-number-line2">
-				<span>{text == null ? "" : format(new Date(text), "dd-MM-yyyy HH:mm:ss")}</span>
+				<span>{text === null ? "" : format(new Date(text), "dd-MM-yyyy HH:mm:ss")}</span>
 			</div>
 		),
 	},
@@ -140,7 +140,8 @@ const Provider: React.FC = () => {
 			// 	return;
 			// }
 
-			setProviderRes(response.data);
+			setProviderRes(response);
+			console.log(providerRes);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -152,15 +153,8 @@ const Provider: React.FC = () => {
 			page: providerReq.page,
 			size: providerReq.size
 		});
-
 		// get list provider
 	}
-
-	let locale = {
-		emptyText: (
-			<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-		)
-	};
 
 	useEffect(() => {
 		setIsReload(false);
@@ -186,6 +180,11 @@ const Provider: React.FC = () => {
 			</Flex>
 			<div className="table-wrapper">
 				<Table
+					locale={{
+						emptyText: (
+							<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+						)
+					}}
 					rowKey={(record) => record.provider_id}
 					size="small"
 					scroll={{ x: 240 }}

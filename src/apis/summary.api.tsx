@@ -5,8 +5,8 @@ import privateClient from "./clients/private.client";
 const endpoint = {
   getList: '/summary/search',
   create: '/summary',
-  update: `provider`,
-  cancel: (id: any) => `/api/summary/cancel?import_id=${id}`
+  update: `summary`,
+  cancel: (id: any) => `/summary/cancel?import_id=${id}`
 };
 
 const invoiceSummaryApi = {
@@ -18,16 +18,6 @@ const invoiceSummaryApi = {
         params
       );
       // console.log(response);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  remove: async (id: any): Promise<IResponse<IDrugInvSummaryResponse>> => {
-    try {
-      const response = await privateClient.delete<IResponse<IDrugInvSummaryResponse>>(
-        endpoint.cancel(id)
-      );
       return response.data;
     } catch (error) {
       throw error;
@@ -46,18 +36,7 @@ const invoiceSummaryApi = {
       throw error;
     }
   },
-  update: async (params: any): Promise<IResponse<IDrugInvSummaryResponse>> => {
-    try {
-      const response = await privateClient.put<IResponse<IDrugInvSummaryResponse>>(
-        endpoint.update,
-        params
-      );
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+ 
 };
 
 

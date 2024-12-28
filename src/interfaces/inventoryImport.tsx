@@ -100,17 +100,18 @@ export interface IImportInventoryCreate {
     note?: string;
     provider_id?: string;
     pay_method?: string;
-    discount_amount?: number;
-    discount_vat?: number;
-    amount_paid?: number;
-    amount?: number;
-    amount_debt?: number;
-    vat?: number;
+    discount_amount?: number | 0;
+    discount_vat?: number | 0;
+    amount_paid?: number | 0;
+    amount?: number | 0;
+    amount_debt?: number | 0;
+    vat?: number | 0;
     drg_store_id?: string;
     updated_user?: string;
     status?: string;
     classification?: boolean;
     provider_name?: string;
+    amt_total?: number;
     // is_amount_debt?: boolean;
 }
 

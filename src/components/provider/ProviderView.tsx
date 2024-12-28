@@ -1,9 +1,8 @@
 import type { TabsProps } from "antd";
 import { Modal, Tabs } from "antd";
+import '../../assets/css/style.css';
 import { IProviderResponse } from "../../interfaces/provider";
 import ProviderInfo from "./ProviderInfo";
-import '../../assets/css/style.css';
-import { useState } from "react";
 
 interface IModalProviderViewProps {
   openViewDate: boolean;
@@ -18,16 +17,16 @@ const ProviderView = (props: IModalProviderViewProps) => {
       label: "Thông tin",
       children: <ProviderInfo data={props.data} onCancel={props.onCancel}/>,
     },
-    {
-      key: "2",
-      label: "Lịch sử nhập hàng",
-      // children: <ModalProviderHistoryInvoiceProduct provider={valueProvider} roleScreen={roleScreen} />,
-    },
-    {
-      key: "3",
-      label: "Lịch sử sản phẩm",
-      // children: <ModalProviderHistoryProduct provider={valueProvider} />,
-    },
+    // {
+    //   key: "2",
+    //   label: "Lịch sử nhập hàng",
+    //   // children: <ModalProviderHistoryInvoiceProduct provider={valueProvider} roleScreen={roleScreen} />,
+    // },
+    // {
+    //   key: "3",
+    //   label: "Lịch sử sản phẩm",
+    //   // children: <ModalProviderHistoryProduct provider={valueProvider} />,
+    // },
   ];
 
   return (
@@ -46,13 +45,13 @@ const ProviderView = (props: IModalProviderViewProps) => {
         footer={null}
       >
         <div className="ant-modal-content">
-          <div className="tab-container-provider">
+          {/* <div className="tab-container-provider"> */}
             <Tabs
               type="card"
               items={items}
               className="h-100"
             />
-          </div>
+          {/* </div> */}
         </div>
       </Modal >
     </>

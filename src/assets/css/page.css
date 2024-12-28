@@ -1,4 +1,4 @@
-.container-provider .form-filter-provider,
+/* .container-provider .form-filter-provider,
 .container-page .form-filter {
   margin-top: 8px;
   margin-bottom: 8px;
@@ -170,7 +170,7 @@
   border-bottom: 2px solid #f2f2f2;
 }*/
 
-.box-info .user-info {
+/*.box-info .user-info {
   display: flex;
 }
 
@@ -215,4 +215,4 @@
   -webkit-font-feature-settings: "tnum";
   font-feature-settings: "tnum", "tnum";
   outline: 0;
-}
+} */

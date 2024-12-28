@@ -16,6 +16,7 @@ import ProductCreateAvg from "./ProductCreateAvg";
 import { ColumnsType } from "antd/es/table";
 import { AlignType } from "rc-table/lib/interface";
 import { IDrugUnitCreate, IDrugUnitResponse } from "../../interfaces/drugUnit";
+import drugApi from "../../apis/drug.api";
 
 
 interface IModalProductViewProps {
@@ -31,7 +32,7 @@ const ProductView = (props: IModalProductViewProps) => {
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [btnEdit, setBtnEdit] = useState(false);
   const [key, setKey] = useState(0);
-
+  const [action, setAction] = useState(false);
 
   const [drugUnitItem, setDrugUnitItem] = useState<IDrugUnitCreate[]>([]);
 
@@ -181,12 +182,38 @@ const ProductView = (props: IModalProductViewProps) => {
     try {
       value.drug_units = drugUnitItem;
       console.log(value);
-      // const response = await customerApi.create(value);
+      return await drugApi.update(value).then((response) => {
+        console.log(response)
+        switch (response.meta[0].code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: action ? 'Cập nhật thông tin thuốc thành công!' : 'Xóa thuốc thành công!',
+            });
 
-      setDrugUnitItem([]);
-      setKey(0);
-      form.resetFields();
-      props.onCancel();
+            setDrugUnitItem([]);
+            setKey(0);
+            form.resetFields();
+            props.onCancel();
+            break;
+
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: action ? 'Cập nhật thông tin thuốc không thành công!' : 'Xóa thuốc không thành công!',
+            });
+            break;
+        }
+      })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: action ? 'Cập nhật thông tin thuốc không thành công!' : 'Xóa thuốc không thành công!',
+          });
+        })
+        .finally(() => {
+          setLoadingUpdate(false);
+        })
     } catch (err) {
       console.log(err);
     } finally { setLoadingUpdate(false); }
@@ -219,14 +246,16 @@ const ProductView = (props: IModalProductViewProps) => {
       okText: 'Đồng ý',
       cancelText: 'Hủy',
       async onOk() {
-        try {
-          return updateProduct(value);
-        } catch (e) {
+
+        return new Promise((resolve, reject) => {
+          setAction(false);
+          updateProduct(value);
+        }).catch(() => {
           notification["error"]({
             message: "Thông báo",
             description: "Có một lỗi nào đó xảy ra, vui lòng thử lại",
           });
-        }
+        })
       },
       onCancel() { },
     });
@@ -287,6 +316,7 @@ const ProductView = (props: IModalProductViewProps) => {
                 onClick={() => {
                   setBtnEdit(!btnEdit);
                   if (btnEdit) {
+                    setAction(true);
                     setLoadingUpdate(true);
                   }
                 }}

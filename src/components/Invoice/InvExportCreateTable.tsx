@@ -100,6 +100,7 @@ const InvExportCreateTable = (props: Props) => {
             name="quantity"
             onChange={(e: any) => {
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              console.log(value, Math.min(record.quantity_pre || 0, value));
               var totalAmntCurrent = record.total_amount || 0;
               var drugUnit = getDrugUnitById(record.unit_id, record);
 
@@ -230,7 +231,7 @@ const InvExportCreateTable = (props: Props) => {
             style={{
               marginTop: '5px', height: '611px', overflowY: 'scroll'
             }}
-            scroll={{ x: 900 }}
+            scroll={{ x: 240 }}
             className="table table-hover provider-table"
             columns={columnsExportDetail}
             dataSource={invImportCreateReq.products}

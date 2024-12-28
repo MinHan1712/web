@@ -108,12 +108,16 @@ const InvImportCreateTable = (props: Props) => {
               var totalAmntCurrent = record.total_amount || 0;
               var drugUnit = getDrugUnitById(record.unit_id, record);
 
-              record.quantity = Math.min(record.quantity_pre || 0, value);
+              record.quantity = value;
               record.total_amount = (record.quantity || 0) * ((drugUnit === null ? record.price : drugUnit.price * drugUnit.unit_qty) || 0);
+              console.log(record.quantity_pre, value, record);
               invImportCreateReq.products[index] = record;
+
               invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amt_total = (invImportCreateReq.info.amt_total|| 0) - totalAmntCurrent + (invImportCreateReq.info.amount || 0);
 
               setInvImportCreateReq({ ...invImportCreateReq });
+              console.log(invImportCreateReq);
             }}
           />
         )
@@ -151,7 +155,9 @@ const InvImportCreateTable = (props: Props) => {
               record.total_price = drugUnit.price * drugUnit.unit_qty;
               record.total_amount = 0;
               record.quantity = 0;
-              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent;
+
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amt_total = (invImportCreateReq.info.amt_total|| 0) - totalAmntCurrent + (invImportCreateReq.info.amount || 0);
 
               invImportCreateReq.products[index] = record;
               setInvImportCreateReq({ ...invImportCreateReq });
@@ -178,7 +184,7 @@ const InvImportCreateTable = (props: Props) => {
             name="price"
             onChange={(e: any) => {
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
-              if (value < (record.discount_amount || 0) * (record.quantity || 0)) {
+              if (value < (record.discount_amount || 0)) {
                 notification["error"]({
                   message: "Lỗi",
                   description: 'Giá nhập không được nhỏ hơn giảm giá',
@@ -198,6 +204,7 @@ const InvImportCreateTable = (props: Props) => {
 
               invImportCreateReq.products[index] = record;
               invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amt_total = (invImportCreateReq.info.amt_total|| 0) - totalAmntCurrent + (invImportCreateReq.info.amount || 0);
 
               setInvImportCreateReq({ ...invImportCreateReq });
             }}
@@ -224,26 +231,20 @@ const InvImportCreateTable = (props: Props) => {
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
               var total_sum_current = (record.total_amount || 0) + (record.discount_amount || 0) * (record.quantity || 0)
 
-              if (value > total_sum_current) {
+              if (value > (record.price || 0)) {
                 notification["error"]({
                   message: "Lỗi",
-                  description: 'Giảm giá không được lớn hơn tổng tiền',
-                });
-              }
-
-              if (value < (record.cur_price || 0)) {
-                notification["warning"]({
-                  message: "Cảnh bảo",
-                  description: 'Giá nhập cao hơn giá bán, vui lòng kiểm tra lại',
+                  description: 'Giảm giá không được lớn hơn giá nhập',
                 });
               }
 
               var totalAmntCurrent = record.total_amount || 0;
-              record.discount_amount = value / (record.quantity || 1);
+              record.discount_amount = Math.min(value, (record.price || 0));
               record.total_amount = total_sum_current - (record.discount_amount || 0) * (record.quantity || 0);
 
               invImportCreateReq.products[index] = record;
               invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amt_total = (invImportCreateReq.info.amt_total|| 0) - totalAmntCurrent + (invImportCreateReq.info.amount || 0);
 
               setInvImportCreateReq({ ...invImportCreateReq });
             }}
@@ -265,11 +266,12 @@ const InvImportCreateTable = (props: Props) => {
             value={record.vat_percent || 0}
             onChange={(e: any) => {
               var totalAmntCurrent = record.total_amount || 0;
-              record.vat_percent = e;
-              record.total_amount = (record.quantity || 0) * (record.price || 0) - (record.discount_amount || 0) * (((record.vat_percent || 0) + 100) / 100);
+              record.vat_percent = parseInt(e) || 0;
+              record.total_amount = (record.quantity || 0) * ((record.price || 0) - (record.discount_amount || 0)) * (((record.vat_percent || 0) + 100) / 100);
 
               invImportCreateReq.products[index] = record;
               invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amt_total = (invImportCreateReq.info.amt_total|| 0) - totalAmntCurrent + (invImportCreateReq.info.amount || 0);
 
               setInvImportCreateReq({ ...invImportCreateReq });
             }}
