@@ -4,6 +4,7 @@ import { IUnit } from "../interfaces/common";
 import { IProperty } from "../interfaces/property";
 import { IRoleInfoListMenu } from "../interfaces/role";
 import { ILoginResponse } from "../interfaces/login";
+import { KEY_LOCAL_STORAGE } from "../constants/general.constant";
 
 
 export const parseJSON = <T>(value: string | null): T | string | null => {
@@ -53,55 +54,80 @@ export const getRoles = (): IRoleInfoListMenu[] => {
 }
 
 export const setAuth = async (value: ILoginResponse) => {
+  console.log(value);
   setLocalStorage('store', value);
-  setLocalStorage('token', value.token);
+  setLocalStorage(KEY_LOCAL_STORAGE.AUTHEN, value.token);
 }
 
 export const setExportType = async () => {
   var value = getLocalStorage('export_types');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getProperties("EXPORT_TYPE")
-    setLocalStorage('export_types', (await response).data)
+    await commonApi.getProperties("EXPORT_TYPE")
+      .then(response => {
+        setLocalStorage('export_types', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 
 export const setImportType = async () => {
   var value = getLocalStorage('import_types');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getProperties("IMPORT_TYPE")
-    setLocalStorage('import_types', (await response).data)
+    await commonApi.getProperties("IMPORT_TYPE")
+      .then(response => {
+        setLocalStorage('import_types', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 
 export const setPaymentMethods = async () => {
   var value = getLocalStorage('pay_menthods');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getProperties("PAY_METHOD")
-    setLocalStorage('pay_menthods', (await response).data)
+    await commonApi.getProperties("PAY_METHOD")
+      .then(response => {
+        setLocalStorage('pay_menthods', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 
 export const setInvSource = async () => {
   var value = getLocalStorage('inv_sources');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getProperties("INVOICE_SOURCE")
-    setLocalStorage('inv_sources', (await response).data)
+    await commonApi.getProperties("INVOICE_SOURCE")
+      .then(response => {
+        setLocalStorage('inv_sources', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 
 export const setUnits = async () => {
   var value = getLocalStorage('units');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getUnits()
-    setLocalStorage('units', (await response).data)
+    await commonApi.getUnits()
+      .then(response => {
+        setLocalStorage('units', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 
 export const setRoles = async () => {
   var value = getLocalStorage('roles');
   if (value == null || value === undefined || (value && value.length < 0)) {
-    const response = commonApi.getUnits();
-    setLocalStorage('roles', (await response).data)
+    await commonApi.getRole()
+      .then(response => {
+        setLocalStorage('roles', response.data)
+      })
+      .catch(() => {
+      });
   }
 }
 

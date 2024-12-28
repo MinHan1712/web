@@ -15,56 +15,57 @@ const Login = (prop: ILogin) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const loginToApi = async (login: ILoginRequest) => {
-    return await commonApi.login(login)
-      .then(response => {
-        if (response.meta[0].code === 200) {
-          setAuth(response.data)
-          navigate('/sanpham/danhmuc', {
-            state: {
-              token: response.data.token
-            }
-          });
-          setLoading(false);
-          return;
-        }
+  // const loginToApi = async (login: ILoginRequest) => {
+  //   return await commonApi.login(login)
+  //     .then(response => {
+  //       if (response.meta[0].code === 200) {
+  //         setAuth(response.data)
+  //         navigate('/sanpham/danhmuc', {
+  //           state: {
+  //             token: response.data.token
+  //           }
+  //         });
+  //         setLoading(false);
+  //         return;
+  //       }
 
-        notification['error']({
-          message: "Lỗi",
-          description: 'Sai mật khẩu hoặc tên đăng nhập',
-        });
+  //       notification['error']({
+  //         message: "Lỗi",
+  //         description: 'Sai mật khẩu hoặc tên đăng nhập',
+  //       });
 
-        setLoading(false);
-      })
-      .catch(() => {
-        notification['error']({
-          message: "Lỗi",
-          description: 'Sai mật khẩu hoặc tên đăng nhập',
-        });
-        setLoading(false);
-      });
-  }
+  //       setLoading(false);
+  //     })
+  //     .catch(() => {
+  //       notification['error']({
+  //         message: "Lỗi",
+  //         description: 'Sai mật khẩu hoặc tên đăng nhập',
+  //       });
+  //       setLoading(false);
+  //     });
+  // }
 
   const triggerFormEvent = async (login: ILoginRequest) => {
     return await commonApi.login(login)
       .then(response => {
-        if (response.meta[0].code === 200) {
-          setAuth(response.data)
+        console.log(response);
+        // if (response.meta[0].code === 200) {
+          setAuth(response)
           navigate('/sanpham/danhmuc', {
             state: {
-              token: response.data.token
+              token: response.token
             }
           });
           setLoading(false);
           return;
-        }
+      //   }
 
-        notification['error']({
-          message: "Lỗi",
-          description: 'Sai mật khẩu hoặc tên đăng nhập',
-        });
+      //   notification['error']({
+      //     message: "Lỗi",
+      //     description: 'Sai mật khẩu hoặc tên đăng nhập',
+      //   });
 
-        setLoading(false);
+      //   setLoading(false);
       })
       .catch(() => {
         notification['error']({

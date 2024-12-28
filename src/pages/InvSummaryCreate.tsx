@@ -94,6 +94,7 @@ const InvSummaryCreate = () => {
         key: key,
         summary_dd_id: '',
         inv_detail_id: value.id,
+        inv_detail: value.inventory_id,
         cur_qty: value.sum_base_quantity || value.base_quantity,
         pre_qty: value.sum_base_quantity || value.base_quantity,
         drug_id: value.drug_id,

@@ -146,6 +146,7 @@ const InvExportCreate: React.FC = () => {
 			var data = {
 				key: key,
 				inventory_detail_id: value.id,
+				inv_id: value.inventory_id,
 				drug_code: value.drug_code,
 				drug_id: value.drug_id,
 				drug_name: value.drug_name,

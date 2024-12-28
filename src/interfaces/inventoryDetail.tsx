@@ -24,6 +24,7 @@ export interface IDrugInventoryDetailResponse {
     drug_code?: string;
     unit_name?: string;
     total_amount?: number;
+    inv_id?: string;
 }
 
 

@@ -30,6 +30,7 @@ export interface IDrgInvSummaryDetailCreate {
   lot?: string;
   price?: number;
   exp_date?: string;
+  inv_detail?: string;
 }
 
 export interface IDrugInvSummaryPageRequest extends IPagingAndSortRequest {

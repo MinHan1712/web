@@ -46,10 +46,11 @@ const commonApi = {
       throw error;
     }
   },
-  login: async (params: any): Promise<IResponse<ILoginResponse>> => {
+  login: async (params: any): Promise<ILoginResponse> => {
     try {
-      const response = await privateClient.get<IResponse<ILoginResponse>>(
+      const response = await privateClient.post<ILoginResponse>(
         endpoint.login(),
+        params
       );
       console.log(response);
       return response.data;
