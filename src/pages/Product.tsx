@@ -1,5 +1,5 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Pagination, Select, Tag } from "antd";
+import { Button, Empty, Flex, Pagination, Select, SelectProps, Tag } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
@@ -12,6 +12,9 @@ import ProductView from "../components/product/ProductView";
 import { selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
+import { IDrugKindResponse } from "../interfaces/drugKind";
+import { IDrugGroupResponse } from "../interfaces/drugGroup";
+import { getDrgGroup, getDrgKind, getListGroupOption, getListKindOption, getListUnitOption } from "../utils/local";
 
 const productColumns: ColumnsType<IDrugResponse> = [
 	{
@@ -168,6 +171,13 @@ const Product: React.FC = () => {
 	const [openFormCreate, setOpenFormCreate] = useState(false);
 	const [isReload, setIsReload] = useState(false);
 
+	const [optionKind, setOptionKind] = useState<SelectProps<string>['options']>([]);
+	const [optionGroup, setOptionGroup] = useState<SelectProps<string>['options']>([]);
+	const [optionUnit, setOptionUnit] = useState<SelectProps<string>['options']>([]);
+	const [listKind, setListKind] = useState<IDrugKindResponse[]>([]);
+	const [listGroup, setListGroup] = useState<IDrugGroupResponse[]>([]);
+
+
 	const [productRes, setProductRes] = useState<IPageResponse<IDrugResponse[]>>({
 		page: 1,
 		size: 20,
@@ -211,6 +221,12 @@ const Product: React.FC = () => {
 		setIsReload(false);
 		getListProduct();
 		console.log('request', productReq);
+		setListKind(getDrgKind());
+		setListGroup(getDrgGroup());
+		setOptionKind(getListKindOption());
+		setOptionGroup(getListGroupOption());
+		setOptionUnit(getListUnitOption());
+
 	}, [productReq, isReload])
 
 	return (
@@ -226,7 +242,8 @@ const Product: React.FC = () => {
 						<span>Thêm mới</span>
 					</Button>
 				</Flex>
-				<ProductSearch productReq={productReq} triggerFormEvent={triggerFormEvent} />
+				<ProductSearch productReq={productReq} triggerFormEvent={triggerFormEvent} optionGroup={optionGroup}
+					optionKind={optionKind} />
 			</Flex>
 			<div className="table-wrapper">
 				<Table
@@ -280,7 +297,7 @@ const Product: React.FC = () => {
 								});
 								setPageSize(size);
 							}} />
-						<h5> Tổng số {productRes.totalElements || 0}  nhà cung cấp</h5>
+						<h5> Tổng số {productRes.totalElements || 0}  sản phẩm</h5>
 					</Flex>
 
 
@@ -304,8 +321,14 @@ const Product: React.FC = () => {
 				onCancel={() => {
 					setOpenviewDate(false);
 					getListProduct();
+					setIsReload(true);
 				}}
 				data={dataItem}
+				optionGroup={optionGroup}
+				optionKind={optionKind}
+				listGroup={listGroup}
+				listKind={listKind}
+				optionUnit={optionUnit}
 
 			/>
 
@@ -313,8 +336,13 @@ const Product: React.FC = () => {
 				open={openFormCreate}
 				onCancel={() => {
 					setOpenFormCreate(false);
-					getListProduct();
+					setIsReload(true);
 				}}
+				optionGroup={optionGroup}
+				optionKind={optionKind}
+				listGroup={listGroup}
+				listKind={listKind}
+				optionUnit={optionUnit}
 			/>
 		</>
 	);

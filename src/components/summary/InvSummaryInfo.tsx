@@ -96,6 +96,18 @@ const InvSummaryInfo = (props: IDrgInvSummaryProps) => {
           marginTop: '10px',
           minHeight: '350px'
         }}
+        components={{
+          header: {
+            cell: (props: any) => {
+              return (
+                <th
+                  {...props}
+                  style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
+                />
+              );
+            },
+          },
+        }}
         size="small"
         className="table"
         columns={columnsDrugSummaryInv}

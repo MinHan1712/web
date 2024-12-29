@@ -38,7 +38,7 @@ const drugApi = {
 	create: async (params: any): Promise<IResponse<IDrugResponse>> => {
 		try {
 			const response = await privateClient.post<IResponse<IDrugResponse>>(
-				endPoint.update,
+				endPoint.create,
 				params
 			);
 			console.log(response);

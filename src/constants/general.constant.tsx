@@ -194,6 +194,6 @@ export const Type = [
 ]
 
 export const activeStatus = [
-  { value: "true", label: "Đang hoạt động" },
-  { value: "false", label: "Không hoạt đông" },
+  { value: true, label: "Đang hoạt động" },
+  { value: false, label: "Không hoạt đông" },
 ];

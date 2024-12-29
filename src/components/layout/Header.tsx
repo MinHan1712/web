@@ -32,7 +32,7 @@ const HeaderLayout = (props: any) => {
               marginLeft: props.collapsed ? 20 : 0
             }} onClick={props.toggleCollapsed} />
             {
-              props.collapsed ? "" : <div style={{fontSize: '20px'}}>Medicine</div>
+              props.collapsed ? "" : <div style={{ fontSize: '20px' }}>Medicine</div>
             }
           </Flex>
           <Flex justify={'flex-end'} align={'center'}>
@@ -47,13 +47,13 @@ const HeaderLayout = (props: any) => {
                   });
                 }}
               >
-                <ProfileOutlined style={{fontWeight: 'bold'}}/>
+                <ProfileOutlined style={{ fontWeight: 'bold' }} />
                 <span>TẠO ĐƠN</span>
               </Button>
             </div>
             <div className="left-item">
-                <DropDowInfoUser />
-              </div>
+              <DropDowInfoUser />
+            </div>
           </Flex>
 
 

@@ -1,13 +1,13 @@
 import { IPageResponse, IResponse } from "../interfaces/common";
 import { ILoginResponse } from "../interfaces/login";
 import { IProperty } from "../interfaces/property";
-import { IRoleInfoListMenu } from "../interfaces/role";
+import { IGroups } from "../interfaces/role";
 import privateClient from "./clients/private.client";
 
 const endpoint = {
   getListProperties: (type: any) => `/inventory/type?type=${type}`,
   getListUnits: () => `/units/standard`,
-  getListRole: () => `/role/menu`,
+  getListRole: () => `/user/role`,
   login: () => 'login',
   register: () => 'store/create',
 };
@@ -35,9 +35,9 @@ const commonApi = {
       throw error;
     }
   },
-  getRole: async (): Promise<IResponse<IPageResponse<IRoleInfoListMenu[]>>> => {
+  getRole: async (): Promise<IResponse<IPageResponse<IGroups[]>>> => {
     try {
-      const response = await privateClient.get<IResponse<IPageResponse<IRoleInfoListMenu[]>>>(
+      const response = await privateClient.get<IResponse<IPageResponse<IGroups[]>>>(
         endpoint.getListRole(),
       );
       console.log(response);

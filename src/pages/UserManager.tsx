@@ -190,14 +190,14 @@ const UserManager = () => {
     setLoading(true);
     userApi.get(userRoleReq)
       .then((response) => {
-        if (response.meta[0].code === 200) {
-          setUserRoleRes(response.data);
-        } else {
-          notification['error']({
-            message: "Thông báo",
-            description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
-          });
-        }
+        // if (response.meta[0].code === 200) {
+          setUserRoleRes(response);
+        // } else {
+        //   notification['error']({
+        //     message: "Thông báo",
+        //     description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
+        //   });
+        // }
       }).catch((error) => {
         notification['error']({
           message: "Thông báo",
@@ -283,8 +283,8 @@ const UserManager = () => {
     },
     {
       title: "Trạng thái",
-      dataIndex: "active",
-      key: "active",
+      dataIndex: "status",
+      key: "status",
       width: "8%",
       align: "center",
       render: (text) => {
@@ -298,66 +298,8 @@ const UserManager = () => {
         );
 
       },
-    },
-    {
-      title: "Xóa",
-      dataIndex: "user_id",
-      key: "user_id",
-      width: "50px",
-      align: "center",
-      render: (_: any, record: IUserWithRoleResponse, index: number) => {
-        return (
-          <Popconfirm
-            placement="topLeft"
-            title={"Bạn có muốn xóa nhân viên này?"}
-            description={""}
-            onConfirm={() => deleteUserApi(record)}
-            okText="Đồng ý"
-            cancelText="Hủy"
-          >
-            <DeleteOutlined style={{ fontWeight: "600", color: "red" }} />
-          </Popconfirm>
-        )
-      },
-    },
-
-  ];
-
-  const deleteUserApi = async (value: IUserWithRoleResponse) => {
-    var update: IUserRequestUpdate = {
-      ...value,
-      status: false,
-      active: false,
-      id: value.user_id || ''
     }
-
-    return await userApi.update(update).then((response) => {
-      console.log(response)
-      switch (response.meta[0].code) {
-        case 200:
-          notification['success']({
-            message: "Thông báo",
-            description: 'Xóa nhân viên thành công',
-          });
-          getListUserManger();
-          break;
-        default:
-          notification['error']({
-            message: "Thông báo",
-            description: 'Xóa nhân viên không thành công',
-          });
-          break;
-      }
-    })
-      .catch((error) => {
-        notification['error']({
-          message: "Thông báo",
-          description: 'Cập nhập nhân viên không thành công',
-        });
-      })
-
-  }
-
+  ];
 
   const triggerFormEvent = (value: IUserWithRolePageRequest) => {
     setUserRoleReq({

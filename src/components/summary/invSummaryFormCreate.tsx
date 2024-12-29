@@ -132,7 +132,7 @@ const InvSummaryFormCreate = (props: InventorySummaryCreateFormPorps) => {
         return (
           <Popconfirm
             placement="topLeft"
-            title={"Bạn có muốn xóa khách hàng này?"}
+            title={"Bạn có muốn xóa hàng này?"}
             description={""}
             onConfirm={() => props.confirmDeleteCellToTable(record.key || 0, index)}
             okText="Đồng ý"
@@ -160,7 +160,7 @@ const InvSummaryFormCreate = (props: InventorySummaryCreateFormPorps) => {
           scroll={{ x: 240 }}
           className="table table-hover provider-table"
           columns={columnsInvSummaryDetail}
-          dataSource={invSummaryCreateReq.products}
+          dataSource={[...invSummaryCreateReq.products]}
           pagination={false}
         />
       </div>

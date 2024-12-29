@@ -1,14 +1,15 @@
-import { Col, DatePicker, Empty, Row } from "antd";
+import { Col, DatePicker, Empty, notification, Row } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
+import invoiceApi from "../../apis/invoice.api";
+import "../../assets/css/supplier.css";
 import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";
+import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
 import { IProperty } from "../../interfaces/property";
 import { IDrugInvSummaryResponse } from "../../interfaces/summaryInvoice";
 import { renderText } from "../common";
-import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
-import "../../assets/css/supplier.css";
 const { RangePicker } = DatePicker;
 
 interface IInvSummaryWithImportInvProps {
@@ -19,11 +20,43 @@ interface IInvSummaryWithImportInvProps {
 
 const InvSummaryImport = (props: IInvSummaryWithImportInvProps) => {
     const [isEmptyDate, setIsEmptyData] = useState(true);
-    const [detail, setDetail] = useState<IInvoiceImportResponse>({ inventory_id: '' })
+    const [detail, setInvImportRes] = useState<IInvoiceImportResponse>({ inventory_id: '' });
+
 
     // get
-    const getListInvImportWidthSummaryID = () => {
+    const getListInvImportWidthSummaryID = async () => {
         setIsEmptyData(true);
+        try {
+            await invoiceApi.getList({
+                page: 0,
+                size: 0,
+                classification: false,
+                summary_id: props.data.summary_id
+            }).then((response) => {
+
+                // if (response.meta[0].code !== API_STATUS.SUCCESS) {
+                // 	//error
+                // 	return;
+                // }
+                setInvImportRes(response.data.length > 0 ? response.data[0] : { inventory_id: '' });
+                console.log(response.data.length > 0 ? response.data[0] : { inventory_id: '' }, detail);
+                setIsEmptyData(false);
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
+        } catch (err) {
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            setIsEmptyData(true);
+        } finally { }
+
     }
 
     const columnInvSummaryWithImportInv: ColumnsType<IDrugInventoryDetailResponse> = [
@@ -89,7 +122,7 @@ const InvSummaryImport = (props: IInvSummaryWithImportInvProps) => {
             width: "16%",
             render: (text) => (
                 <div className="style-text-limit-number-line2">
-                    <span style={{ fontWeight: "600", color: "red" }}>{Math.abs(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                    <span style={{ fontWeight: "600", color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                 </div>
             )
         },
@@ -111,7 +144,7 @@ const InvSummaryImport = (props: IInvSummaryWithImportInvProps) => {
             width: "16%",
             render: (text) => (
                 <div className="style-text-limit-number-line2">
-                    <span style={{ color: "red" }}>{Math.abs(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                    <span style={{ color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                 </div>
             )
         },
@@ -134,7 +167,7 @@ const InvSummaryImport = (props: IInvSummaryWithImportInvProps) => {
     }, [props.data])
     return (
         <div className="container-page history-provider-container tab-pane-container">
-            {isEmptyDate ? <Empty description='Không tìm thấy dữ liệu' /> :
+            {isEmptyDate ? <Empty description='Không có dữ liệu' /> :
                 <>
                     <Row style={{ margin: "5px" }} className="d-flex ant-row-flex-space-around">
                         <Col span={8} style={{ padding: "5px" }}>
@@ -156,26 +189,38 @@ const InvSummaryImport = (props: IInvSummaryWithImportInvProps) => {
                     </Row>
 
                     <div className="ant-table-wrapper" style={{ backgroundColor: 'rgb(255, 255, 255)', marginTop: '10px', minHeight: '300px' }}>
-                        <div className="table-container">
-                            <Table locale={{
-                                emptyText: (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-                                )
+                        {/* <div className="table-container"> */}
+                        <Table locale={{
+                            emptyText: (
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+                            )
+                        }}
+                            rowKey={(record) => record.id ? record.id : "0"}
+                            style={{
+                                backgroundColor: 'rgb(255, 255, 255',
+                                marginTop: '10px',
+                                minHeight: '350px'
                             }}
-                                rowKey={(record) => record.id ? record.id : "0"}
-                                style={{
-                                    backgroundColor: 'rgb(255, 255, 255',
-                                    marginTop: '10px',
-                                    minHeight: '350px'
-                                }}
-                                size="small"
-                                className="table table-hover provider-table"
-                                scroll={{ x: 1024, y: 440 }}
-                                columns={columnInvSummaryWithImportInv}
-                                dataSource={detail.drg_inv_inventory_details}
-                                pagination={false}
-                            />
-                        </div>
+                            components={{
+                                header: {
+                                    cell: (props: any) => {
+                                        return (
+                                            <th
+                                                {...props}
+                                                style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
+                                            />
+                                        );
+                                    },
+                                },
+                            }}
+                            size="small"
+                            className="table table-hover provider-table"
+                            scroll={{ x: 1024, y: 440 }}
+                            columns={columnInvSummaryWithImportInv}
+                            dataSource={detail.drg_inv_inventory_details}
+                            pagination={false}
+                        />
+                        {/* </div> */}
                     </div>
                 </>}
         </div>

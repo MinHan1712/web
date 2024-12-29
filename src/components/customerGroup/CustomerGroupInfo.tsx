@@ -16,9 +16,8 @@ interface ICustomerGroupInformationProps {
 
 const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
     const [form] = Form.useForm<ICustomerGroupResponse>();
-    const [isSummitForm, setIsSummitForm] = useState(false);
+    // const [isSummitForm, setIsSummitForm] = useState(false);
     const [btnEdit, setBtnEdit] = useState(false);
-    const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
     const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
     const [confirmLoadingUpdate, setConfirmLoadingUpdate] = useState(false);
 
@@ -28,9 +27,9 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
     }, [props.data]);
 
 
-    useEffect(() => {
-        if (isSummitForm) form.submit();
-    }, [isSummitForm]);
+    // useEffect(() => {
+    //     if (isSummitForm) form.submit();
+    // }, [isSummitForm]);
 
 
 
@@ -44,34 +43,79 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                 note: value.note,
                 status: props.data.status
             };
-            console.log("CustomerGroupUpdate", CustomerGroupUpdate);
 
-            const response = await customerGroupApi.update(CustomerGroupUpdate);
-            handleCloseModalView();
-            props.onCancel();
-            console.log(response)
+            await customerGroupApi.update(CustomerGroupUpdate).then((response) => {
+                console.log(response)
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Cập nhập nhóm khách hàng thành công',
+                });
+                handleCloseModalView();
+                props.onCancel();
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Cập nhập nhóm khách hàng không thành công',
+                //     });
+                //     break;
+                // }
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
         } catch (err) {
-            console.log(err);
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
         } finally { setConfirmLoadingUpdate(false); }
     }
 
     const handleActiondDelete = async (id: string) => {
         try {
-            const response = await customerGroupApi.remove(id);
-            handleCloseModalView();
-            props.onCancel();
-            console.log(response)
-        } catch {
+            await customerGroupApi.remove(id).then((response) => {
+                console.log(response)
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Xóa nhóm khách hàng thành công',
+                });
+                handleCloseModalView();
+                props.onCancel();
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Xóa nhóm khách hàng không thành công',
+                //     });
+                //     break;
+                // }
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
+        } catch (err) {
             notification['error']({
-                message: "Thông báo",
+                message: "Lỗi",
                 description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
             });
-        }
+        } finally { }
     };
 
     const handleCloseModalView = () => {
         form.resetFields();
-        setOpenConfirmDelete(false);
         setConfirmLoadingDelete(false);
         setConfirmLoadingUpdate(false);
         setBtnEdit(false);
@@ -90,8 +134,8 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                 onFinish={updateCustomerGroup}
             >
                 <Flex justify="space-between" align={'center'} style={{ width: '100%' }}>
-                    <Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '90%' }}>
-                        <div className="wrapper-column" style={{ width: '90%' }}>
+                    <Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '100%' }}>
+                        <div className="wrapper-column" style={{ width: '100%' }}>
                             <Form.Item<ICustomerGroupResponse>
                                 {...formItemLayout}
                                 labelAlign={"left"}
@@ -110,7 +154,7 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                                 />
                             </Form.Item>
                         </div>
-                        <div className="wrapper-column" style={{ width: '90%' }}>
+                        <div className="wrapper-column" style={{ width: '100%' }}>
                             <Form.Item<ICustomerGroupResponse>
                                 {...formItemLayout}
                                 name={'customer_group_name'}
@@ -129,7 +173,7 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                                 />
                             </Form.Item>
                         </div>
-                        <div className="wrapper-column" style={{ width: '90%' }}>
+                        <div className="wrapper-column" style={{ width: '100%' }}>
                             <Form.Item<ICustomerGroupResponse>
                                 {...formItemLayout}
                                 labelAlign={"left"}
@@ -156,17 +200,14 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                     <Popconfirm
                         title="Title"
                         description="Bạn có chắc chắn muốn xoá nhà cung cấp?"
-                        open={openConfirmDelete}
                         onConfirm={() => handleActiondDelete(props.data.customer_group_id)}
                         okText='Đồng ý'
                         cancelText='Hủy'
                         okButtonProps={{ loading: confirmLoadingDelete }}
-                        onCancel={() => setOpenConfirmDelete(false)}
                     >
                         <Button
                             className="button btn-delete"
                             type="primary"
-                            onClick={() => setOpenConfirmDelete(true)}
                         >
                             <DeleteOutlined style={{ paddingRight: '5px' }} />
                             <span>Xóa</span>
@@ -182,7 +223,7 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                             setBtnEdit(!btnEdit);
                             if (btnEdit) {
                                 setConfirmLoadingUpdate(true);
-                                setIsSummitForm(!isSummitForm);
+                                form.submit()
                             }
                         }}
                     >

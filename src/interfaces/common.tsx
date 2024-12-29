@@ -31,7 +31,6 @@ export interface IUnit {
   unit_id?: string;
   unit_cd?: string;
   unit_name?: string;
-  account_id?: string;
   status?: boolean;
   created_date?: string;
   updated_user?: string;

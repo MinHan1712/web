@@ -51,7 +51,7 @@ const Login = (prop: ILogin) => {
         console.log(response);
         // if (response.meta[0].code === 200) {
           setAuth(response)
-          navigate('/sanpham/danhmuc', {
+          navigate('/sanpham', {
             state: {
               token: response.token
             }

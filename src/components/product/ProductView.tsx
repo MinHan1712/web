@@ -6,7 +6,7 @@ import {
   QuestionCircleOutlined,
   SyncOutlined
 } from "@ant-design/icons";
-import type { TabsProps } from "antd";
+import type { SelectProps, TabsProps } from "antd";
 import { Button, Empty, Flex, Form, InputNumber, Modal, notification, Popconfirm, Select, Table, Tabs, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import '../../assets/css/style.css';
@@ -17,12 +17,19 @@ import { ColumnsType } from "antd/es/table";
 import { AlignType } from "rc-table/lib/interface";
 import { IDrugUnitCreate, IDrugUnitResponse } from "../../interfaces/drugUnit";
 import drugApi from "../../apis/drug.api";
+import { IDrugKindResponse } from "../../interfaces/drugKind";
+import { IDrugGroupResponse } from "../../interfaces/drugGroup";
 
 
 interface IModalProductViewProps {
   open: boolean;
   onCancel: () => void;
   data: IDrugResponse;
+  optionKind: SelectProps<string>['options'];
+  optionUnit: SelectProps<string>['options'];
+  optionGroup: SelectProps<string>['options'];
+  listKind: IDrugKindResponse[];
+  listGroup: IDrugGroupResponse[];
 }
 
 const ProductView = (props: IModalProductViewProps) => {
@@ -31,13 +38,14 @@ const ProductView = (props: IModalProductViewProps) => {
 
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [btnEdit, setBtnEdit] = useState(false);
-  const [key, setKey] = useState(0);
+  const [key, setKey] = useState(props.data.drug_units?.length || 1);
   const [action, setAction] = useState(false);
 
   const [drugUnitItem, setDrugUnitItem] = useState<IDrugUnitCreate[]>([]);
 
   useEffect(() => {
     form.setFieldsValue({ ...props.data });
+    setDrugUnitItem(props.data.drug_units || []);
     console.log(props.data);
   }, [props.data]);
 
@@ -49,21 +57,27 @@ const ProductView = (props: IModalProductViewProps) => {
       width: "25%",
       align: "left" as AlignType,
       render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return <Select
-          className="d-flex"
-          style={{ marginBottom: "8px", textAlign: 'left' }}
-          size="middle"
-          value={record.unit_id}
-          id="unit_id"
-          // options={optionUnit}
-          onChange={(e: any) => {
-            record.unit_id = e;
-            record.unit_parent_id = drugUnitItem && drugUnitItem.length > 1 ? drugUnitItem[0]['unit_id'] : e;
-            drugUnitItem[index] = record;
-            setDrugUnitItem(drugUnitItem);
-            console.log(drugUnitItem);
-          }}
-        />
+        return (
+          <Select
+            className="d-flex"
+            style={{ marginBottom: "8px", textAlign: 'left' }}
+            size="middle"
+            value={record.unit_id}
+            id="unit_id"
+            options={props.optionUnit}
+            disabled={record.key === 1 ? true : !btnEdit}
+            onChange={(e: any) => {
+
+              const updatedRecord = { ...record, unit_id: e };
+              updatedRecord.unit_parent_id = drugUnitItem.length > 1 ? drugUnitItem[0]['unit_id'] : e;
+
+              const updatedDrugUnitItem = [...drugUnitItem];
+              updatedDrugUnitItem[index] = updatedRecord;
+
+              setDrugUnitItem(updatedDrugUnitItem);
+            }}
+          />
+        );
       },
     },
     {
@@ -73,27 +87,33 @@ const ProductView = (props: IModalProductViewProps) => {
       width: "25%",
       align: "center" as AlignType,
       render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return <Flex gap="middle" justify="flex-start" align={'center'}>
-          <Tooltip placement="top" style={{ background: '#fff', color: '#000' }}
-          // title={record.key == 0 ? "Đơn vị nhỏ nhất bán ra" : `Một ${record.unit_name} = ? ${unit.unit_name}`}
-          >
-            <QuestionCircleOutlined style={{ color: 'red', paddingRight: '5px' }} />
-          </Tooltip>
-          <InputNumber
-            size="middle"
-            controls={false}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '')}
-            min={0}
-            name="unit_qty"
-            value={record.unit_qty}
-            onChange={(e: any) => {
-              record.unit_qty = e;
-              drugUnitItem[index] = record;
-              setDrugUnitItem(drugUnitItem);
-              console.log(drugUnitItem);
-            }}
-          />
-        </Flex>;
+        return (
+          <Flex gap="middle" justify="flex-start" align={'center'}>
+            <Tooltip placement="top" style={{ background: '#fff', color: '#000' }}>
+              <QuestionCircleOutlined style={{ color: 'red', paddingRight: '5px' }} />
+            </Tooltip>
+            <InputNumber
+              size="middle"
+              controls={false}
+              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '')}
+              min={0}
+              name="unit_qty"
+              value={record.unit_qty}
+              disabled={record.key === 1 ? true : !btnEdit}
+              onChange={(e: any) => {
+
+                const updatedRecord = { ...record, unit_qty: e };
+
+
+                const updatedDrugUnitItem = [...drugUnitItem];
+                updatedDrugUnitItem[index] = updatedRecord;
+
+
+                setDrugUnitItem(updatedDrugUnitItem);
+              }}
+            />
+          </Flex>
+        );
       },
     },
     {
@@ -103,7 +123,7 @@ const ProductView = (props: IModalProductViewProps) => {
       width: "25%",
       align: "center" as AlignType,
       render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return <>
+        return (
           <InputNumber
             size="middle"
             value={record.import_price}
@@ -111,14 +131,20 @@ const ProductView = (props: IModalProductViewProps) => {
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             min={0}
             name="import_price"
+            disabled={!btnEdit}
             onChange={(e: any) => {
-              record.import_price = e;
-              drugUnitItem[index] = record;
-              setDrugUnitItem(drugUnitItem);
-              console.log(drugUnitItem);
+
+              const updatedRecord = { ...record, import_price: e };
+
+
+              const updatedDrugUnitItem = [...drugUnitItem];
+              updatedDrugUnitItem[index] = updatedRecord;
+
+
+              setDrugUnitItem(updatedDrugUnitItem);
             }}
           />
-        </>;
+        );
       },
     },
     {
@@ -128,22 +154,28 @@ const ProductView = (props: IModalProductViewProps) => {
       width: "25%",
       align: "center" as AlignType,
       render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return <>
+        return (
           <InputNumber
             size="middle"
             min={0}
             value={record.price}
             controls={false}
             name="price"
+            disabled={!btnEdit}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             onChange={(e: any) => {
-              record.price = e;
-              drugUnitItem[index] = record;
-              setDrugUnitItem(drugUnitItem);
-              console.log(drugUnitItem);
+
+              const updatedRecord = { ...record, price: e };
+
+
+              const updatedDrugUnitItem = [...drugUnitItem];
+              updatedDrugUnitItem[index] = updatedRecord;
+
+
+              setDrugUnitItem(updatedDrugUnitItem);
             }}
           />
-        </>;
+        );
       },
     },
     {
@@ -153,34 +185,45 @@ const ProductView = (props: IModalProductViewProps) => {
       width: "10%",
       align: "right" as AlignType,
       render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return record.key != 0 ?
+        return record.key !== 1 ? (
           <Popconfirm
             placement="topLeft"
             title={"Bạn có muốn xóa khách hàng này?"}
-            description={""}
             onConfirm={() => {
-              drugUnitItem.splice(index, 1);
-              if (drugUnitItem.length == 0) setKey(0);
-              setDrugUnitItem(drugUnitItem);
-              console.log(drugUnitItem);
+
+              const updatedDrugUnitItem = [...drugUnitItem];
+              updatedDrugUnitItem.splice(index, 1);
+
+              // Handle the case where the last item is deleted
+              if (updatedDrugUnitItem.length === 0) {
+                setKey(0);
+              }
+
+
+              setDrugUnitItem(updatedDrugUnitItem);
             }}
             okText="Đồng ý"
             cancelText="Hủy"
           >
             <DeleteOutlined style={{ fontWeight: "600", color: "red" }} />
-          </Popconfirm> : ""
+          </Popconfirm>
+        ) : null;
       },
     },
   ];
 
+
   const eventSummitForm = (formValue: IDrugResponse) => {
     setLoadingUpdate(true);
-    updateProduct(formValue);
+    updateProduct(formValue, props.data.status || true, props.data.active_flg || true);
   }
 
-  const updateProduct = async (value: IDrugRequest) => {
+  const updateProduct = async (value: IDrugRequest, status: boolean, activeFlg: boolean) => {
     try {
       value.drug_units = drugUnitItem;
+      value.drug_id = props.data.drug_id;
+      value.active_flg = activeFlg;
+      value.status = status;
       console.log(value);
       return await drugApi.update(value).then((response) => {
         console.log(response)
@@ -222,12 +265,16 @@ const ProductView = (props: IModalProductViewProps) => {
     {
       key: "1",
       label: "Thông tin cơ bản",
-      children: <ProductCreateInfo />,
+      children: <ProductCreateInfo optionGroup={props.optionGroup}
+        optionKind={props.optionKind}
+        listGroups={props.listGroup}
+        listKind={props.listKind}
+        btnEdit={btnEdit} />,
     },
     {
       key: "2",
       label: "Thông tin nâng cao",
-      children: <ProductCreateAvg />,
+      children: <ProductCreateAvg btnEdit={btnEdit} />,
     }
   ];
 
@@ -235,10 +282,11 @@ const ProductView = (props: IModalProductViewProps) => {
     props.onCancel();
     setDrugUnitItem([]);
     setKey(0);
+    setBtnEdit(false);
     form.resetFields();
   }
 
-  const onConfirmDrug = (value: IDrugRequest, content: string = "") => {
+  const onConfirmDrug = (value: IDrugRequest, content: string = "", status: boolean, activeFlg: boolean) => {
     confirm({
       title: 'Thông báo?',
       icon: <QuestionCircleOutlined />,
@@ -249,7 +297,7 @@ const ProductView = (props: IModalProductViewProps) => {
 
         return new Promise((resolve, reject) => {
           setAction(false);
-          updateProduct(value);
+          updateProduct(value, status, activeFlg);
         }).catch(() => {
           notification["error"]({
             message: "Thông báo",
@@ -278,8 +326,7 @@ const ProductView = (props: IModalProductViewProps) => {
                 className="button btn-delete d-flex flex-row justify-content-center align-content-center"
                 type="primary"
                 onClick={() => {
-                  // valueDrug.status = false;
-                  onConfirmDrug(props.data, "Toàn bộ dữ liệu của thuốc này sẽ bị xoá trong kho, Bạn có chắc chắn muốn xoá sản phẩm này?");
+                  onConfirmDrug(props.data, "Toàn bộ dữ liệu của thuốc này sẽ bị xoá trong kho, Bạn có chắc chắn muốn xoá sản phẩm này?", false, true);
                 }}
               >
                 <DeleteOutlined />
@@ -293,7 +340,7 @@ const ProductView = (props: IModalProductViewProps) => {
                   // valueDrug.active_flg = !valueDrug.active_flg;
                   onConfirmDrug(props.data, props.data.active_flg ?
                     "Bạn có chắc chắn muốn ngừng kinh doanh sản phẩm này?"
-                    : "Bạn có chắc chắn muốn kinh doanh lại sản phẩm này?");
+                    : "Bạn có chắc chắn muốn kinh doanh lại sản phẩm này?", true, !props.data.active_flg);
 
                 }}
                 className={`button ${props.data.active_flg ? 'btn-delete' : 'btn-add'} d-block`}
@@ -318,6 +365,7 @@ const ProductView = (props: IModalProductViewProps) => {
                   if (btnEdit) {
                     setAction(true);
                     setLoadingUpdate(true);
+                    form.submit();
                   }
                 }}
                 className="button btn-add d-flex flex-row justify-content-center align-content-center"
@@ -351,7 +399,7 @@ const ProductView = (props: IModalProductViewProps) => {
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
                 )
               }}
-                rowKey={(record) => record.key}
+                rowKey={(record) => record.drug_unit_id}
                 size="small"
                 className="table table-hover provider-table"
                 columns={columnsDrugUnit}

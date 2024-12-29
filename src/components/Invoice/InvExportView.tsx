@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
-import { Button, Col, Empty, Modal, notification, Popconfirm, Row, Table } from "antd";
+import { Button, Col, Empty, Flex, Modal, notification, Popconfirm, Row, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { AlignType } from "rc-table/lib/interface";
@@ -84,7 +84,7 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
             render: (_: any, record: IDrugInventoryDetailResponse, index: number) => {
                 return (
                     <div className="style-text-limit-number-line2">
-                        <span style={{ fontWeight: "600", color: "red" }}>{((Math.abs(record.price || 0) - Math.abs(record.discount_amount || 0)) * (1 + (record.vat_percent || 0) / 100)).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                        <span style={{ fontWeight: "600", color: "red" }}>{((Math.abs(record.price || 0) - Math.abs(record.discount_amount || 0)) * (1 + (record.vat_percent || 0) / 100)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                     </div>
                 )
             }
@@ -96,7 +96,7 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
             width: "13%",
             render: (text) => (
                 <div className="style-text-limit-number-line2">
-                    <span style={{ color: "red" }}>{Math.abs(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                    <span style={{ color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                 </div>
             )
         }
@@ -104,35 +104,35 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
 
     const cancelInventoryExport = (inventory_id: string) => {
         try {
-          console.log(inventory_id);
-          return invoiceApi.cancel(inventory_id, "e")
-            .then((response) => {
-              if (response.meta[0].code === 200) {
-                notification['success']({
-                  message: "Thông báo",
-                  description: 'Hủy phiếu xuất kho thành công',
-                });
-                props.onCancel();
-              } else {
-                notification['error']({
-                  message: "Lỗi",
-                  description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
-                });
-              }
-            })
-            .catch(() => {
-              notification['error']({
-                message: "Lỗi",
-                description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
-              });
-            })
+            console.log(inventory_id);
+            return invoiceApi.cancel(inventory_id, "e")
+                .then((response) => {
+                    // if (response.meta[0].code === 200) {
+                    notification['success']({
+                        message: "Thông báo",
+                        description: 'Hủy phiếu xuất kho thành công',
+                    });
+                    props.onCancel();
+                    // } else {
+                    //     notification['error']({
+                    //         message: "Lỗi",
+                    //         description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+                    //     });
+                    // }
+                })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+                    });
+                })
         } catch {
-          notification['error']({
-            message: "Thông báo",
-            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-          });
+            notification['error']({
+                message: "Thông báo",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
         }
-      }
+    }
     return (
         <Modal
             open={props.open}
@@ -159,62 +159,70 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
                     </Col>
 
                     <Col span={8} style={{ padding: "5px" }}>
-                        {renderText("Tổng tiền", Number(props.data.amount || '0').toLocaleString('vi', { style: 'currency', currency: 'VND' }))}
+                        {renderText("Tổng tiền", `${props.data.amount || '0'.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
                         {renderText("Trạng thái", ImportStatus.find((x) => x.value == props.data.status)?.label || '')}
                         {renderText("Ghi chú", props.data.note || '')}
                     </Col>
                 </Row>
 
                 <div className="ant-table-wrapper" style={{ backgroundColor: 'rgb(255, 255, 255)', marginTop: '10px', minHeight: '300px' }}>
-                    <div className="table-container">
-                        <Table locale={{
-                            emptyText: (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-                            )
+                    <Table locale={{
+                        emptyText: (
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+                        )
+                    }}
+                        rowKey={(record) => record.id ? record.id : "0"}
+
+                        size="small"
+                        className="table table-hover provider-table"
+                        scroll={{ x: 1024, y: 440 }}
+                        components={{
+                            header: {
+                                cell: (props: any) => {
+                                    return (
+                                        <th
+                                            {...props}
+                                            style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
+                                        />
+                                    );
+                                },
+                            },
                         }}
-                            rowKey={(record) => record.id ? record.id : "0"}
-
-                            size="small"
-                            className="table table-hover provider-table"
-                            scroll={{ x: 1024, y: 440 }}
-                            columns={columnInvoiceDetailHistoryImport}
-                            dataSource={props.data.drg_inv_inventory_details}
-                            pagination={false}
-                        />
-                    </div>
+                        columns={columnInvoiceDetailHistoryImport}
+                        dataSource={props.data.drg_inv_inventory_details}
+                        pagination={false}
+                    />
                 </div>
-                <Row className="ant-modal-footer">
+                <Flex gap="middle" justify="flex-end" align={'center'} style={{ borderTop: '1px solid #e2e3e5', paddingTop: '10px' }}>
 
-                    <Col span={12} className="d-flex">
-                        {props.data.inventory_type == 'CHKE' || props.data.status == '0' ? "" :
-                            <Popconfirm
-                                title="Bạn có muốn hủy phiếu này?"
-                                onConfirm={() => cancelInventoryExport(props.data.inventory_id)}
-                                okText="Đồng ý"
-                                cancelText="Hủy"
-                            >
-                                <Button
-                                    className={`button btn-delete d-flex flex-row justify-content-center align-content-center btn-delete`}
-                                    type="primary"
-                                >
-                                    <DeleteOutlined />
-                                    <span>Hủy phiếu</span>
-                                </Button>
-                            </Popconfirm>
-
-                        }
-                    </Col>
-                    <Col span={12} className="d-flex justify-content-end">
-                        <Button
-                            className="button btn-cancel d-flex flex-row justify-content-center align-content-center"
-                            type="primary"
-                            onClick={() => { props.onCancel(); }}
+                    {props.data.inventory_type == 'CHKE' || props.data.status == '0' ? "" :
+                        <Popconfirm
+                            title="Bạn có muốn hủy phiếu này?"
+                            onConfirm={() => cancelInventoryExport(props.data.inventory_id)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
                         >
-                            <CheckCircleOutlined />
-                            <span>Đóng</span>
-                        </Button>
-                    </Col>
-                </Row>
+                            <Button
+                                className={`button btn-delete d-flex flex-row justify-content-center align-content-center btn-delete`}
+                                type="primary"
+                            >
+                                <DeleteOutlined />
+                                <span>Hủy phiếu</span>
+                            </Button>
+                        </Popconfirm>
+
+                    }
+
+
+                    <Button
+                        className="button btn-cancel d-flex flex-row justify-content-center align-content-center"
+                        type="primary"
+                        onClick={() => { props.onCancel(); }}
+                    >
+                        <CheckCircleOutlined />
+                        <span>Đóng</span>
+                    </Button>
+                </Flex>
             </>
         </Modal >
     );

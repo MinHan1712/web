@@ -3,16 +3,16 @@ import { Empty, Input, Popconfirm, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { IImportInventoryDetailCreate } from "../../interfaces/inventoryDetail";
-import { useUserContextExport } from "../../pages/InvExportCreate";
+import { UseInvExportContext } from "../../pages/InvExportCreate";
 
 interface Props {
-  confirmDeleteCellToTable: (key: number, index: number) => void;
+  confirmDeleteCellToTable: (key: number, index: number, record: IImportInventoryDetailCreate) => void;
 }
 
 
 const InvExportCreateTable = (props: Props) => {
 
-  const { invImportCreateReq, setInvImportCreateReq } = useUserContextExport();
+  const { invImportCreateReq, setInvImportCreateReq } = UseInvExportContext();
 
   const columnsExportDetail: ColumnsType<IImportInventoryDetailCreate> = [
     {
@@ -100,15 +100,16 @@ const InvExportCreateTable = (props: Props) => {
             name="quantity"
             onChange={(e: any) => {
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
-              console.log(value, Math.min(record.quantity_pre || 0, value));
+
               var totalAmntCurrent = record.total_amount || 0;
-              var drugUnit = getDrugUnitById(record.unit_id, record);
 
               record.quantity = Math.min(record.quantity_pre || 0, value);
-              record.total_amount = (record.quantity || 0) * ((drugUnit === null ? record.price : drugUnit.price * drugUnit.unit_qty) || 0);
-              invImportCreateReq.products[index] = record;
-              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
 
+              invImportCreateReq.products[index] = record;
+
+              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent + record.total_amount;
+              invImportCreateReq.info.amount_paid = invImportCreateReq.info.amount;
               setInvImportCreateReq({ ...invImportCreateReq });
             }}
           />
@@ -127,32 +128,15 @@ const InvExportCreateTable = (props: Props) => {
           label: item.unit_name || '',
 
         }))
+
+        console.log(unitOptions, record);
         return (
           <Select
             size="middle"
             defaultValue={record.unit_id || ''}
             style={{ textAlign: 'left' }}
             value={record.unit_id}
-            onChange={(e: any) => {
-              var drugUnit = getDrugUnitById(record.unit_id, record);
-              var totalAmntCurrent = record.total_amount || 0;
-              if (drugUnit === null) {
-                drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
-              }
-
-              record.unit_id = e;
-              record.unit_parent_id = drugUnit.unit_parent_id;
-              record.quantity_pre = drugUnit.quantity_pre;
-              record.unit_quantity = drugUnit.unit_qty;
-              record.price = drugUnit.price * drugUnit.unit_qty;
-              record.total_price = drugUnit.price * drugUnit.unit_qty;
-              record.total_amount = 0;
-              record.quantity = 0;
-              invImportCreateReq.info.amount = (invImportCreateReq.info.amount || 0) - totalAmntCurrent;
-
-              invImportCreateReq.products[index] = record;
-              setInvImportCreateReq({ ...invImportCreateReq });
-            }}
+            disabled={true}
             options={unitOptions}
           />
         )
@@ -167,7 +151,7 @@ const InvExportCreateTable = (props: Props) => {
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <h5>
-            <span>{Math.abs(record.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+            <span>{calcPrice(record.price, record.discount_amount, record.vat_percent)}</span>
           </h5>
         )
       },
@@ -181,7 +165,7 @@ const InvExportCreateTable = (props: Props) => {
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <h5>
-            <span>{Math.abs(record.total_amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+            <span>{Math.abs(record.total_amount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
           </h5>
         )
       },
@@ -198,7 +182,7 @@ const InvExportCreateTable = (props: Props) => {
             placement="topLeft"
             title={"Bạn có muốn xóa khách hàng này?"}
             description={""}
-            onConfirm={() => props.confirmDeleteCellToTable(record.key || 0, index)}
+            onConfirm={() => props.confirmDeleteCellToTable(record.key || 0, index, record)}
             okText="Đồng ý"
             cancelText="Hủy"
           >
@@ -211,10 +195,19 @@ const InvExportCreateTable = (props: Props) => {
 
   const getDrugUnitById: any = (unitId: number, data: IImportInventoryDetailCreate) => {
     if (data === null || data.drug_units === null || data.drug_units === undefined || data.drug_units.length === 0) {
+
       return null;
     }
 
-    return data.drug_units.find(x => x.unit_id === unitId.toString()) || null;
+    return data.drug_units.find(x => x.unit_id?.toString() === unitId.toString()) || null;
+  }
+
+  const amountTotal = (qty?: number, price?: number, discount?: number, vat?: number) => {
+    return Math.round(((price || 0) - (discount || 0)) * (qty || 0) * (1 + (vat || 0) / 100));
+  }
+
+  const calcPrice = (price?: number, discount?: number, vat?: number) => {
+    return Math.round(((price || 0) - (discount || 0)) * ((vat || 0) + 100) / 100);
   }
 
   return (

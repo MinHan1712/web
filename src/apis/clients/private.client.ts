@@ -14,7 +14,7 @@ privateClient.interceptors.request.use(async (config: AxiosRequestConfig) => {
         ...config,
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)?.replace("\\", "")}`,
+            'Authorization': `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)?.replace(/"/g, '')}`,
         } as AxiosRequestHeaders,
     };
 });

@@ -3,7 +3,7 @@ import { API_STATUS, CustonerGroupType, selectPageSize } from "../constants/gene
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
 import { IPageResponse } from "../interfaces/common";
-import { Button, Empty, Flex, Pagination, Select, Tag } from "antd";
+import { Button, Empty, Flex, notification, Pagination, Select, Tag } from "antd";
 import { format } from "date-fns/format";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import '../assets/css/style.css';
@@ -102,19 +102,35 @@ const CustomerGroup: React.FC = () => {
   const getListCustomerGroup = async () => {
     setLoading(true);
     try {
-      const response = await customerGroupApi.getList(customerGroupReq);
-      console.log(response)
+      const response = await customerGroupApi.getList(customerGroupReq).then((response) => {
+        console.log(response)
+        // switch (response.meta[0].code) {
+        //     case 200:
+        setCustomerGroupRes(response);
+        console.log(customerGroupRes);
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Cập nhập nhà cung cấp không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          });
+        })
 
-      // if (response.meta[0].code !== API_STATUS.SUCCESS) {
-      // 	//error
-      // 	return;
-      // }
-
-      setCustomerGroupRes(response.data);
-      console.log(customerGroupRes);
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Cập nhập nhà cung cấp không thành công',
+      });
     } finally { setLoading(false); }
+
   }
 
   const triggerFormEvent = (value: ICustomerGroupPageRequest) => {
@@ -201,7 +217,7 @@ const CustomerGroup: React.FC = () => {
                 });
                 setPageSize(size);
               }} />
-            <h5> Tổng số {customerGroupRes.totalElements || 0}  nhà cung cấp</h5>
+            <h5> Tổng số {customerGroupRes.totalElements || 0}  nhóm khách hàng</h5>
           </Flex>
 
 

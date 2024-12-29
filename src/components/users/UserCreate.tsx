@@ -29,36 +29,40 @@ const UserCreate = (props: Props) => {
     const createUser = async (value: IUserRequestUpdate) => {
         try {
             console.log(`user`, value);
+            value = {
+                ...value,
+                login: value.phone
+            }
             return await userApi.create(value).then((response) => {
                 console.log(response)
-                switch (response.meta[0].code) {
-                    case 200:
-                        notification['success']({
-                            message: "Thông báo",
-                            description: 'Thêm mới nhân viên thành công',
-                        });
-                        form.resetFields();
-                        props.onCancel();
-                        break;
-                    case 513:
-                        notification['error']({
-                            message: "Lỗi",
-                            description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
-                        });
-                        break;
-                    case 517:
-                        notification['error']({
-                            message: "Lỗi",
-                            description: 'Email đã tồn tại, vui lòng nhập email khác',
-                        });
-                        break;
-                    default:
-                        notification['error']({
-                            message: "Lỗi",
-                            description: 'Thêm mới nhân viên không thành công',
-                        });
-                        break;
-                }
+                // switch (response.meta[0].code) {
+                // case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Thêm mới nhân viên thành công',
+                });
+                form.resetFields();
+                props.onCancel();
+                //     break;
+                // case 513:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
+                //     });
+                //     break;
+                // case 517:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Email đã tồn tại, vui lòng nhập email khác',
+                //     });
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Thêm mới nhân viên không thành công',
+                //     });
+                //     break;
+                // }
             })
                 .catch((error) => {
                     notification['error']({
@@ -279,10 +283,7 @@ const UserCreate = (props: Props) => {
                                         className="d-flex"
                                         size="middle"
                                         id={'role_id'}
-                                        options={[{
-                                            value: '',
-                                            label: 'Tất cả'
-                                        }, ...props.optionRole || []]}
+                                        options={[...props.optionRole || []]}
                                     />
                                 </Form.Item>
                             </div>
@@ -301,10 +302,7 @@ const UserCreate = (props: Props) => {
                                         size="middle"
                                         placeholder={"Trạng thái"}
                                         id={'status'}
-                                        options={[{
-                                            value: '',
-                                            label: 'Tất cả'
-                                        }, ...activeStatus || []]}
+                                        options={[...activeStatus || []]}
                                     />
                                 </Form.Item>
                             </div>

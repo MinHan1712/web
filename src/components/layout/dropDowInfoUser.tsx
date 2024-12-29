@@ -1,12 +1,20 @@
 import { DownOutlined, LogoutOutlined, ShopOutlined, UserOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
+import { getStore } from "../../utils/local";
+import { useEffect, useState } from "react";
+import { ILoginResponse } from "../../interfaces/login";
 
 const DropDowInfoUser = () => {
     const navigate = useNavigate();
+    const [store, setStore] = useState<ILoginResponse>({ storeName: '', userName: '' });
 
     const handleMenuClick: MenuProps['onClick'] = (e) => {
     };
+
+    useEffect(() => {
+        setStore(getStore())
+    }, []);
 
 
     const items: MenuProps['items'] = [
@@ -48,8 +56,8 @@ const DropDowInfoUser = () => {
                         margin: '5px'
                     }} />
                     <div style={{ alignContent: "center", width: "100%" }}>
-                        {/* <h4 style={{ fontWeight: 400, color: "rgb(255, 255, 255)" }}>{getAuthToLocal.userName}</h4>
-                        <h6 style={{ color: "rgb(255, 255, 255)" }}>{getAuthToLocal.LoginId}</h6> */}
+                        <h4 style={{ fontWeight: 400, color: "rgb(255, 255, 255)" }}>{store.storeName}</h4>
+                        <h6 style={{ color: "rgb(255, 255, 255)" }}>{store.userName}</h6>
                     </div>
                 </div>
             </Menu.Item>

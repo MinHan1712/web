@@ -1,4 +1,4 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, LoadingOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Empty, Flex, Form, Modal, notification, Select, SelectProps, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns/format";
@@ -8,19 +8,17 @@ import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import '../assets/css/style.css';
 import InvExportCreateTable from "../components/Invoice/InvExportCreateTable";
-import { API_STATUS, formItemLayout } from "../constants/general.constant";
+import { formItemLayout } from "../constants/general.constant";
 import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
-import { getListExportTypeOption } from "../utils/local";
+import { getListExportTypeOption, getListUnitOption } from "../utils/local";
+import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
 
-export interface UserContextType {
+export interface InvContextType {
 	invImportCreateReq: ICreateInvImport | {
 		info: {
 			amount: 0,
-			amt_total: 0,
-			// discount_vat: 0,
-			// discount_amount: 0,
-			// amount_debt: 0,
-			// amount_paid: 0,
+			amount_original: 0,
+			amount_paid: 0
 		},
 		products: []
 	};
@@ -32,14 +30,19 @@ export interface UserContextType {
 	}>>;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
-export const useUserContextExport = (): UserContextType => {
-	const context = useContext(UserContext);
-	if (!context) {
-		throw new Error('useUserContext must be used within a UserProvider');
+const InvExportContext = createContext<InvContextType | undefined>(undefined);
+
+export const UseInvExportContext = (): InvContextType => {
+	const context = useContext(InvExportContext);
+
+	if (context === undefined) {
+		throw new Error('UseInvImportContext must be used within a UserContextProvider');
 	}
+
 	return context;
 };
+
+
 const InvExportCreate: React.FC = () => {
 	const [key, setKey] = useState(0);
 	const { confirm } = Modal;
@@ -50,6 +53,7 @@ const InvExportCreate: React.FC = () => {
 
 	const [form] = Form.useForm<IImportInventoryCreate>();
 	const [optionsExportType, setOptionsExportType] = useState<SelectProps<string>['options']>([]);
+	const [optionUnit, setOptionUnit] = useState<SelectProps<string>['options']>([]);
 
 	const [invProductReq, setInvProductReq] = useState<IDrugInvProductPageRequest>({
 		page: 1,
@@ -63,6 +67,8 @@ const InvExportCreate: React.FC = () => {
 	const [invImportCreateReq, setInvImportCreateReq] = useState<ICreateInvImport>({
 		info: {
 			amount: 0,
+			amount_paid: 0,
+			classification: true
 		},
 		products: []
 	});
@@ -71,28 +77,73 @@ const InvExportCreate: React.FC = () => {
 	useEffect(() => {
 		getListProduct();
 		setOptionsExportType(getListExportTypeOption);
+		setOptionUnit(getListUnitOption());
 	}, []);
 
-	const createInvExport = () => {
+	const createInvImport = async () => {
 		setLoadingScreen(true);
-		const response = invoiceApi.create(invImportCreateReq);
-		console.log(response)
-		setLoadingScreen(false);
+		try {
+			await invoiceApi.create(invImportCreateReq).then((response) => {
+				console.log(response)
+				// switch (response.meta[0].code) {
+				//     case 200:
+				notification['success']({
+					message: "Thông báo",
+					description: 'Thêm phiếu xuất kho thành công',
+				});
+				setInvImportCreateReq({
+					info: {
+					},
+					products: []
+				});
+
+				navigate('/kho/xuatkho');
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Thêm phiếu xuất không thành công',
+				//     });
+				//     break;
+				// }
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
+
+		} catch (err) {
+			console.log(err);
+		} finally { setLoadingScreen(false); }
 	}
 
 	const getListProduct = async () => {
 		setLoading(true);
 		try {
-			const response = await invoiceApi.getListInvProduct(invProductReq);
-			console.log(response, response.data)
+			await invoiceApi.getListInvProduct(invProductReq).then((response) => {
+				console.log(response)
+				// switch (response.meta[0].code) {
+				//     case 200:
+				setProductRes(prevState => [...prevState, ...response.data]);
+				console.log(response);
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Cập nhập nhà cung cấp không thành công',
+				//     });
+				//     break;
+				// }
+			})
+				.catch(() => {
+					// notification['error']({
+					// 	message: "Lỗi",
+					// 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					// });
+				})
 
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	return;
-			// }
-
-			// if (response.data !== undefined && response.data != null && response.data.data.length > 0) {
-			setProductRes(prevState => [...prevState, ...response.data]);
-			// }
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -111,21 +162,7 @@ const InvExportCreate: React.FC = () => {
 	}
 
 	const triggerFormEvent = (value: IImportInventoryCreate) => {
-		value = {
-			...value,
-			amount: invImportCreateReq.info.amount,
-			process_date: value.process_date ? dayjs(value.process_date, "YYYY-MM-DD").format("YYYY-MM-DD") : undefined
-		}
-
-		console.log(value);
-		setInvImportCreateReq({
-			...invImportCreateReq,
-			info: value
-		});
-
 		confirmCreateInvExport();
-
-		console.log(invImportCreateReq);
 	}
 
 	const addNewRowdetail = (value: IDrgInvProductResponse) => {
@@ -142,7 +179,7 @@ const InvExportCreate: React.FC = () => {
 			}
 
 			var unit = value.units && value.units.find(x => x.unit_id == value.drug_unit_id);
-			console.log((value.total_price || 0) / (unit?.unit_qty || 1), unit?.unit_qty)
+			console.log(unit)
 			var data = {
 				key: key,
 				inventory_detail_id: value.id,
@@ -154,16 +191,15 @@ const InvExportCreate: React.FC = () => {
 				lot: value.lot,
 				quantity: 0,
 				quantity_pre: value.sum_base_quantity || value.base_quantity,
-				price: (value.price || 0) / (unit?.unit_qty || 1),
-				unit_id: value.unit_parent_id,
+				price: value.price || 0,
+				unit_id: value.drug_unit_id,
 				unit_parent_id: value.unit_parent_id,
 				exp_date: value.exp_date,
 				vat_percent: value.vat_percent || 0,
-				discount_amount: (value.discount_amount || 0) / (unit?.unit_qty || 1),
+				discount_amount: value.discount_amount || 0,
 				drug_units: value.units,
 				total_amount: 0,
-				total_price: (value.total_price || 0) / (unit?.unit_qty || 1),
-				unit_quantity: unit && unit.unit_qty || 1
+				type: 'e'
 			};
 			setKey(key + 1);
 			setInvImportCreateReq({
@@ -174,13 +210,24 @@ const InvExportCreate: React.FC = () => {
 		}
 	}
 
-	const confirmDeleteCellToTable = (key: number, index: number) => { //TODO
-		console.log(key, index, invImportCreateReq);
-		//invImportCreateReq.products.splice(index, 1);
-		// invImportCreateReq.products = invImportCreateReq.products.filter(item => item.key === key);
-		if (invImportCreateReq.products.length == 0) setKey(0);
-		console.log(invImportCreateReq);
-		setInvImportCreateReq(invImportCreateReq);
+	const calcPrice = (price?: number, discount?: number, vat?: number) => {
+		return Math.round(((price || 0) - (discount || 0)) * ((vat || 0) + 100) / 100);
+	}
+
+	const confirmDeleteCellToTable = (key: number, index: number, record: IImportInventoryDetailCreate) => {
+		console.log(record, invImportCreateReq);
+		const updatedProducts = invImportCreateReq.products.filter(product => product.key !== key);
+		var amount = (invImportCreateReq.info.amount || 0) - (record.total_amount || 0);
+
+		setInvImportCreateReq((prevState) => ({
+			...prevState,
+			info: {
+				...prevState.info,
+				amount: amount,
+				// amt_total: amtTotal
+			},
+			products: updatedProducts,
+		}));
 	}
 
 	const confirmCreateInvExport = () => {
@@ -199,7 +246,7 @@ const InvExportCreate: React.FC = () => {
 			cancelText: 'Hủy',
 			async onOk() {
 				try {
-					createInvExport();
+					createInvImport();
 				} catch (e) {
 					notification["error"]({
 						message: "Thông báo",
@@ -210,11 +257,26 @@ const InvExportCreate: React.FC = () => {
 		});
 	}
 
+	const confirmCancelForm = () => {
+		confirm({
+			title: 'Bạn muốn hủy phiếu xuất kho?',
+			okText: "Đồng ý",
+			cancelText: 'Hủy',
+			async onOk() {
+				navigate('/kho/xuatkho')
+			},
+			onCancel() { },
+		});
+
+	}
+
 
 	return (
 		<>
-			<UserContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
-				<Spin tip="Loading..." spinning={loadingScreen}>
+			{loadingScreen ? (
+				<Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} fullscreen />
+			) : (<>
+				<InvExportContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
 					<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
 						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
 							<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
@@ -239,11 +301,11 @@ const InvExportCreate: React.FC = () => {
 														<h4 className="item-name">
 															<span>{value.drug_name || ''}</span>
 														</h4>
-														<h4 className="item-price">{(value.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</h4>
+														<h4 className="item-price">{calcPrice(value.price, value.discount_amount, value.vat_percent).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</h4>
 													</div>
 													<div className="info_bottom">
 														<p className="item-code">{value.drug_code}</p>
-														<p className="item-info-other">HSD:  <strong>{value.exp_date ? format(new Date(value.exp_date), 'dd-MM-yyyy') : ''}- </strong>Số lô:  <strong>{value.lot || ''}- </strong>Tồn:  <strong>{value.sum_base_quantity || 0}</strong> {value.units?.find(x => x.unit_id == value.unit_parent_id)?.unit_name || value.unit_name || ''}</p>
+														<p className="item-info-other">HSD:  <strong>{value.exp_date ? format(new Date(value.exp_date), 'dd-MM-yyyy') : ''}- </strong>Số lô:  <strong>{value.lot || ''}- </strong>Tồn:  <strong>{value.sum_base_quantity || 0}</strong> {value.unit_name}</p>
 													</div>
 												</div>
 											</div>
@@ -273,7 +335,11 @@ const InvExportCreate: React.FC = () => {
 										>
 											<DatePicker format={"DD/MM/YYYY"}
 												value={invImportCreateReq.info.process_date ? dayjs(invImportCreateReq.info.process_date) : dayjs()}
-												className="form-input d-flex" size="middle" placeholder='Ngày thực tế' />
+												className="form-input d-flex" size="middle"
+												placeholder='Ngày thực tế'
+												onChange={(e: any) => {
+													invImportCreateReq.info.process_date = e ? e.format("YYYY-MM-DD") : null;
+												}} />
 										</Form.Item>
 									</div>
 
@@ -283,7 +349,7 @@ const InvExportCreate: React.FC = () => {
 											labelAlign={"left"}
 											name={'import_type'}
 											label={
-												<span style={{ fontWeight: "550", fontSize: "14px" }}>Loại nhập</span>
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Loại xuất</span>
 											}
 										>
 											<Select
@@ -296,6 +362,9 @@ const InvExportCreate: React.FC = () => {
 													value: '',
 													label: 'Tất cả'
 												}, ...optionsExportType || []]}
+												onChange={(e: any) => {
+													invImportCreateReq.info.import_type = e;
+												}}
 											/>
 										</Form.Item>
 									</div>
@@ -314,6 +383,9 @@ const InvExportCreate: React.FC = () => {
 												placeholder="Ghi chú"
 												className='note'
 												value={invImportCreateReq.info.note}
+												onChange={(e: any) => {
+													invImportCreateReq.info.note = e?.target?.value;
+												}}
 											/>
 										</Form.Item>
 									</div>
@@ -327,7 +399,7 @@ const InvExportCreate: React.FC = () => {
 												<span style={{ fontWeight: "550", fontSize: "14px" }}>Tổng giá trị</span>
 											}
 										>
-											<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+											<p style={{ fontWeight: "550", fontSize: "14px", color: 'red', textAlign: 'left' }}>{(invImportCreateReq.info.amount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</p>
 										</Form.Item>
 									</div>
 
@@ -335,7 +407,7 @@ const InvExportCreate: React.FC = () => {
 										<Button
 											className="button btn-delete d-flex flex-row justify-content-center align-content-center mb-2"
 											type="primary"
-											onClick={() => { navigate('/kho/xuatkho') }}
+											onClick={confirmCancelForm}
 										>
 											<DeleteOutlined />
 											<span>Hủy bỏ</span>
@@ -355,10 +427,11 @@ const InvExportCreate: React.FC = () => {
 							</Form>
 						</Flex>
 					</Flex>
-				</Spin>
-			</UserContext.Provider>
-			{/* </InvExportContext.Provider> */}
+				</InvExportContext.Provider>
+			</>)
+			}
 		</>
+
 	);
 };
 

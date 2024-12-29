@@ -36,7 +36,6 @@ export interface IImportInventoryDetailCreate {
     drug_name?: string;
     inventory_id?: string;
     lot?: string;
-    dosage?: string;
     quantity?: number;
     quantity_pre?: number;
     price?: number;
@@ -45,7 +44,6 @@ export interface IImportInventoryDetailCreate {
     exp_date?: string;
     vat_percent?: number;
     discount_amount?: number;
-    discount_unit?: number;
     store_id?: string;
     update_user?: string;
     total_amount?: number;

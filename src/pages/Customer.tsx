@@ -1,11 +1,9 @@
 
 import {
-  Button, Col,
+  Button,
   Flex,
-  Form,
+  notification,
   Pagination,
-  Popconfirm,
-  Row,
   Select,
   SelectProps,
   Table,
@@ -13,21 +11,21 @@ import {
 } from "antd";
 
 import {
-  DeleteOutlined,
-  PlusCircleOutlined, SearchOutlined
+  PlusCircleOutlined
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
+import { ColumnsType } from "antd/es/table";
+import { AlignType } from "rc-table/lib/interface";
+import customerApi from "../apis/customer.api";
+import customerGroupApi from "../apis/customerGroup.api";
 import '../assets/css/style.css';
+import CustomerCreate from "../components/customer/CustomerCreate";
+import CustomerSearch from "../components/customer/CustomerSearch";
+import CustomerView from "../components/customer/CustomerView";
 import { CustonerType, selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { ICustomerPageRequest, ICustomerResponse } from "../interfaces/customer";
-import customerApi from "../apis/customer.api";
-import { ColumnsType } from "antd/es/table";
-import { AlignType } from "rc-table/lib/interface";
-import CustomerSearch from "../components/customer/CustomerSearch";
-import CustomerCreate from "../components/customer/CustomerCreate";
-import CustomerView from "../components/customer/CustomerView";
 
 const columns: ColumnsType<ICustomerResponse> = [
   {
@@ -112,7 +110,7 @@ const columns: ColumnsType<ICustomerResponse> = [
     align: "right" as AlignType,
     render: (text) => (
       <div className="style-text-limit-number-line2">
-        <span style={{ fontWeight: "600", color: "red" }}>{Number(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+        <span style={{ fontWeight: "600", color: "red" }}>{Number(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
       </div>
     ),
   },
@@ -125,7 +123,7 @@ const columns: ColumnsType<ICustomerResponse> = [
     sorter: (a, b) => (a.amount ? a.amount : 0) - (b.amount ? b.amount : 0),
     render: (text) => (
       <div className="style-text-limit-number-line2">
-        <span style={{ fontWeight: "600", color: "red" }}>{Number(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+        <span style={{ fontWeight: "600", color: "red" }}>{Number(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
       </div>
     ),
   },
@@ -139,6 +137,8 @@ const Customer = () => {
   const [dataItem, setDataItem] = useState({ customer_id: '0' });
   const [openFormCreate, setOpenFormCreate] = useState(false);
   const [isReload, setIsReload] = useState(false);
+
+  const [optionsCusGroup, setOptionsCusGroup] = useState<SelectProps<string>['options']>([]);
 
   const [customerRes, setCustomerRes] = useState<IPageResponse<ICustomerResponse[]>>({
     page: 1,
@@ -154,14 +154,68 @@ const Customer = () => {
 
   const getListCustomer = async () => {
     setLoading(true);
+
     try {
-      const response = await customerApi.getList(customerReq);
-      console.log(response)
-      setCustomerRes(response.data);
+      const response = await customerApi.getList(customerReq).then((response) => {
+        console.log(response)
+        // switch (response.meta[0].code) {
+        //     case 200:
+        setCustomerRes(response);
+        console.log(customerRes);
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Cập nhập nhà cung cấp không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          });
+        })
+
     } catch (err) {
       console.log(err);
     } finally { setLoading(false); }
   }
+
+  const getListCustomerGroup = async () => {
+    setLoading(true);
+    try {
+      const response = await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
+        console.log(response)
+        setOptionsCusGroup(response.data && response.data?.map((item) => ({
+          value: item.customer_group_id,
+          label: item.customer_group_name,
+        })) || []);
+        // switch (response.meta[0].code) {
+        //     case 200:
+
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Cập nhập nhà cung cấp không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+        })
+
+    } catch (err) {
+      console.log(err);
+    } finally { setLoading(false); }
+
+  }
+
+  useEffect(() => {
+    getListCustomerGroup();
+  }, []);
 
   useEffect(() => {
     setIsReload(false);
@@ -241,7 +295,7 @@ const Customer = () => {
                 });
                 setPageSize(size);
               }} />
-            <h5> Tổng số {customerRes.totalElements || 0}  nhà cung cấp</h5>
+            <h5> Tổng số {customerRes.totalElements || 0} khách hàng</h5>
           </Flex>
 
 
@@ -267,6 +321,7 @@ const Customer = () => {
           getListCustomer();
         }}
         data={dataItem}
+        optionsCusGroup={optionsCusGroup}
 
       />
       <CustomerCreate
@@ -275,6 +330,7 @@ const Customer = () => {
           setOpenFormCreate(false);
           getListCustomer();
         }}
+        optionsCusGroup={optionsCusGroup}
       />
     </>
   );

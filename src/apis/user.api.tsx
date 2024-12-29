@@ -6,12 +6,13 @@ const endpoint = {
   getList: 'employee',
   update: `/user/update`,
   create: `/user/create`,
+  delete: (id: any) => `/user/delete?login=${id}`
 };
 
 const userApi = {
-  get: async (params: any): Promise<IResponse<IPageResponse<IUserWithRoleResponse[]>>> => {
+  get: async (params: any): Promise<IPageResponse<IUserWithRoleResponse[]>> => {
     try {
-      const response = await privateClient.post<IResponse<IPageResponse<IUserWithRoleResponse[]>>>(
+      const response = await privateClient.post<IPageResponse<IUserWithRoleResponse[]>>(
         endpoint.getList,
         params
       );
@@ -36,9 +37,20 @@ const userApi = {
   },
   update: async (params: any): Promise<IResponse<IUserWithRoleResponse>> => {
     try {
-      const response = await privateClient.put<IResponse<IUserWithRoleResponse>>(
+      const response = await privateClient.post<IResponse<IUserWithRoleResponse>>(
         endpoint.update,
         params
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  delete: async (params: any): Promise<IResponse<IUserWithRoleResponse>> => {
+    try {
+      const response = await privateClient.delete<IResponse<IUserWithRoleResponse>>(
+        endpoint.delete(params)
       );
       console.log(response);
       return response.data;

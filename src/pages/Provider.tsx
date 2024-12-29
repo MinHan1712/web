@@ -1,5 +1,5 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Pagination, Select } from "antd";
+import { Button, Empty, Flex, notification, Pagination, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
@@ -91,7 +91,7 @@ const columnsProvider: ColumnsType<IProviderResponse> = [
 		align: "right" as AlignType,
 		render: (text) => (
 			<div className="style-text-limit-number-line2">
-				<span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+				<span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 			</div>
 		),
 	},
@@ -103,7 +103,7 @@ const columnsProvider: ColumnsType<IProviderResponse> = [
 		align: "right" as AlignType,
 		render: (text) => (
 			<div className="style-text-limit-number-line2">
-				<span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+				<span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 			</div>
 		),
 	},
@@ -132,19 +132,35 @@ const Provider: React.FC = () => {
 	const getListProvider = async () => {
 		setLoading(true);
 		try {
-			const response = await providerApi.getList(providerReq);
-			console.log(response)
+			const response = await providerApi.getList(providerReq).then((response) => {
+				console.log(response)
+				// switch (response.meta[0].code) {
+				//     case 200:
+				setProviderRes(response);
+				console.log(response);
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Cập nhập nhà cung cấp không thành công',
+				//     });
+				//     break;
+				// }
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
 
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setProviderRes(response);
-			console.log(providerRes);
 		} catch (err) {
-			console.log(err);
+			notification['error']({
+				message: "Lỗi",
+				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+			});
 		} finally { setLoading(false); }
+
 	}
 
 	const triggerFormEvent = (value: IProviderPageRequest) => {

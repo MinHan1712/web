@@ -24,7 +24,6 @@ const InvoiceImport: React.FC = () => {
 	const [pageSize, setPageSize] = useState(Number(selectPageSize[0].value));
 	const [openViewDate, setOpenviewDate] = useState(false);
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
-	const [isReload, setIsReload] = useState(false);
 
 	const [provides, setProvider] = useState<SelectProps<string>['options']>([]);
 	const [importTypeOptions, setImportTypeOptions] = useState<SelectProps<string>['options']>([]);
@@ -112,7 +111,7 @@ const InvoiceImport: React.FC = () => {
 			width: "11%",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					<span style={{ fontWeight: "600", color: "red" }}>{Number(text || '0').toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+					<span style={{ fontWeight: "600", color: "red" }}>{Number(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 				</div>
 			)
 		},
@@ -123,7 +122,7 @@ const InvoiceImport: React.FC = () => {
 			width: "11%",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					<span style={{ color: "red" }}>{Number(text || '0').toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+					<span style={{ color: "red" }}>{Number(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 				</div>
 			)
 		},
@@ -181,34 +180,33 @@ const InvoiceImport: React.FC = () => {
 			// 	return;
 			// }
 
-			setInvImportRes(response.data);
+			setInvImportRes(response);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
 	}
 
 	const getListProvider = async () => {
-		setLoading(true);
 		try {
 			let provider: IProviderPageRequest = {
 				page: 0,
 				size: 0
 			}
 
-			const response = await providerApi.getList(provider);
-			console.log(response)
+			await providerApi.getList(provider).then((response) => {
+				setProvider(response.data.map((provider: IProviderResponse) => {
+					return {
+						value: provider.provider_id,
+						label: provider.provider_name
+					}
+				}));
+			})
 
-			setProvider(response.data.map((provider: IProviderResponse) => {
-				return {
-					value: provider.provider_id,
-					label: provider.provider_name
-				}
-			}));
 
 
 		} catch (err) {
 			console.log(err);
-		} finally { setLoading(false); }
+		} finally { }
 	}
 
 	const triggerFormEvent = (value: IInventoryImportPageRequest) => {
@@ -225,24 +223,20 @@ const InvoiceImport: React.FC = () => {
 	}
 
 	const handleCreateReceipt = () => {
-		navigate({
-			pathname: routes[2].path,
-		});
+		navigate('/kho/taophieunhapkho');
 	};
 
 	useEffect(() => {
 		setImportTypeOptions(getListImportTypeOption);
 		setListImportType(getImportType);
 		setListPayMenthods(getPayMethods);
-		getListInvImport();
 		getListProvider();
 	}, []);
 
 	useEffect(() => {
-		setIsReload(false);
 		getListInvImport();
 		console.log('request', invImportReq);
-	}, [invImportReq, isReload])
+	}, [invImportReq])
 
 	return (
 		<>

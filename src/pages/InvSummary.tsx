@@ -1,5 +1,5 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Pagination, Select, SelectProps } from "antd";
+import { Button, Empty, Flex, notification, Pagination, Select, SelectProps } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
@@ -7,14 +7,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceSummaryApi from "../apis/summary.api";
 import '../assets/css/style.css';
+import InvSummarySearch from "../components/summary/InvSummarySearch";
+import InvSummaryView from "../components/summary/InvSummaryView";
 import { selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
 import { IDrugInvSummaryPageRequest, IDrugInvSummaryResponse } from "../interfaces/summaryInvoice";
 import routes from "../router";
-import InvSummarySearch from "../components/summary/InvSummarySearch";
-import InvSummaryView from "../components/summary/InvSummaryView";
 import { getListImportTypeOption } from "../utils/local";
 
 
@@ -127,17 +127,33 @@ const InvoiceSummary: React.FC = () => {
   const getListInvSummary = async () => {
     setLoading(true);
     try {
-      const response = await invoiceSummaryApi.getList(invSummaryReq);
-      console.log(response)
+      await invoiceSummaryApi.getList(invSummaryReq).then((response) => {
+        console.log(response)
+        // switch (response.meta[0].code) {
+        //     case 200:
+        setInvSummaryRes(response);
+        console.log(response);
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Cập nhập nhà cung cấp không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          });
+        })
 
-      // if (response.meta[0].code !== API_STATUS.SUCCESS) {
-      // 	//error
-      // 	return;
-      // }
-
-      setInvSummaryRes(response.data);
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setLoading(false); }
   }
 
@@ -154,9 +170,7 @@ const InvoiceSummary: React.FC = () => {
   }
 
   const handleCreateReceipt = () => {
-    navigate({
-      pathname: routes[2].path,
-    });
+    navigate('/kho/taophieukiemkho');
   };
 
   useEffect(() => {

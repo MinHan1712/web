@@ -5,7 +5,7 @@ import {
     PlusCircleOutlined,
     UserOutlined
 } from "@ant-design/icons";
-import { Button, Flex, Form, Input, Modal } from "antd";
+import { Button, Flex, Form, Input, Modal, notification } from "antd";
 import { useState } from "react";
 import providerApi from "../../apis/provider.api";
 import { formItemLayout } from "../../constants/general.constant";
@@ -26,13 +26,36 @@ const ProviderCreate = (props: IProviderInformationProps) => {
 
     const createProvider = async (value: IProviderCreate) => {
         try {
-            console.log(`Provider`, value);
-            const response = await providerApi.create(value);
-            console.log(response);
-            form.resetFields();
-            props.onCancel();
+            return providerApi.create(value)
+                .then((response) => {
+                    // switch (response.meta[0].code) {
+                    //     case 200:
+                    notification['success']({
+                        message: "Thông báo",
+                        description: 'Tạo nhà cung cấp thành công',
+                    });
+                    form.resetFields();
+                    props.onCancel();
+                    // break;
+                    //     default:
+                    //         notification['error']({
+                    //             message: "Lỗi",
+                    //             description: 'Tạo nhà cung cấp không thành công',
+                    //         });
+                    //         break;
+                    // }
+                })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                }).finally(() => { setLoading(false) });
         } catch (err) {
-            console.log(err);
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
         } finally { setLoading(false); }
     }
 
@@ -137,7 +160,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                                     placeholder={"Nhập email nhà cung cấp"}
                                     name={'email'}
                                     id={'email'}
-                                    // value={provider?.email}
+                                // value={provider?.email}
                                 />
                             </Form.Item>
                         </div>
@@ -191,7 +214,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                                     placeholder={"Nhập website nhà cung cấp"}
                                     name={'website'}
                                     id={'website'}
-                                    // value={provider?.website}
+                                // value={provider?.website}
                                 />
                             </Form.Item>
                         </div>
@@ -240,7 +263,7 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                                     placeholder={"Nhập số thuế nhà cung cấp"}
                                     name={'tax_no'}
                                     id={'tax_no'}
-                                    // value={provider?.tax_no}
+                                // value={provider?.tax_no}
                                 />
                             </Form.Item>
                         </div>

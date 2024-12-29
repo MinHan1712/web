@@ -1,7 +1,7 @@
 
 import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined, SyncOutlined, QuestionCircleOutlined, PlusOutlined, MailOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Divider, Flex, Form, Input, Modal, notification, Popconfirm, Radio, Row, Select, Space, Tabs } from "antd";
+import { Button, DatePicker, Divider, Flex, Form, Input, Modal, notification, Popconfirm, Radio, Row, Select, SelectProps, Space, Tabs } from "antd";
 import { useEffect, useState } from "react";
 import { ICustomerCreate, ICustomerResponse, ICustomerUpdate } from "../../interfaces/customer";
 import '../../assets/css/style.css';
@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 interface ICustomerInformationProps {
     data: ICustomerResponse,
     onCancel: () => void;
+    optionsCusGroup: SelectProps<string>['options'];
 }
 
 const CustomerInfo = (props: ICustomerInformationProps) => {
@@ -20,17 +21,19 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
     const [isSummitForm, setIsSummitForm] = useState(false);
     const [btnEdit, setBtnEdit] = useState(false);
     const [action, setAction] = useState(false);
-    const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
     const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
     const [confirmLoadingUpdate, setConfirmLoadingUpdate] = useState(false);
 
 
     useEffect(() => {
+        handleCloseModalView();
         form.setFieldsValue({ ...props.data });
+        form.setFieldValue("birthday", props.data.birthday ? dayjs(props.data.birthday) || null : null)
     }, [props.data]);
 
 
     useEffect(() => {
+        console.log("vao")
         if (isSummitForm) form.submit();
     }, [isSummitForm]);
 
@@ -46,7 +49,7 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                 customer_type: value.customer_type,
                 address: value.address,
                 email: value.email,
-                birthday: value.birthday,
+                birthday: value.birthday ? dayjs(value.birthday, "YYYY-MM-DD").format("YYYY-MM-DD") || '' : '',
                 sex: value.sex,
                 phone: value.phone,
                 source: value.source,
@@ -55,19 +58,48 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
             };
             console.log("CustomerUpdate", CustomerUpdate);
 
-            const response = await CustomerApi.update(CustomerUpdate);
-            handleCloseModalView();
-            props.onCancel();
-            console.log(response)
+            await CustomerApi.update(CustomerUpdate).then((response) => {
+                console.log(response)
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Cập nhập khách hàng thành công',
+                });
+                handleCloseModalView();
+                props.onCancel();
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Cập nhập khách hàng không thành công',
+                //     });
+                //     break;
+                // }
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
         } catch (err) {
-            console.log(err);
-        } finally { setConfirmLoadingUpdate(false); }
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+        } finally {
+            setConfirmLoadingDelete(false);
+            setConfirmLoadingUpdate(false);
+        }
     }
 
     const handleActiondDelete = () => {
         try {
             setConfirmLoadingDelete(true);
             setAction(false);
+            console.log(isSummitForm);
             setIsSummitForm(!isSummitForm);
         } catch {
             notification['error']({
@@ -79,10 +111,10 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
 
     const handleCloseModalView = () => {
         form.resetFields();
-        setOpenConfirmDelete(false);
         setConfirmLoadingDelete(false);
         setConfirmLoadingUpdate(false);
         setBtnEdit(false);
+        setAction(true);
     };
 
     return (
@@ -182,7 +214,6 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                 rules={[
                                     {
                                         type: 'email',
-                                        // pattern: /^([\w\.\-]+)@([\w\-]+)((\.(\w){2,4})+)$/,
                                         message: 'Định dạng email không đúng',
                                     }
                                 ]}
@@ -212,17 +243,17 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                     style={{ marginBottom: "8px" }}
                                     size="middle"
                                     disabled={!btnEdit}
-                                    // options={optionCustomerGroup}
+                                    options={props.optionsCusGroup}
                                     // defaultValue={optionCustomerGroup && optionCustomerGroup.length > 0 ? optionCustomerGroup[0].value : ''}
                                     dropdownRender={(menu) => (
                                         <>
                                             {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
+                                            {/* TODO <Divider style={{ margin: '8px 0' }} />
                                             <Space style={{ padding: '0 8px 4px' }} className="d-flex justify-content-center align-content-center">
                                                 <Button className="button" type="text" icon={<PlusOutlined />}  >
                                                     Thêm
                                                 </Button>
-                                            </Space>
+                                            </Space> */}
                                         </>
                                     )}
                                 />
@@ -237,7 +268,14 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                     <span style={{ fontWeight: "550", fontSize: "14px" }}>Ngày sinh</span>
                                 }
                             >
-                                {/* <DatePicker className="form-input d-flex" size="middle" format={"DD/MM/YYYY"} value={props.data.birthday ? dayjs(props.data.birthday) : null } placeholder="Nhập ngày sinh" /> */}
+                                <DatePicker
+                                    className="form-input d-flex"
+                                    size="middle"
+                                    format={"DD/MM/YYYY"}
+                                    placeholder="Nhập ngày sinh"
+                                    disabled={!btnEdit}
+                                />
+
                             </Form.Item>
                         </div>
                     </Flex>
@@ -251,7 +289,15 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                     <span style={{ fontWeight: "550", fontSize: "14px" }}>Giới tính</span>
                                 }
                             >
-                                <Radio.Group style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }} options={sexType} disabled={!btnEdit} />
+                                <Radio.Group
+                                    size="middle"
+                                    name={'sex'}
+                                    id={'sex'}
+                                    options={sexType}
+                                    disabled={!btnEdit}
+                                />
+
+
                             </Form.Item>
                         </div>
                         <div className="wrapper-column" style={{ width: '90%' }}>
@@ -335,17 +381,14 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                     <Popconfirm
                         title="Title"
                         description="Bạn có chắc chắn muốn xoá nhà cung cấp?"
-                        open={openConfirmDelete}
                         onConfirm={handleActiondDelete}
                         okText='Đồng ý'
                         cancelText='Hủy'
                         okButtonProps={{ loading: confirmLoadingDelete }}
-                        onCancel={() => setOpenConfirmDelete(false)}
                     >
                         <Button
                             className="button btn-delete"
                             type="primary"
-                            onClick={() => setOpenConfirmDelete(true)}
                         >
                             <DeleteOutlined style={{ paddingRight: '5px' }} />
                             <span>Xóa</span>

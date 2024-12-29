@@ -3,7 +3,7 @@ import {
   CloseOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Form, Input, Modal, Row } from "antd";
+import { Button, Flex, Form, Input, Modal, notification, Row } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useState } from "react";
 import customerGroupApi from "../../apis/customerGroup.api";
@@ -28,13 +28,37 @@ const CustomerGroupCreate = (props: ICustomerGroupInformationProps) => {
 
   const createCustomerGroup = async (value: ICustomerGroupCreate) => {
     try {
-      console.log(`Customer`, value);
-      const response = await customerGroupApi.create(value);
-      console.log(response);
-      form.resetFields();
-      props.onCancel();
+      await customerGroupApi.create(value).then((response) => {
+        console.log(response)
+        // switch (response.meta[0].code) {
+        //     case 200:
+        notification['success']({
+          message: "Thông báo",
+          description: 'Thêm nhóm khách hàng thành công',
+        });
+        form.resetFields();
+        props.onCancel();
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Thêm nhóm khách hàng không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          });
+        })
+
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setLoading(false); }
   }
 

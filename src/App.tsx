@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import AppLayout from './pages/AppLayout';
 import routes from './router';
-import { setExportType, setImportType, setInvSource, setPaymentMethods, setRoles, setUnits } from './utils/local';
+import { setAuth, setDrgGroup, setDrgKind, setExportType, setImportType, setInvSource, setPaymentMethods, setRoles, setUnits } from './utils/local';
 import './App.css';
 import './assets/css/nav.css';
-import './assets/css/page.css';
 import './assets/css/style.css';
 import Login from './pages/Login';
 import Register from './pages/register';
+import { KEY_LOCAL_STORAGE } from './constants/general.constant';
 
 function App() {
   useEffect(() => {
@@ -18,6 +18,8 @@ function App() {
     setInvSource();
     setUnits();
     setRoles();
+    setDrgGroup();
+    setDrgKind();
   }, []);
 
   return (

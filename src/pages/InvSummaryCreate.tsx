@@ -1,16 +1,18 @@
-import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Col, DatePicker, Empty, Flex, Form, Modal, notification, Row, Select, SelectProps, Spin } from "antd";
+import { LoadingOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Empty, Flex, Form, Modal, notification, Select, SelectProps, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns";
 import dayjs from "dayjs";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
+import invoiceSummaryApi from "../apis/summary.api";
 import InvSummaryFormCreate from "../components/summary/invSummaryFormCreate";
 import { formItemLayout } from "../constants/general.constant";
 import { IDrgInvProductResponse, IDrugInvProductPageRequest } from "../interfaces/inventoryImport";
-import { IDrgInvSummaryDetailCreate, IDrugInvSummaryRequest } from "../interfaces/summaryInvoice";
-import invoiceSummaryApi from "../apis/summary.api";
+import { IDrugInvSummaryRequest } from "../interfaces/summaryInvoice";
+import userApi from "../apis/user.api";
+import { IUserWithRoleResponse } from "../interfaces/userManager";
 
 export interface SummaryContextType {
   invSummaryCreateReq: IDrugInvSummaryRequest | {
@@ -34,7 +36,6 @@ const InvSummaryCreate = () => {
   const [form] = Form.useForm();
 
   const navigate = useNavigate();
-  const Option = Select.Option;
   const { confirm } = Modal;
 
   const [loading, setLoading] = useState(false);
@@ -56,27 +57,61 @@ const InvSummaryCreate = () => {
 
   useEffect(() => {
     getListProduct();
+    getListUserManger();
   }, []);
 
 
   const getListProduct = async () => {
     setLoading(true);
     try {
-      const response = await invoiceApi.getListInvProduct(invProductReq);
-      console.log(response, response.data)
+      await invoiceApi.getListInvProduct(invProductReq).then((response) => {
+        console.log(response)
+        // switch (response.meta[0].code) {
+        //     case 200:
+        setProductRes(prevState => [...prevState, ...response.data]);
+        console.log(response);
+        //     break;
+        // default:
+        //     notification['error']({
+        //         message: "Lỗi",
+        //         description: 'Cập nhập nhà cung cấp không thành công',
+        //     });
+        //     break;
+        // }
+      })
+        .catch(() => {
+          // notification['error']({
+          // 	message: "Lỗi",
+          // 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          // });
+        })
 
-      // if (response.meta[0].code !== API_STATUS.SUCCESS) {
-      // 	return;
-      // }
-
-      // if (response.data !== undefined && response.data != null && response.data.data.length > 0) {
-      setProductRes(prevState => [...prevState, ...response.data]);
-      // }
     } catch (err) {
       console.log(err);
     } finally { setLoading(false); }
   }
 
+  const getListUserManger = () => {
+    userApi.get({ page: 0, size: 0 })
+      .then((response) => {
+        // if (response.meta[0].code === 200) {
+        setOptionUserList(response.data?.map((user: IUserWithRoleResponse) => {
+          return {
+            value: user.login,
+            label: user.user_name
+          }
+        }));
+        // } else {
+        //   notification['error']({
+        //     message: "Thông báo",
+        //     description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
+        //   });
+        // }
+      }).catch(() => {
+      })
+      .finally(() => {
+      });
+  }
 
   const addNewRowdetail = (value: IDrgInvProductResponse) => {
     if (value) {
@@ -104,7 +139,9 @@ const InvSummaryCreate = () => {
         drug_unit_name: value.units?.find(x => x.unit_id == value.unit_parent_id)?.unit_name || value.unit_name,
         lot: value.lot,
         price: value.price,
-        exp_date: value.exp_date
+        exp_date: value.exp_date,
+        vat: value.vat_percent,
+        discount_amt: value.discount_amount,
       };
 
       setKey(key + 1);
@@ -116,14 +153,24 @@ const InvSummaryCreate = () => {
   }
 
   const confirmDeleteCellToTable = (key: number, index: number) => {
-    console.log(key, index, invSummaryCreateReq);
-    invSummaryCreateReq.products.splice(index, index);
-    if (invSummaryCreateReq.products.length == 0) setKey(0);
-    console.log(invSummaryCreateReq);
-    setInvSummaryCreateReq(invSummaryCreateReq);
+    const updatedProducts = invSummaryCreateReq.products.filter(product => product.key !== key);
+    setInvSummaryCreateReq((prevState) => ({
+      ...prevState,
+      products: updatedProducts,
+    }));
+
   }
 
   const confirmCreateInvSummary = () => {
+    var errorListInvDetail = invSummaryCreateReq.products.filter(item => item.cur_qty == 0)
+    if (errorListInvDetail && errorListInvDetail.length > 0) {
+      notification["error"]({
+        message: "Thông báo",
+        description: 'Vui lòng nhập số lượng thuốc',
+      });
+      return;
+    }
+
     confirm({
       title: 'Bạn có đồng ý kiểm kho?',
       okText: "Đồng ý",
@@ -157,19 +204,22 @@ const InvSummaryCreate = () => {
     setLoadingScreen(true);
     return invoiceSummaryApi.create(invSummaryCreateReq).then((response) => {
       console.log(response);
-      if (response.meta[0].code === 200) {
-        form.resetFields();
-        notification["success"]({
-          message: "Thông báo",
-          description: "Tạo phiếu kiểm kho thành công",
-        });
-
-      } else {
-        notification["error"]({
-          message: "Thông báo",
-          description: "Tạo phiếu kiểm kho không thành công",
-        });
-      }
+      // if (response.meta[0].code === 200) {
+      form.resetFields();
+      notification["success"]({
+        message: "Thông báo",
+        description: "Tạo phiếu kiểm kho thành công",
+      });
+      setInvSummaryCreateReq({
+        products: []
+      });
+      navigate('/kho/kiemkho');
+      // } else {
+      //   notification["error"]({
+      //     message: "Thông báo",
+      //     description: "Tạo phiếu kiểm kho không thành công",
+      //   });
+      // }
       setLoadingScreen(false);
     })
       .catch(() => {
@@ -182,32 +232,20 @@ const InvSummaryCreate = () => {
   }
 
   const triggerFormEvent = (value: IDrugInvSummaryRequest) => {
-    setInvSummaryCreateReq({
-      ...invSummaryCreateReq,
-      check_date: value.check_date,
-      check_user: value.check_user,
-      note: value.note,
-      summary_type: value.summary_type
-    });
-
     confirmCreateInvSummary();
-
-    console.log(invSummaryCreateReq);
   }
 
   return (
-    // <>{roleScreen && roleScreen.perm_read ?
-    <><SummaryContext.Provider value={{ invSummaryCreateReq, setInvSummaryCreateReq }}>
-      <Spin tip="Loading..." spinning={loadingScreen}>
-        <div>
+    <>
+      {loadingScreen ? (
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} fullscreen />
+      ) : (<>
+        <SummaryContext.Provider value={{ invSummaryCreateReq, setInvSummaryCreateReq }}>
           <div className="form-filter-customer form-filter check-inv">
             <Form
               form={form}
               name="custoner_filter"
               className="common-form wrapper-form"
-              // initialValues={{
-              //   check_user: optionUserList && optionUserList.length > 0 ? optionUserList[0].value : ''
-              // }}
               onFinish={triggerFormEvent}
             >
               <Flex gap="middle" justify="space-between" align={'center'}
@@ -223,7 +261,10 @@ const InvSummaryCreate = () => {
                   >
                     <DatePicker className="form-input d-flex" size="middle"
                       value={invSummaryCreateReq.check_date ? dayjs(invSummaryCreateReq.check_date) : dayjs()}
-                      placeholder="Chọn ngày" format={"DD/MM/YYYY"} />
+                      placeholder="Chọn ngày" format={"DD/MM/YYYY"}
+                      onChange={(e: any) => {
+                        invSummaryCreateReq.check_date = e ? e.format("YYYY-MM-DD") : null;
+                      }} />
                   </Form.Item>
                 </div>
 
@@ -246,6 +287,9 @@ const InvSummaryCreate = () => {
                         value: '',
                         label: 'Tất cả'
                       }, ...optionUserList || []]}
+                      onChange={(e: any) => {
+                        invSummaryCreateReq.check_user = e;
+                      }}
                     />
                   </Form.Item>
                 </div>
@@ -259,7 +303,11 @@ const InvSummaryCreate = () => {
                       <span style={{ fontWeight: "550", fontSize: "14px" }}>Ghi chú</span>
                     }
                   >
-                    <TextArea rows={1} value={invSummaryCreateReq.note} placeholder="Nhập ghi chú" name="note" />
+                    <TextArea rows={1} value={invSummaryCreateReq.note}
+                      placeholder="Nhập ghi chú" name="note"
+                      onChange={(e: any) => {
+                        invSummaryCreateReq.note = e?.target?.value;
+                      }} />
                   </Form.Item>
                 </div>
               </Flex>
@@ -286,7 +334,7 @@ const InvSummaryCreate = () => {
                               <h4 className="item-name">
                                 <span>{value.drug_name || ''}</span>
                               </h4>
-                              <h4 className="item-price">{(value.total_price || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</h4>
+                              <h4 className="item-price">{(((value.price || 0) - (value.discount_amount || 0)) * ((value.vat_percent || 0) + 100) / 100)}</h4>
                             </div>
                             <div className="info_bottom">
                               <p className="item-code">{value.drug_code}</p>
@@ -312,14 +360,13 @@ const InvSummaryCreate = () => {
               </Flex>
             </Form>
           </div >
-        </div>
 
-        <InvSummaryFormCreate
-          confirmDeleteCellToTable={confirmDeleteCellToTable}
-        />
-
-      </Spin>
-    </SummaryContext.Provider>
+          <InvSummaryFormCreate
+            confirmDeleteCellToTable={confirmDeleteCellToTable}
+          />
+        </SummaryContext.Provider>
+      </>)
+      }
     </>
   );
 };

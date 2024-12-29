@@ -2,9 +2,13 @@ import { SelectProps } from "antd";
 import commonApi from "../apis/common.api";
 import { IUnit } from "../interfaces/common";
 import { IProperty } from "../interfaces/property";
-import { IRoleInfoListMenu } from "../interfaces/role";
+import { IGroups } from "../interfaces/role";
 import { ILoginResponse } from "../interfaces/login";
 import { KEY_LOCAL_STORAGE } from "../constants/general.constant";
+import { IDrugKindResponse } from "../interfaces/drugKind";
+import { IDrugGroupResponse } from "../interfaces/drugGroup";
+import drgKindApi from "../apis/drugKind.api";
+import drgGroupApi from "../apis/drugGroup.api";
 
 
 export const parseJSON = <T>(value: string | null): T | string | null => {
@@ -49,14 +53,26 @@ export const getUnits = (): IUnit[] => {
   return getLocalStorage('units')
 }
 
-export const getRoles = (): IRoleInfoListMenu[] => {
+export const getRoles = (): IGroups[] => {
   return getLocalStorage('roles')
+}
+
+export const getDrgKind = (): IDrugKindResponse[] => {
+  return getLocalStorage('drg_kinds')
+}
+
+export const getDrgGroup = (): IDrugGroupResponse[] => {
+  return getLocalStorage('drg_groups')
+}
+
+export const getStore = (): ILoginResponse => {
+  return getLocalStorage('store')
 }
 
 export const setAuth = async (value: ILoginResponse) => {
   console.log(value);
   setLocalStorage('store', value);
-  setLocalStorage(KEY_LOCAL_STORAGE.AUTHEN, value.token);
+  setLocalStorage(KEY_LOCAL_STORAGE.AUTHEN, value.token?.replace(/"/g, ''));
 }
 
 export const setExportType = async () => {
@@ -131,35 +147,88 @@ export const setRoles = async () => {
   }
 }
 
-export const getListOption = <T>(key: string, keyValue: keyof T, keyLabel: keyof T): SelectProps<string>['options'] => {
+export const setDrgKind = async () => {
+  var value = getLocalStorage('drg_kinds');
+  if (value == null || value === undefined || (value && value.length < 0)) {
+    await drgKindApi.getList()
+      .then(response => {
+        setLocalStorage('drg_kinds', response.data)
+      })
+      .catch(() => {
+      });
+  }
+}
+
+export const reloadDrgKind = async () => {
+  await drgKindApi.getList()
+    .then(response => {
+      setLocalStorage('drg_kinds', response.data)
+    })
+    .catch(() => {
+    });
+}
+
+export const reloadDrgGrop = async () => {
+  await drgGroupApi.get()
+    .then(response => {
+      setLocalStorage('drg_groups', response.data)
+    })
+    .catch(() => {
+    });
+}
+
+export const setDrgGroup = async () => {
+  var value = getLocalStorage('drg_groups');
+  if (value == null || value === undefined || (value && value.length < 0)) {
+    await drgGroupApi.get()
+      .then(response => {
+        setLocalStorage('drg_groups', response.data)
+      })
+      .catch(() => {
+      });
+  }
+}
+
+export const getListOption = <T>(key: string, keyValue: keyof T, keyLabel: keyof T, keyName: keyof T): SelectProps<string>['options'] => {
   const list = getLocalStorage(key);
 
   return list && list?.map((item: T) => ({
     value: item[keyValue],
     label: item[keyLabel],
+    name: item[keyName]
   })) || [];
 };
 
+
+
 export const getListExportTypeOption = () => {
-  return getListOption<IProperty>('export_types', 'unit_cd', 'value');
+  return getListOption<IProperty>('export_types', 'unit_cd', 'value', 'updated_user');
 };
 
 export const getListImportTypeOption = () => {
-  return getListOption<IProperty>('import_types', 'unit_cd', 'value');
+  return getListOption<IProperty>('import_types', 'unit_cd', 'value', 'updated_user');
 };
 
 export const getListPayMenthodsOption = () => {
-  return getListOption<IProperty>('pay_menthods', 'unit_cd', 'value');
+  return getListOption<IProperty>('pay_menthods', 'unit_cd', 'value', 'updated_user');
 };
 
 export const getListInvSourceOption = () => {
-  return getListOption<IProperty>('inv_sources', 'unit_cd', 'value');
+  return getListOption<IProperty>('inv_sources', 'unit_cd', 'value', 'updated_user');
 }
 
 export const getListUnitOption = () => {
-  return getListOption<IUnit>('units', 'unit_id', 'unit_name');
+  return getListOption<IUnit>('units', 'unit_id', 'unit_name', 'updated_user');;
 }
 
 export const getListRoleOption = () => {
-  return getListOption<IRoleInfoListMenu>('roles', 'role_id', 'role_code');
+  return getListOption<IGroups>('roles', 'role_id', 'role_name', 'role_id');
+}
+
+export const getListKindOption = () => {
+  return getListOption<IDrugKindResponse>('drg_kinds', 'drug_kind_id', 'name', 'drg_store_id');
+}
+
+export const getListGroupOption = () => {
+  return getListOption<IDrugGroupResponse>('drg_groups', 'drug_group_id', 'name', 'drg_store_id');
 }

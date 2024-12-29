@@ -5,7 +5,7 @@ import '../../assets/css/style.css';
 import { CityType, formItemLayout, vat } from "../../constants/general.constant";
 import { IDrugRequest } from "../../interfaces/drug";
 
-const ProductCreateAvg = () => {
+const ProductCreateAvg = (props: { btnEdit: boolean }) => {
   return (
     <>
 
@@ -26,6 +26,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập cách sử dụng"}
                 name={'direction_for_use'}
                 id={'direction_for_use'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -44,6 +45,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập cách xử lý quá liều"}
                 name={'overdosage'}
                 id={'overdosage'}
+                disabled={!props.btnEdit}
 
               />
             </Form.Item>
@@ -63,6 +65,7 @@ const ProductCreateAvg = () => {
                 placeholder={'Nhập chỉ định thuốc'}
                 name={'indication'}
                 id={'indication'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -81,6 +84,7 @@ const ProductCreateAvg = () => {
                 placeholder={'Nhập đối tượng sử dụng'}
                 name={'dosage'}
                 id={'dosage'}
+                disabled={!props.btnEdit}
 
               />
             </Form.Item>
@@ -100,6 +104,7 @@ const ProductCreateAvg = () => {
                 placeholder={'Nhập tác dụng phụ'}
                 name={'adverse_reaction'}
                 id={'adverse_reaction'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -118,6 +123,7 @@ const ProductCreateAvg = () => {
                 placeholder={'Nhập chống chỉ định'}
                 name={'contraindication'}
                 id={'contraindication'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -138,6 +144,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập tương tác thuốc"}
                 name={'interation'}
                 id={'interation'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -156,6 +163,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập nhiệt độ bảo quản"}
                 name={'storage_temperature'}
                 id={'storage_temperature'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -174,6 +182,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập độ ẩm bảo quản"}
                 name={'moisture'}
                 id={'moisture'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -192,6 +201,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập xuất xứ"}
                 name={'original_product'}
                 id={'original_product'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -210,6 +220,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Nhập thuốc kiểm soát đặc biệt"}
                 name={'special_control'}
                 id={'special_control'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>
@@ -228,6 +239,7 @@ const ProductCreateAvg = () => {
                 placeholder={"Thận trọng"}
                 name={'precaution'}
                 id={'precaution'}
+                disabled={!props.btnEdit}
               />
             </Form.Item>
           </div>

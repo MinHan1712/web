@@ -5,8 +5,6 @@ export interface ICustomerGroupResponse {
     customer_group_cd?: string;
     customer_group_name?: string;
     customer_group_type?: string;
-    condition_type?: string;
-    conditions?: string;
     note?: string;
     drg_store_id?: string;
     status?: string;
@@ -19,8 +17,6 @@ export interface ICustomerGroupCreate {
     customer_group_name?: string;
     customer_group_cd?: string;
     customer_group_type?: string;
-    // conditions?: string;
-    // condition_type?: string;
     note?: string;
     updated_user?: string;
     drg_store_id?: string;

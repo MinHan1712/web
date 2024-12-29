@@ -12,7 +12,6 @@ export interface IDrugUnitResponse {
     price?: number;
     vat_percent?: number;
     drg_store_id?: string;
-    account_id?: string;
     status?: boolean;
     created_date?: string;
     updated_user?: string;

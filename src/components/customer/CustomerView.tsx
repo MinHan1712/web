@@ -1,4 +1,4 @@
-import type { TabsProps } from "antd";
+import type { SelectProps, TabsProps } from "antd";
 import { Modal, Tabs } from "antd";
 import { ICustomerResponse } from "../../interfaces/customer";
 import '../../assets/css/style.css';
@@ -9,26 +9,27 @@ interface IModalCustomerViewProps {
   openViewDate: boolean;
   onCancel: () => void;
   data: ICustomerResponse;
+  optionsCusGroup: SelectProps<string>['options'];
 }
 
 const CustomerView = (props: IModalCustomerViewProps) => {
-  const items: TabsProps["items"] = [
-    {
-      key: "1",
-      label: "Thông tin",
-      children: <CustomerInfo data={props.data} onCancel={props.onCancel}/>,
-    },
-    {
-      key: "2",
-      label: "Lịch sử nhập hàng",
-      // children: <ModalCustomerHistoryInvoiceProduct Customer={valueCustomer} roleScreen={roleScreen} />,
-    },
-    {
-      key: "3",
-      label: "Lịch sử sản phẩm",
-      // children: <ModalCustomerHistoryProduct Customer={valueCustomer} />,
-    },
-  ];
+  // const items: TabsProps["items"] = [
+  //   {
+  //     key: "1",
+  //     label: "Thông tin",
+  //     children: <CustomerInfo data={props.data} onCancel={props.onCancel} optionsCusGroup={props.optionsCusGroup} />,
+  //   },
+  // {
+  //   key: "2",
+  //   label: "Lịch sử nhập hàng",
+  //   // children: <ModalCustomerHistoryInvoiceProduct Customer={valueCustomer} roleScreen={roleScreen} />,
+  // },
+  // {
+  //   key: "3",
+  //   label: "Lịch sử sản phẩm",
+  //   // children: <ModalCustomerHistoryProduct Customer={valueCustomer} />,
+  // },
+  // ];
 
   return (
     <>
@@ -40,20 +41,18 @@ const CustomerView = (props: IModalCustomerViewProps) => {
         cancelText="Cancel"
         onCancel={() => {
           props.onCancel();
-
         }}
         width={"70%"}
         footer={null}
       >
-        <div className="ant-modal-content">
-          <div className="tab-container-Customer">
-            <Tabs
+
+        {/* <Tabs
               type="card"
               items={items}
               className="h-100"
-            />
-          </div>
-        </div>
+            /> */}
+        <CustomerInfo data={props.data} onCancel={props.onCancel} optionsCusGroup={props.optionsCusGroup} />
+
       </Modal >
     </>
   );

@@ -17,7 +17,6 @@ const ProviderInfo = (props: IProviderInformationProps) => {
     const [form] = Form.useForm<IProviderResponse>();
     const [isSummitForm, setIsSummitForm] = useState(false);
     const [btnEdit, setBtnEdit] = useState(false);
-    const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
     const [confirmLoadingDelete, setConfirmLoadingDelete] = useState(false);
     const [confirmLoadingUpdate, setConfirmLoadingUpdate] = useState(false);
 
@@ -43,33 +42,34 @@ const ProviderInfo = (props: IProviderInformationProps) => {
                 note: value.note,
                 website: value.website,
                 tax_no: value.tax_no,
-                status: props.data.status
+                status: props.data.status,
+                email: value.email
             };
             console.log("providerUpdate", providerUpdate);
 
             const response = await providerApi.update(providerUpdate).then((response) => {
                 console.log(response)
-                switch (response.meta[0].code) {
-                    case 200:
-                        notification['success']({
-                            message: "Thông báo",
-                            description: 'Cập nhập nhà cung cấp thành công',
-                        });
-                        handleCloseModalView();
-                        props.onCancel();
-                        break;
-                    default:
-                        notification['error']({
-                            message: "Lỗi",
-                            description: 'Cập nhập nhà cung cấp không thành công',
-                        });
-                        break;
-                }
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Cập nhập nhà cung cấp thành công',
+                });
+                handleCloseModalView();
+                props.onCancel();
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Cập nhập nhà cung cấp không thành công',
+                //     });
+                //     break;
+                // }
             })
                 .catch(() => {
                     notification['error']({
                         message: "Lỗi",
-                        description: 'Cập nhập nhà cung cấp không thành công',
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
                     });
                 })
 
@@ -81,34 +81,34 @@ const ProviderInfo = (props: IProviderInformationProps) => {
     const deleteProvider = async () => {
         return providerApi.delete(props.data.provider_id)
             .then((response) => {
-                switch (response.meta[0].code) {
-                    case 200:
-                        notification['success']({
-                            message: "Thông báo",
-                            description: 'Xóa nhà cung cấp thành công',
-                        });
-                        handleCloseModalView();
-                        props.onCancel();
-                        break;
-                    default:
-                        notification['error']({
-                            message: "Lỗi",
-                            description: 'Xóa nhà cung cấp không thành công',
-                        });
-                        break;
-                }
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Xóa nhà cung cấp thành công',
+                });
+                handleCloseModalView();
+                props.onCancel();
+                // break;
+                //     default:
+                //         notification['error']({
+                //             message: "Lỗi",
+                //             description: 'Xóa nhà cung cấp không thành công',
+                //         });
+                //         break;
+                // }
             })
             .catch(() => {
                 notification['error']({
                     message: "Lỗi",
-                    description: 'Xóa nhà cung cấp không thành công',
+                    description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
                 });
+            }).finally(() => {
             })
     }
 
     const handleCloseModalView = () => {
         form.resetFields();
-        setOpenConfirmDelete(false);
         setConfirmLoadingDelete(false);
         setConfirmLoadingUpdate(false);
         setBtnEdit(false);
@@ -274,17 +274,14 @@ const ProviderInfo = (props: IProviderInformationProps) => {
                     <Popconfirm
                         title="Title"
                         description="Bạn có chắc chắn muốn xoá nhà cung cấp?"
-                        open={openConfirmDelete}
                         onConfirm={deleteProvider}
                         okText='Đồng ý'
                         cancelText='Hủy'
                         okButtonProps={{ loading: confirmLoadingDelete }}
-                        onCancel={() => setOpenConfirmDelete(false)}
                     >
                         <Button
                             className="button btn-delete"
                             type="primary"
-                            onClick={() => setOpenConfirmDelete(true)}
                         >
                             <DeleteOutlined style={{ paddingRight: '5px' }} />
                             <span>Xóa</span>

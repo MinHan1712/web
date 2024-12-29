@@ -5,13 +5,13 @@ import privateClient from "./clients/private.client";
 
 const endpoint = {
   getList: 'store/all',
-  update: `/store/update`,
+  update: `/store`,
 };
 
 const storeApi = {
-  get: async (): Promise<IResponse<IStoreResponse>> => {
+  get: async (): Promise<IStoreResponse> => {
     try {
-      const response = await privateClient.get<IResponse<IStoreResponse>>(
+      const response = await privateClient.get<IStoreResponse>(
         endpoint.getList
       );
       // console.log(response);

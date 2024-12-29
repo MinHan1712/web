@@ -1,89 +1,94 @@
 import { DeleteOutlined, LoadingOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Empty, Flex, Form, Input, Modal, notification, Select, SelectProps, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { format } from "date-fns/format";
 import dayjs from 'dayjs';
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import drugApi from "../apis/drug.api";
+import customerApi from "../apis/customer.api";
+import customerGroupApi from "../apis/customerGroup.api";
 import invoiceApi from "../apis/invoice.api";
-import providerApi from "../apis/provider.api";
 import '../assets/css/style.css';
-import InvImportCreateTable from "../components/Invoice/InvImportCreateTable";
-import ProductCreate from "../components/product/ProductCreate";
-import ProviderCreate from "../components/provider/ProviderCreate";
+import CustomerCreate from "../components/customer/CustomerCreate";
+import InvCustomerCreateTable from "../components/Invoice/InvCustomerCreateTable";
 import { formItemLayout, vat } from "../constants/general.constant";
-import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
-import { IDrugGroupResponse } from "../interfaces/drugGroup";
-import { IDrugKindResponse } from "../interfaces/drugKind";
+import { ICustomerResponse } from "../interfaces/customer";
 import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
-import { ICreateInvImport, IImportInventoryCreate } from "../interfaces/inventoryImport";
-import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
-import routes from "../router";
-import { getDrgGroup, getDrgKind, getListGroupOption, getListImportTypeOption, getListKindOption, getListPayMenthodsOption, getListUnitOption } from "../utils/local";
-import { InvContextType } from "./InvExportCreate";
+import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
+import { getListExportTypeOption, getListPayMenthodsOption, getListUnitOption } from "../utils/local";
 
-const InvImportContext = createContext<InvContextType | undefined>(undefined);
+export interface InvContextType {
+	invImportCreateReq: ICreateInvImport | {
+		info: {
+			amount: 0,
+			amount_original: 0,
+			amount_paid: 0
+		},
+		products: []
+	};
+	setInvImportCreateReq: React.Dispatch<React.SetStateAction<ICreateInvImport | {
+		info: {
+			amount: 0,
+		},
+		products: []
+	}>>;
+}
 
-export const UseInvImportContext = (): InvContextType => {
-	const context = useContext(InvImportContext);
+const InvCustomerExportContext = createContext<InvContextType | undefined>(undefined);
+
+export const UseInvCustomerExportContext = (): InvContextType => {
+	const context = useContext(InvCustomerExportContext);
 
 	if (context === undefined) {
-		throw new Error('UseInvImportContext must be used within a UserContextProvider');
+		throw new Error('UseInvCustomerExportContext must be used within a UserContextProvider');
 	}
 
 	return context;
 };
 
-const InvImportCreate: React.FC = () => {
-	const [form] = Form.useForm<IImportInventoryCreate>();
+
+const InvCustomerCreate: React.FC = () => {
+	const [key, setKey] = useState(0);
 	const { confirm } = Modal;
 
-	const [optionsProvider, setOptionsProvider] = useState<SelectProps<string>['options']>([]);
-	const [optionPaymentMethods, setOptionPaymentMethods] = useState<SelectProps<string>['options']>([]);
-	const [optionsImportType, setOptionsImportType] = useState<SelectProps<string>['options']>([]);
 
-	const [key, setKey] = useState(0);
-	const [isDebt, setIsDebt] = useState(false);
-	const [openProvider, setOpenProvider] = useState(false);
-	const [openProduct, setOpenProduct] = useState(false);
-
-	const [optionKind, setOptionKind] = useState<SelectProps<string>['options']>([]);
-	const [optionGroup, setOptionGroup] = useState<SelectProps<string>['options']>([]);
-	const [optionUnit, setOptionUnit] = useState<SelectProps<string>['options']>([]);
-	const [listKind, setListKind] = useState<IDrugKindResponse[]>([]);
-	const [listGroup, setListGroup] = useState<IDrugGroupResponse[]>([]);
-
-	const [loading, setLoading] = useState(false);
 	const [loadingScreen, setLoadingScreen] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	const [form] = Form.useForm<IImportInventoryCreate>();
+	const [optionsCusGroup, setOptionsCusGroup] = useState<SelectProps<string>['options']>([]);
+	const [optionsCustomer, setOptionsCustomer] = useState<SelectProps<string>['options']>([]);
+	const [optionPaymentMethods, setOptionPaymentMethods] = useState<SelectProps<string>['options']>([]);
+	const [openCustomer, setOpenCustomer] = useState(false);
+
+	const [isDebt, setIsDebt] = useState(false);
+	const [invProductReq, setInvProductReq] = useState<IDrugInvProductPageRequest>({
+		page: 1,
+		size: 20,
+		classification: false
+	});
+	const [productRes, setProductRes] = useState<IDrgInvProductResponse[]>([]);
 
 	const navigate = useNavigate();
 
-	const [productReq, setProductReq] = useState<IDrugPageRequest>({
-		page: 1,
-		size: 20
-	});
-
-	const [productRes, setProductRes] = useState<IDrugResponse[]>([]);
-
 	const [invImportCreateReq, setInvImportCreateReq] = useState<ICreateInvImport>({
 		info: {
-			classification: false
+			amount: 0,
+			amount_paid: 0,
+			classification: true,
+			import_type: 'ORD'
 		},
-		products: [],
+		products: []
 	});
 
+
 	useEffect(() => {
-		setOptionsImportType(getListImportTypeOption);
-		setOptionPaymentMethods(getListPayMenthodsOption);
-
 		getListProduct();
-		getListProvider();
-
-		setListKind(getDrgKind());
-		setListGroup(getDrgGroup());
-		setOptionKind(getListKindOption());
-		setOptionGroup(getListGroupOption());
-		setOptionUnit(getListUnitOption());
+		// setOptionsExportType(getListExportTypeOption);
+		// setOptionUnit(getListUnitOption());
+		setOptionPaymentMethods(getListPayMenthodsOption);
+		getListCustomer();
+		getListCustomerGroup();
 	}, []);
 
 	const createInvImport = async () => {
@@ -95,7 +100,7 @@ const InvImportCreate: React.FC = () => {
 				//     case 200:
 				notification['success']({
 					message: "Thông báo",
-					description: 'Thêm phiếu nhập kho thành công',
+					description: 'Thêm hóa đơn thành công',
 				});
 				setInvImportCreateReq({
 					info: {
@@ -103,12 +108,12 @@ const InvImportCreate: React.FC = () => {
 					products: []
 				});
 
-				navigate('/kho/nhapkho');
+				navigate('/kho/xuatkho');
 				//     break;
 				// default:
 				//     notification['error']({
 				//         message: "Lỗi",
-				//         description: 'Thêm phiếu nhập kho không thành công',
+				//         description: 'Thêm hóa đơn không thành công',
 				//     });
 				//     break;
 				// }
@@ -121,123 +126,189 @@ const InvImportCreate: React.FC = () => {
 				})
 
 		} catch (err) {
-			notification['error']({
-				message: "Lỗi",
-				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-			});
 			console.log(err);
 		} finally { setLoadingScreen(false); }
-	}
-
-
-	const triggerFormEvent = (value: IImportInventoryCreate) => {
-		confirmCreateInvExport();
-	}
-
-	const handleCreateReceipt = () => {
-		navigate({
-			pathname: routes[2].path,
-		});
-	};
-
-	const getListProvider = async () => {
-		setLoading(true);
-		try {
-			let provider: IProviderPageRequest = {
-				page: 0,
-				size: 0
-			}
-
-			const response = await providerApi.getList(provider);
-			console.log(response)
-
-			setOptionsProvider(response.data.map((provider: IProviderResponse) => {
-				return {
-					value: provider.provider_id,
-					label: provider.provider_name
-				}
-			}));
-
-
-		} catch (err) {
-			console.log(err);
-		} finally { setLoading(false); }
 	}
 
 	const getListProduct = async () => {
 		setLoading(true);
 		try {
-			const response = await drugApi.getList(productReq);
-			console.log(response)
+			await invoiceApi.getListInvProduct(invProductReq).then((response) => {
+				console.log(response)
+				// switch (response.meta[0].code) {
+				//     case 200:
+				setProductRes(prevState => [...prevState, ...response.data]);
+				console.log(response);
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Cập nhập nhà cung cấp không thành công',
+				//     });
+				//     break;
+				// }
+			})
+				.catch(() => {
+					// notification['error']({
+					// 	message: "Lỗi",
+					// 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					// });
+				})
 
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setProductRes(prevState => [...prevState, ...response.data]);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
 	}
 
-	const addNewRowdetail = (value: IDrugResponse) => {
-		if (value) {
-			var units = value.drug_units && value.drug_units?.length > 0 && value.drug_units[0];
-			var data = {
-				key: key,
-				inventory_detail_id: '',
-				drug_id: value.drug_id,
-				drug_name: value.drug_name,
-				inventory_id: '',
-				lot: '',
-				quantity: 0,
-				price: units && units.import_price || 0,
-				unit_id: units && units?.unit_id || '',
-				unit_parent_id: units && units?.unit_parent_id || '',
-				exp_date: '',
-				vat_percent: value.vat_percent || 0,
-				discount_amount: 0,
-				drug_units: value.drug_units,
-				total_amount: 0,
-				cur_price: units && units?.price || 0,
-				type: 'i'
-			};
-			setKey(key + 1);
+	const getListCustomer = async () => {
+		setLoading(true);
 
+		try {
+			await customerApi.getList({ page: 0, size: 0 }).then((response) => {
+				console.log(response)
+				// switch (response.meta[0].code) {
+				//     case 200:
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Cập nhập nhà cung cấp không thành công',
+				//     });
+				//     break;
+				// }
 
-			setInvImportCreateReq(prevState => {
-				return {
-					...prevState,
-					products: [...prevState.products, data] // Thêm sản phẩm vào danh sách hiện tại
-				};
-			});
-		}
+				setOptionsCustomer(response.data.map((provider: ICustomerResponse) => {
+					return {
+						value: provider.customer_id,
+						label: provider.customer_name
+					}
+				}));
+
+			})
+				.catch(() => {
+					// notification['error']({
+					// 	message: "Lỗi",
+					// 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					// });
+				})
+
+		} catch (err) {
+			console.log(err);
+		} finally { }
 	}
+
+	const getListCustomerGroup = async () => {
+		setLoading(true);
+		try {
+			const response = await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
+				console.log(response)
+				setOptionsCusGroup(response.data && response.data?.map((item) => ({
+					value: item.customer_group_id,
+					label: item.customer_group_name,
+				})) || []);
+				// switch (response.meta[0].code) {
+				//     case 200:
+
+				//     break;
+				// default:
+				//     notification['error']({
+				//         message: "Lỗi",
+				//         description: 'Cập nhập nhà cung cấp không thành công',
+				//     });
+				//     break;
+				// }
+			})
+				.catch(() => {
+				})
+
+		} catch (err) {
+			console.log(err);
+		} finally { setLoading(false); }
+
+	}
+
 
 	const onScrollSelectProduct = (event: any) => {
 		var target = event.target
 		if (target.scrollTop + target.offsetHeight === target.scrollHeight) {
-			setProductReq({
-				...productReq,
-				page: productReq.page || 1 + 1,
+			setInvProductReq({
+				...invProductReq,
+				page: invProductReq.page || 1 + 1,
 			})
-			target.scrollTo(0, target.scrollHeight);
 			getListProduct();
+			target.scrollTo(0, target.scrollHeight)
 		}
 	}
 
-	const confirmDeleteCellToTable = (key: number, index: number, record: IImportInventoryDetailCreate) => {
-		const updatedProducts = invImportCreateReq.products.filter(product => product.key !== key);
-		var original = (invImportCreateReq.info.amount_original || 0) - (record.total_amount || 0);
+	const triggerFormEvent = (value: IImportInventoryCreate) => {
+		confirmCreateInvExport();
+	}
 
-		updateAmtInfo(original);
+	const addNewRowdetail = (value: IDrgInvProductResponse) => {
+		console.log(value);
+		if (value) {
+			var checkItemDuplicate = invImportCreateReq.products.find(x => x.inventory_detail_id == value.id);
+
+			if (checkItemDuplicate) {
+				notification["error"]({
+					message: "Thông báo",
+					description: "Thuốc đã có trong bảng. Xin vui lòng kiểm tra lại!",
+				});
+				return;
+			}
+
+			var unit = value.units && value.units.find(x => x.unit_id == value.drug_unit_id);
+			console.log(unit)
+			var data = {
+				key: key,
+				inventory_detail_id: value.id,
+				inv_id: value.inventory_id,
+				drug_code: value.drug_code,
+				drug_id: value.drug_id,
+				drug_name: value.drug_name,
+				inventory_id: '',
+				lot: value.lot,
+				quantity: 0,
+				quantity_pre: value.sum_base_quantity || value.base_quantity,
+				price: calcPrice(value.price, value.discount_amount, value.vat_percent),
+				unit_id: value.drug_unit_id,
+				unit_parent_id: value.unit_parent_id,
+				exp_date: value.exp_date,
+				vat_percent: 0,
+				discount_amount: 0,
+				drug_units: value.units,
+				total_amount: 0,
+				type: 'e'
+			};
+			setKey(key + 1);
+			setInvImportCreateReq({
+				...invImportCreateReq,
+				products: [...invImportCreateReq.products, data]
+			});
+
+		}
+	}
+
+	const calcPrice = (price?: number, discount?: number, vat?: number) => {
+		return Math.round(((price || 0) - (discount || 0)) * ((vat || 0) + 100) / 100);
+	}
+
+	const confirmDeleteCellToTable = (key: number, index: number, record: IImportInventoryDetailCreate) => {
+		console.log(record, invImportCreateReq);
+		const updatedProducts = invImportCreateReq.products.filter(product => product.key !== key);
+		var amount = (invImportCreateReq.info.amount || 0) - (record.total_amount || 0);
 
 		setInvImportCreateReq((prevState) => ({
 			...prevState,
+			info: {
+				...prevState.info,
+				amount: amount,
+				import_type: 'ORD'
+				// amt_total: amtTotal
+			},
 			products: updatedProducts,
 		}));
-	};
+	}
 
 	const confirmCreateInvExport = () => {
 		var errorListInvDetail = invImportCreateReq.products.filter(item => item.quantity == 0)
@@ -250,36 +321,29 @@ const InvImportCreate: React.FC = () => {
 		}
 
 		confirm({
-			title: 'Bạn có đồng ý nhập kho?',
+			title: 'Bạn có đồng ý tạo hóa đơn?',
 			okText: "Đồng ý",
 			cancelText: 'Hủy',
 			async onOk() {
-				return new Promise<void>((resolve, reject) => {
-					createInvImport()
-						.then(() => {
-							resolve();
-						})
-						.catch(() => {
-							notification['error']({
-								message: "Lỗi",
-								description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-							});
-							resolve();
-						});
-				});
-			},
-			onCancel() { },
+				try {
+					createInvImport();
+				} catch (e) {
+					notification["error"]({
+						message: "Thông báo",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				}
+			}, onCancel() { },
 		});
-
 	}
 
 	const confirmCancelForm = () => {
 		confirm({
-			title: 'Bạn muốn hủy phiếu nhập kho?',
+			title: 'Bạn muốn hủy hóa đơn?',
 			okText: "Đồng ý",
 			cancelText: 'Hủy',
 			async onOk() {
-				navigate('/kho/nhapkho')
+				navigate('/hoadon')
 			},
 			onCancel() { },
 		});
@@ -308,51 +372,45 @@ const InvImportCreate: React.FC = () => {
 			{loadingScreen ? (
 				<Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} fullscreen />
 			) : (<>
-				<InvImportContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
+				<InvCustomerExportContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
 					<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
 						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
 							<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
+								<h5 style={{ width: '150px', display: 'flex', alignItems: 'center' }}>Thêm sản phẩm</h5>
 								<Select
 									className="d-flex w-100 form-select-search "
 									style={{ minHeight: '30px' }}
 									size="middle"
 									optionLabelProp="label"
-									onPopupScroll={onScrollSelectProduct}
 									loading={loading}
+									onPopupScroll={onScrollSelectProduct}
 									onSelect={(e: string) => {
-										addNewRowdetail(productRes.find(x => x.drug_id == e) || { drug_id: '' });
+										addNewRowdetail(productRes.find(x => x.id == e) || { id: '0' });
 									}}
 									notFoundContent={productRes ? <Empty description="Không có dữ liệu" /> : null}
 								>
-									{productRes?.map((value: IDrugResponse) => (
-										<Select.Option key={value.drug_id} value={value.drug_id} label={value.drug_name || ''}>
+									{productRes?.map((value: IDrgInvProductResponse) => (
+										<Select.Option key={value.id} value={value.id} label={value.drug_name}>
 											<div className="item-search-info-container">
 												<div className="drug_info">
 													<div className="info_top">
 														<h4 className="item-name">
 															<span>{value.drug_name || ''}</span>
 														</h4>
-														<h4 className="item-info-other">{value.drug_code || 0}</h4>
+														<h4 className="item-price">{calcPrice(value.price, value.discount_amount, value.vat_percent).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</h4>
 													</div>
 													<div className="info_bottom">
-														<p className="item-info-other" >{value.package_desc || ''}</p>
-														<p className="item-info-other">{value.active_ingredient || ''}</p>
+														<p className="item-code">{value.drug_code}</p>
+														<p className="item-info-other">HSD:  <strong>{value.exp_date ? format(new Date(value.exp_date), 'dd-MM-yyyy') : ''}- </strong>Số lô:  <strong>{value.lot || ''}- </strong>Tồn:  <strong>{value.sum_base_quantity || 0}</strong> {value.unit_name}</p>
 													</div>
 												</div>
 											</div>
 										</Select.Option>
 									))}
 								</Select>
-								<Button
-									className="button btn-add d-flex flex-row justify-content-center align-content-center"
-									type="primary"
-									onClick={() => setOpenProduct(true)}
-								>
-									<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
-									<span>Thuốc mới</span>
-								</Button>
 							</Flex>
-							<InvImportCreateTable confirmDeleteCellToTable={confirmDeleteCellToTable} updateAmtInfo={updateAmtInfo} />
+							<InvCustomerCreateTable updateAmtInfo={updateAmtInfo}
+								confirmDeleteCellToTable={confirmDeleteCellToTable} />
 						</Flex>
 
 						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '30%' }}>
@@ -367,7 +425,7 @@ const InvImportCreate: React.FC = () => {
 											labelAlign={"left"}
 											name={'provider_id'}
 											label={
-												<span style={{ fontWeight: "550", fontSize: "14px" }}>Tên NCC</span>
+												<span style={{ fontWeight: "550", fontSize: "14px" }}>Tên KH</span>
 											}
 										>
 											<Flex>
@@ -375,14 +433,14 @@ const InvImportCreate: React.FC = () => {
 													showSearch
 													allowClear={true}
 													optionFilterProp="children"
-													options={optionsProvider}
-													placeholder="Tìm nhà cung cấp"
+													options={optionsCustomer}
+													placeholder="Tìm khách hàng"
 													id={'provider_id'}
 													filterOption={(input, option) =>
 														(option?.label?.toString() ?? '').toLowerCase().includes(input.toLowerCase())
 													}
 													value={invImportCreateReq.info.provider_id}
-													notFoundContent={optionsProvider ? <Empty description="Không tìm thấy dữ liệu" /> : null}
+													notFoundContent={optionsCustomer ? <Empty description="Không tìm thấy dữ liệu" /> : null}
 													onChange={(e: any) => {
 														invImportCreateReq.info.provider_id = e;
 													}}
@@ -390,7 +448,7 @@ const InvImportCreate: React.FC = () => {
 												<Button
 													className="button btn-add d-flex flex-row justify-content-center align-content-center p-2"
 													type="primary"
-													onClick={() => setOpenProvider(true)}
+													onClick={() => setOpenCustomer(true)}
 												>
 													<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
 												</Button>
@@ -439,31 +497,6 @@ const InvImportCreate: React.FC = () => {
 												onChange={(e: any) => {
 													invImportCreateReq.info.process_date = e ? e.format("YYYY-MM-DD") : null;
 												}} />
-										</Form.Item>
-									</div>
-									<div style={{ width: '100%' }}>
-										<Form.Item
-											{...formItemLayout}
-											labelAlign={"left"}
-											name={'import_type'}
-											label={
-												<span style={{ fontWeight: "550", fontSize: "14px" }}>Loại nhập</span>
-											}
-										>
-											<Select
-												className="d-flex"
-												size="middle"
-												id={'import_type'}
-												placeholder="Loại nhập"
-												value={invImportCreateReq.info.import_type}
-												options={[{
-													value: '',
-													label: 'Tất cả'
-												}, ...optionsImportType || []]}
-												onChange={(e: any) => {
-													invImportCreateReq.info.import_type = e;
-												}}
-											/>
 										</Form.Item>
 									</div>
 									<div style={{ width: '100%' }}>
@@ -628,44 +661,35 @@ const InvImportCreate: React.FC = () => {
 										<Button
 											className="button btn-add d-flex flex-row justify-content-center align-content-center mb-2"
 											type="primary"
-											// disabled={isSettingButtonAdd}
 											onClick={() => {
 												form.submit();
 											}}
 										>
 											<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
-											<span>Nhập kho</span>
+											<span>Tạo hóa đơn</span>
 										</Button>
 									</Flex>
 								</Flex>
 							</Form>
 						</Flex>
 					</Flex>
-				</InvImportContext.Provider >
-			</>)}
-			<ProviderCreate
-				open={openProvider}
-				onCancel={() => {
-					setOpenProvider(false);
-					getListProvider();
-				}}
-			/>
+				</InvCustomerExportContext.Provider>
+			</>)
+			}
 
-			<ProductCreate
-				open={openProduct}
+			<CustomerCreate
+				open={openCustomer}
 				onCancel={() => {
-					setOpenProduct(false);
-					setProductRes([]);
-					getListProduct();
+					setOpenCustomer(false);
+					getListCustomer();
 				}}
-				optionGroup={optionGroup}
-				optionKind={optionKind}
-				listGroup={listGroup}
-				listKind={listKind}
-				optionUnit={optionUnit}
+				optionsCusGroup={optionsCusGroup}
 			/>
 		</>
+
 	);
 };
 
-export default InvImportCreate;
+
+
+export default InvCustomerCreate;

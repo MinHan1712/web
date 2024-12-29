@@ -13,8 +13,9 @@ import { ImportStatus, selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
-import routes from "../router";
 import { getExportType, getListExportTypeOption } from "../utils/local";
+import userApi from "../apis/user.api";
+import { IUserWithRoleResponse } from "../interfaces/userManager";
 
 
 const InvoiceExport: React.FC = () => {
@@ -22,7 +23,6 @@ const InvoiceExport: React.FC = () => {
 	const [pageSize, setPageSize] = useState(Number(selectPageSize[0].value));
 	const [openViewDate, setOpenviewDate] = useState(false);
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
-	const [isReload, setIsReload] = useState(false);
 	const [users, setUsers] = useState<SelectProps<string>['options']>([]); //TODO
 	const [exportType, setExportType] = useState<SelectProps<string>['options']>([]);
 	const [listTypeExports, setListTypeExports] = useState<IProperty[]>([]);
@@ -92,7 +92,7 @@ const InvoiceExport: React.FC = () => {
 			width: "20%",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					<span style={{ color: "red" }}>{Math.abs(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+					<span style={{ color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 				</div>
 			)
 		},
@@ -149,10 +149,22 @@ const InvoiceExport: React.FC = () => {
 			// 	return;
 			// }
 
-			setInvImportRes(response.data);
+			setInvImportRes(response);
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
+	}
+
+	const getListUserManger = () => {
+		userApi.get({ page: 0, size: 0 })
+			.then((response) => {
+				setUsers(response.data.map((user: IUserWithRoleResponse) => {
+					return {
+						value: user.login,
+						label: user.user_name
+					}
+				}));
+			})
 	}
 
 	const triggerFormEvent = (value: IInventoryImportPageRequest) => {
@@ -169,20 +181,21 @@ const InvoiceExport: React.FC = () => {
 	}
 
 	const handleCreateReceipt = () => {
-		navigate({
-			pathname: routes[2].path,
-		});
+		navigate('/kho/taophieuxuatkho');
 	};
 
 	useEffect(() => {
-		setIsReload(false);
+		getListUserManger();
+	}, []);
+
+	useEffect(() => {
 		getListInvImport();
 
 		setExportType(getListExportTypeOption);
 		setListTypeExports(getExportType);
 
 		console.log('request', invImportReq);
-	}, [invImportReq, isReload])
+	}, [invImportReq])
 
 	return (
 		<>

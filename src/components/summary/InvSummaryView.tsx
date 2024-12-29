@@ -40,7 +40,7 @@ const InvoiceSummaryView = (props: IModalProviderViewProps) => {
     <>
       <Modal
         open={props.open}
-        title="Chi tiết nhà cung cấp"
+        title="Chi tiết phiếu kiểm kho"
         okText="Create"
         maskClosable={false}
         cancelText="Cancel"
@@ -51,15 +51,13 @@ const InvoiceSummaryView = (props: IModalProviderViewProps) => {
         width={"70%"}
         footer={null}
       >
-        <div className="ant-modal-content">
-          <div className="tab-container-provider">
-            <Tabs
-              type="card"
-              items={items}
-              className="h-100"
-            />
-          </div>
-        </div>
+
+        <Tabs
+          type="card"
+          items={items}
+          className="h-100"
+        />
+
       </Modal >
     </>
   );

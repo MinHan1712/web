@@ -1,46 +1,49 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { DatePicker, Empty, Input, notification, Popconfirm, Select } from "antd";
+import { Empty, Input, notification, Popconfirm, Popover, Select } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
-import dayjs from 'dayjs';
-import { vat } from "../../constants/general.constant";
+import { format } from "date-fns";
 import { IImportInventoryDetailCreate } from "../../interfaces/inventoryDetail";
-import { UseInvImportContext } from "../../pages/InvImportCreate";
-
+import { UseInvExportContext } from "../../pages/InvExportCreate";
+import TextArea from "antd/es/input/TextArea";
+import showMessage from "../notification";
+import { UseInvCustomerExportContext } from "../../pages/InvCustomerCreate";
 
 interface Props {
   confirmDeleteCellToTable: (key: number, index: number, record: IImportInventoryDetailCreate) => void;
   updateAmtInfo: (amt: number) => void;
 }
 
-const InvImportCreateTable = (props: Props) => {
-  const { invImportCreateReq, setInvImportCreateReq } = UseInvImportContext();
 
+const InvCustomerCreateTable = (props: Props) => {
+
+  const { invImportCreateReq, setInvImportCreateReq } = UseInvCustomerExportContext();
   let count = 1;
-
   const columnsInvImportDetail: ColumnsType<IImportInventoryDetailCreate> = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: "40px",
+      width: "50px",
       align: 'center',
-      render: (text) => (
-        <div className="style-text-limit-number-line2">
-          <span>{count++}</span>
-        </div>
-      ),
+      render: () => {
+        return (
+          <h5>
+            <span>{count++}</span>
+          </h5>
+        )
+      },
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "drug_name",
       key: "drug_name",
-      width: "11%",
+      width: "15%",
       align: 'left',
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
-          <div className='style-text-limit-number-line2 d-flex align-items-center'>
+          <h5>
             <span>{record.drug_name}</span>
-          </div>
+          </h5>
         )
       },
     },
@@ -52,71 +55,47 @@ const InvImportCreateTable = (props: Props) => {
       align: "center",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
-          <Input
-            size="middle"
-            placeholder="Số lô"
-            value={record.lot}
-            status={record.lot ? "" : "warning"}
-            onChange={(e: any) => {
-              record.lot = e?.target?.value;
-              invImportCreateReq.products[index] = record;
-              setInvImportCreateReq({ ...invImportCreateReq });
-            }}
-            id="lot"
-          />
+          <h5>
+            <span>{record.lot}</span>
+          </h5>
         )
       },
     },
+    // {
+    //   title: "Liều dùng ",
+    //   dataIndex: "dosage",
+    //   key: "dosage",
+    //   width: "10%",
+    //   align: "center",
+    //   render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
+    //     return (
+    //       <Popover content={
+    //         <TextArea rows={4} value={record.dosage} onChange={(e) => {
+    //           let newData = [...invImportCreateReq];
+    //           newData[index]['dosage'] = e?.target?.value;
+    //           setInvImportCreateReq(newData);
+    //         }} />
+    //       } title="Liều dùng" trigger="hover">
+    //         <Mentions
+    //           style={{ width: '100px' }}
+    //           readOnly
+    //           value={record.dosage}
+    //         />
+    //       </Popover>
+    //     )
+    //   },
+    // },
     {
-      title: "HSD",
-      dataIndex: "exp_date",
-      key: "exp_date",
-      width: "11%",
-      align: "center",
-      render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
-        return (
-          <DatePicker
-            size="middle"
-            format={"DD/MM/YYYY"}
-            placeholder="HSD"
-            status={record.exp_date ? "" : 'warning'}
-            value={record.exp_date ? dayjs(record.exp_date) : null}
-            onChange={(date, dateString) => {
-              record.exp_date = date && dayjs(date, 'YYYY-MM-DD').format('YYYY-MM-DD') || '';
-              invImportCreateReq.products[index] = record;
-              setInvImportCreateReq({ ...invImportCreateReq });
-            }}
-          />
-        )
-      },
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: "Tồn",
+      dataIndex: "quantity_pre",
+      key: "quantity_pre",
       width: "10%",
       align: "center",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
-          <Input
-            size="middle"
-            min={0}
-            value={record.quantity}
-            name="quantity"
-            status={record.quantity || 0 > 0 ? "" : "error"}
-            onChange={(e: any) => {
-
-              var totalAmntCurrent = record.total_amount || 0;
-
-              record.quantity = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
-              record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
-
-              invImportCreateReq.products[index] = record;
-              invImportCreateReq.info.amount_original = (invImportCreateReq.info.amount_original || 0) - totalAmntCurrent + record.total_amount;
-              setInvImportCreateReq({ ...invImportCreateReq });
-              props.updateAmtInfo(invImportCreateReq.info.amount_original);
-            }}
-          />
+          <h5>
+            <span>{record.quantity_pre}</span>
+          </h5>
         )
       },
     },
@@ -129,73 +108,88 @@ const InvImportCreateTable = (props: Props) => {
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         var unitOptions = record.drug_units?.map((item) => ({
           value: item.unit_id || '',
-          label: item.unit_name || ''
+          label: item.unit_name || '',
+
         }))
+
+        console.log(unitOptions, record);
         return (
           <Select
             size="middle"
             defaultValue={record.unit_id || ''}
             style={{ textAlign: 'left' }}
             value={record.unit_id}
-            onChange={(e: any) => {
-
-              var drugUnit = getDrugUnitById(e, record);
-              console.log(drugUnit);
-              var totalAmntCurrent = record.total_amount || 0;
-              if (drugUnit === null) {
-                drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
-              }
-
-              record.unit_id = e;
-              record.unit_parent_id = drugUnit.unit_parent_id;
-              record.price = drugUnit.import_price;
-              record.total_amount = 0;
-              record.quantity = 0;
-              console.log(record);
-
-              invImportCreateReq.products[index] = record;
-              invImportCreateReq.info.amount_original = (invImportCreateReq.info.amount_original || 0) - totalAmntCurrent + record.total_amount;
-              setInvImportCreateReq({ ...invImportCreateReq });
-              props.updateAmtInfo(invImportCreateReq.info.amount_original);
-            }}
+            disabled={true}
             options={unitOptions}
           />
         )
       },
     },
     {
-      title: "Giá nhập",
+      title: "Đơn giá",
       dataIndex: "price",
       key: "price",
       width: "11%",
       align: "center",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
-
         return (
           <Input
             size="middle"
             min={0}
             value={(record.price?.toString() || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             addonAfter="đ"
+            status={(record.price || 0) > 0 ? "" : "error"}
             name="price"
             onChange={(e: any) => {
-              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+
+              var value = parseFloat(e?.target?.value.replace(/,/g, ''));
               if (value < (record.discount_amount || 0)) {
                 notification["error"]({
                   message: "Lỗi",
-                  description: 'Giá nhập không được nhỏ hơn giảm giá',
+                  description: 'Giá bán không được nhỏ hơn giảm giá',
                 });
               }
 
-              // if (value < (record.cur_price || 0)) {
-              //   notification["warning"]({
-              //     message: "Cảnh bảo",
-              //     description: 'Giá nhập cao hơn giá bán, vui lòng kiểm tra lại',
-              //   });
-              // }
-
               var totalAmntCurrent = record.total_amount || 0;
               record.price = value;
+              record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
+
+              invImportCreateReq.products[index] = record;
+              invImportCreateReq.info.amount_original = (invImportCreateReq.info.amount_original || 0) - totalAmntCurrent + record.total_amount;
+              setInvImportCreateReq({ ...invImportCreateReq });
+              props.updateAmtInfo(invImportCreateReq.info.amount_original);
+            }}
+          />
+        )
+      },
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
+      width: "10%",
+      align: "center",
+      render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
+        var quantity = Math.abs(record.quantity || 0);
+        return (
+          <Input
+            size="middle"
+            min={0}
+            value={quantity}
+            status={record.quantity || 0 > 0 ? "" : "error"}
+            name="quantity"
+            onChange={(e: any) => {
+
+              var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+
+              if (value > (record.quantity_pre || 0)) {
+                showMessage("error", "Vui lòng kiểm tra lại thuốc trong đơn", "Số lượng thuốc không đủ");
+                return;
+              }
+
+              var totalAmntCurrent = record.total_amount || 0;
+
+              record.quantity = value;
               record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
 
               invImportCreateReq.products[index] = record;
@@ -215,14 +209,15 @@ const InvImportCreateTable = (props: Props) => {
       align: "center",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
-
           <Input
             size="middle"
             min={0}
             value={(record.discount_amount?.toString() || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             addonAfter="đ"
+            status={(record.price || 0) > 0 ? "" : "error"}
             name="discount_amount"
             onChange={(e: any) => {
+
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
 
               if (value > (record.price || 0)) {
@@ -247,38 +242,11 @@ const InvImportCreateTable = (props: Props) => {
       },
     },
     {
-      title: "Vat",
-      dataIndex: "vat_percent",
-      key: "vat_percent",
-      width: "50px",
-      align: "center",
-      render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
-        return (
-          <Select
-            size="middle"
-            defaultValue={record.vat_percent || '0%'}
-            value={record.vat_percent || 0}
-            onChange={(e: any) => {
-              var totalAmntCurrent = record.total_amount || 0;
-              record.vat_percent = parseInt(e) || 0;
-              record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
-
-              invImportCreateReq.products[index] = record;
-              invImportCreateReq.info.amount_original = (invImportCreateReq.info.amount_original || 0) - totalAmntCurrent + record.total_amount;
-              setInvImportCreateReq({ ...invImportCreateReq });
-              props.updateAmtInfo(invImportCreateReq.info.amount_original);
-            }}
-            options={vat}
-          />
-        )
-      },
-    },
-    {
       title: "Tổng tiền",
       dataIndex: "total_amount",
       key: "total_amount",
-      width: "11%",
-      align: "center",
+      width: "10%",
+      align: "right",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <h5>
@@ -291,8 +259,8 @@ const InvImportCreateTable = (props: Props) => {
       title: "",
       dataIndex: "key",
       key: "key",
-      width: "40px",
-      align: "center",
+      width: "60px",
+      align: "right",
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <Popconfirm
@@ -337,19 +305,7 @@ const InvImportCreateTable = (props: Props) => {
             style={{
               marginTop: '5px', height: '611px', overflowY: 'scroll'
             }}
-            scroll={{ x: 900 }}
-            components={{
-              header: {
-                  cell: (props: any) => {
-                      return (
-                          <th
-                              {...props}
-                              style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
-                          />
-                      );
-                  },
-              },
-          }}
+            scroll={{ x: 240 }}
             className="table table-hover provider-table"
             columns={columnsInvImportDetail}
             dataSource={invImportCreateReq.products}
@@ -361,4 +317,4 @@ const InvImportCreateTable = (props: Props) => {
   );
 };
 
-export default InvImportCreateTable;
+export default InvCustomerCreateTable;

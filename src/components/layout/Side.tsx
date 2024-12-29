@@ -1,25 +1,27 @@
 import { PieChartOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Avatar, Flex, Layout, Menu } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ILoginResponse } from '../../interfaces/login';
+import { getStore } from '../../utils/local';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const items: MenuItem[] = [
-    {
-        key: '1',
-        label: 'Tổng quan',
-        icon: <PieChartOutlined />
-    },
+    // {
+    //     key: '1',
+    //     label: 'Tổng quan',
+    //     icon: <PieChartOutlined />
+    // },
     {
         key: '2',
-        label: <Link to="./kho/nhapkho" className='text-decoration-none'>Hóa đơn</Link>,
+        label: <Link to="./hoadon" className='text-decoration-none'>Hóa đơn</Link>,
         icon: <img alt="icon sider bar" src={require('../../assets/img/hoa-don.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
     },
     {
         key: '4',
-        label: <Link to="./product" className='text-decoration-none'>Sản phẩm</Link>,
+        label: <Link to="./sanpham" className='text-decoration-none'>Sản phẩm</Link>,
         icon: <img alt="icon sider bar" src={require('../../assets/img/sp.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
     },
     {
@@ -51,17 +53,17 @@ const items: MenuItem[] = [
         children: [
             {
                 key: '10',
-                label: <Link to="./customer" className='text-decoration-none'>Khách hàng</Link>,
+                label: <Link to="./khachhang" className='text-decoration-none'>Khách hàng</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/account.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
             },
             {
                 key: '11',
-                label: <Link to="./customer/group" className='text-decoration-none'>Nhóm khách hàng</Link>,
+                label: <Link to="./nhomkhachhang" className='text-decoration-none'>Nhóm khách hàng</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/customer_group.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
             },
             {
                 key: '12',
-                label: <Link to="./provider" className='text-decoration-none'>Nhà cung cấp</Link>,
+                label: <Link to="./nhacungcap" className='text-decoration-none'>Nhà cung cấp</Link>,
                 icon: <img alt="icon sider bar" src={require('../../assets/img/provider.png')} style={{ width: '25px', height: '25px', marginRight: '5px', opacity: 1 }} />,
             },
         ],
@@ -97,6 +99,11 @@ const SideLayout = (props: any) => {
         borderRadius: '50%'
     };
 
+    const [store, setStore] = useState<ILoginResponse>({ storeName: '', userName: '' });
+    useEffect(() => {
+        setStore(getStore())
+    }, []);
+
     return (
         <>
             <Sider
@@ -113,7 +120,7 @@ const SideLayout = (props: any) => {
                             size="large"
                             src={require('../../assets/img/logo-app.af7d24a2.png')} />
                         {
-                            props.collapsed ? "" : <div style={{ padding: '5px', fontWeight: '600', lineHeight: '17px' }}>Han</div>
+                            props.collapsed ? "" : <div style={{ padding: '5px', fontWeight: '600', lineHeight: '17px' }}>{store.storeName}</div>
                         }
                     </div>
 

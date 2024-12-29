@@ -1,4 +1,4 @@
-import { Col, DatePicker, Empty, Row, Tooltip } from "antd";
+import { Col, DatePicker, Empty, notification, Row, Tooltip } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns";
 import { AlignType } from "rc-table/lib/interface";
@@ -9,6 +9,7 @@ import { IInvoiceImportResponse } from "../../interfaces/inventoryImport";
 import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";
 import { ImportImportType, ImportStatus, PayMethod } from "../../constants/general.constant";
 import { renderText } from "../common";
+import invoiceApi from "../../apis/invoice.api";
 
 const { RangePicker } = DatePicker;
 
@@ -19,23 +20,43 @@ interface IInvSummaryWithExportInvProps {
 const InvSummaryExport = (props: IInvSummaryWithExportInvProps) => {
 
     const [isEmptyDate, setIsEmptyData] = useState(true);
-    const [detail, setDetail] = useState<IInvoiceImportResponse>({ inventory_id: '' })
+    const [detail, setInvImportRes] = useState<IInvoiceImportResponse>({ inventory_id: '' });
+
 
     // get
-    const getListInvImportWidthSummaryID = () => {
+    const getListInvImportWidthSummaryID = async () => {
         setIsEmptyData(true);
-        //set detail
-        // return invSummaryAPI.getInvExportWidthSummaryId(invSummaryItem.summary_id)
-        //     .then((value) => {
-        //         if (value.data) {
-        //             setDetail(value.data);
-        //             setIsEmptyData(false);
-        //         }
+        try {
+            await invoiceApi.getList({
+                page: 0,
+                size: 0,
+                classification: true,
+                summary_id: props.data.summary_id
+            }).then((response) => {
 
-        //     })
-        //     .catch((error) => {
-        //         setIsEmptyData(true);
-        //     });
+                // if (response.meta[0].code !== API_STATUS.SUCCESS) {
+                // 	//error
+                // 	return;
+                // }
+                setInvImportRes(response.data.length > 0 ? response.data[0] : { inventory_id: '' });
+                console.log(response.data.length > 0 ? response.data[0] : { inventory_id: '' }, detail);
+                setIsEmptyData(false);
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
+        } catch (err) {
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            setIsEmptyData(true);
+        } finally { }
+
     }
 
     const columnInvSummaryWithExportInv: ColumnsType<IDrugInventoryDetailResponse> = [
@@ -101,7 +122,7 @@ const InvSummaryExport = (props: IInvSummaryWithExportInvProps) => {
             width: "15%",
             render: (text) => (
                 <div className="style-text-limit-number-line2">
-                    <span style={{ fontWeight: "600", color: "red" }}>{Math.abs(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                    <span style={{ fontWeight: "600", color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                 </div>
             )
         }
@@ -133,26 +154,38 @@ const InvSummaryExport = (props: IInvSummaryWithExportInvProps) => {
                     </Row>
 
                     <div className="ant-table-wrapper" style={{ backgroundColor: 'rgb(255, 255, 255)', marginTop: '10px', minHeight: '300px' }}>
-                        <div className="table-container">
-                            <Table locale={{
-                                emptyText: (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-                                )
+                        {/* <div className="table-container"> */}
+                        <Table locale={{
+                            emptyText: (
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
+                            )
+                        }}
+                            rowKey={(record) => record.id ? record.id : "0"}
+                            style={{
+                                backgroundColor: 'rgb(255, 255, 255',
+                                marginTop: '10px',
+                                minHeight: '350px'
                             }}
-                                rowKey={(record) => record.id ? record.id : "0"}
-                                style={{
-                                    backgroundColor: 'rgb(255, 255, 255',
-                                    marginTop: '10px',
-                                    minHeight: '350px'
-                                }}
-                                size="small"
-                                className="table table-hover provider-table"
-                                scroll={{ x: 1024, y: 440 }}
-                                columns={columnInvSummaryWithExportInv}
-                                dataSource={detail.drg_inv_inventory_details}
-                                pagination={false}
-                            />
-                        </div>
+                            components={{
+                                header: {
+                                    cell: (props: any) => {
+                                        return (
+                                            <th
+                                                {...props}
+                                                style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
+                                            />
+                                        );
+                                    },
+                                },
+                            }}
+                            size="small"
+                            // className="table table-hover provider-table"
+                            scroll={{ x: 1024, y: 440 }}
+                            columns={columnInvSummaryWithExportInv}
+                            dataSource={detail.drg_inv_inventory_details}
+                            pagination={false}
+                        />
+                        {/* </div> */}
                     </div>
                 </>
             }

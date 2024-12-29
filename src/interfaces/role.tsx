@@ -23,11 +23,9 @@ export interface IRoleMenu {
   perm_delete?: boolean;
 }
 
-export interface IRoleInfoListMenu {
-  active_flg?: boolean;
-  role_code?: string;
+export interface IGroups {
+  role_name?: string;
   role_id?: string;
-  level_role?: string;
-  menu?: IRoleMenu[];
+  comment?: string;
 }
 

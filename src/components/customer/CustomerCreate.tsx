@@ -1,5 +1,5 @@
-import { Button, DatePicker, Divider, Flex, Form, Input, Modal, Radio, Select, Space } from "antd";
-import {useState } from "react";
+import { Button, DatePicker, Divider, Flex, Form, Input, Modal, notification, Radio, Select, SelectProps, Space } from "antd";
+import { useState } from "react";
 import { ICustomerCreate, ICustomerResponse } from '../../interfaces/customer';
 import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
 import {
@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 interface ICustomerInformationProps {
     open: boolean;
     onCancel: () => void;
+    optionsCusGroup: SelectProps<string>['options'];
 }
 
 const CustomerCreate = (props: ICustomerInformationProps) => {
@@ -30,14 +31,39 @@ const CustomerCreate = (props: ICustomerInformationProps) => {
 
     const createCustomer = async (value: ICustomerCreate) => {
         try {
-            value.birthday = dayjs(value.birthday, "YYYY-MM-DD").format("YYYY-MM-DD") || ''
-            console.log(`Customer`, value);
-            const response = await customerApi.create(value);
-            console.log(response);
-            form.resetFields();
-            props.onCancel();
+            value.birthday = value.birthday ? dayjs(value.birthday, "YYYY-MM-DD").format("YYYY-MM-DD") || '' : '';
+
+            await customerApi.create(value).then((response) => {
+                console.log(response)
+                // switch (response.meta[0].code) {
+                //     case 200:
+                notification['success']({
+                    message: "Thông báo",
+                    description: 'Thêm khách hàng thành công',
+                });
+                form.resetFields();
+                props.onCancel();
+                //     break;
+                // default:
+                //     notification['error']({
+                //         message: "Lỗi",
+                //         description: 'Thêm khách hàng không thành công',
+                //     });
+                //     break;
+                // }
+            })
+                .catch(() => {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                })
+
         } catch (err) {
-            console.log(err);
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
         } finally { setLoading(false); }
     }
 
@@ -201,17 +227,17 @@ const CustomerCreate = (props: ICustomerInformationProps) => {
                                         className="d-flex"
                                         style={{ marginBottom: "8px" }}
                                         size="middle"
-                                        // options={optionCustomerGroup}
+                                        options={props.optionsCusGroup}
                                         // defaultValue={optionCustomerGroup && optionCustomerGroup.length > 0 ? optionCustomerGroup[0].value : ''}
                                         dropdownRender={(menu) => (
                                             <>
                                                 {menu}
-                                                <Divider style={{ margin: '8px 0' }} />
+                                                {/* <Divider style={{ margin: '8px 0' }} />
                                                 <Space style={{ padding: '0 8px 4px' }} className="d-flex justify-content-center align-content-center">
                                                     <Button className="button" type="text" icon={<PlusOutlined />}  >
                                                         Thêm
                                                     </Button>
-                                                </Space>
+                                                </Space> */}
                                             </>
                                         )}
                                     />

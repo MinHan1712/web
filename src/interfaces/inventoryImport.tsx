@@ -48,6 +48,9 @@ export interface IInventoryImportPageRequest extends IPagingAndSortRequest {
     create_date_to?: string;
     create_date_from?: string;
     pay_menthod?: string;
+    summary_id?: string;
+    updated_user?:string;
+    is_customer?:boolean;
 }
 
 export interface IDrugInvProductPageRequest extends IPagingAndSortRequest {
@@ -111,7 +114,8 @@ export interface IImportInventoryCreate {
     status?: string;
     classification?: boolean;
     provider_name?: string;
-    amt_total?: number;
+    amount_original?: number;
+    // amt_total?: number;
     // is_amount_debt?: boolean;
 }
 

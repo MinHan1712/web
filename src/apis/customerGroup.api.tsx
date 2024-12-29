@@ -9,9 +9,10 @@ const endPoint = {
 };
 
 const customerGroupApi = {
-	getList: async (params: ICustomerGroupPageRequest): Promise<IResponse<IPageResponse<ICustomerGroupResponse[]>>> => {
+	getList: async (params: ICustomerGroupPageRequest): Promise<IPageResponse<ICustomerGroupResponse[]>> => {
+		// getList: async (params: ICustomerGroupPageRequest): Promise<IResponse<IPageResponse<ICustomerGroupResponse[]>>> => {
 		try {
-			const response = await privateClient.get<IResponse<IPageResponse<ICustomerGroupResponse[]>>>(
+			const response = await privateClient.get<IPageResponse<ICustomerGroupResponse[]>>(
 				endPoint.getList(params)
 			);
 			return response.data;

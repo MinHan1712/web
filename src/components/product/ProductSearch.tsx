@@ -1,5 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, Flex, Form, Input, Select } from "antd";
+import { Button, Checkbox, DatePicker, Flex, Form, Input, Select, SelectProps } from "antd";
 import { CustonerType, formItemLayout, StatusType } from "../../constants/general.constant";
 import { useEffect } from "react";
 import { ICustomerPageRequest } from "../../interfaces/customer";
@@ -7,8 +7,10 @@ import { IDrugPageRequest } from "../../interfaces/drug";
 import dayjs from 'dayjs';
 
 interface mapDrgFormSearchToProps {
-  productReq: IDrugPageRequest,
-  triggerFormEvent: (formValue: any) => void,
+  productReq: IDrugPageRequest;
+  triggerFormEvent: (formValue: any) => void;
+  optionKind: SelectProps<string>['options'];
+  optionGroup: SelectProps<string>['options'];
 }
 
 const ProductSearch = (props: mapDrgFormSearchToProps) => {
@@ -80,7 +82,7 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...CustonerType || []]} //TODO
+                  }, ...props.optionGroup || []]} //TODO
                 />
               </Form.Item>
 
@@ -140,7 +142,7 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...CustonerType || []]} //TODO
+                  }, ...props.optionKind || []]} //TODO
                 />
               </Form.Item>
 

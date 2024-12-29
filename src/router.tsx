@@ -1,15 +1,15 @@
 import Customer from "./pages/Customer";
 import CustomerGroup from "./pages/CustomerGroup";
+import InvCustomer from "./pages/InvCustomer";
+import InvCustomerCreate from "./pages/InvCustomerCreate";
 import InvoiceExport from "./pages/InvExport";
 import InvExportCreate from "./pages/InvExportCreate";
 import InvoiceImport from "./pages/InvImport";
 import InvoiceImportCreate from "./pages/InvImportCreate";
 import InvoiceSummary from "./pages/InvSummary";
 import InvSummaryCreate from "./pages/InvSummaryCreate";
-import Login from "./pages/Login";
 import Product from "./pages/Product";
 import Provider from "./pages/Provider";
-import Register from "./pages/register";
 import Store from "./pages/store";
 import UserManager from "./pages/UserManager";
 
@@ -20,8 +20,8 @@ const routes = [
 		element: (
 			<Product />
 		),
-		state: "product",
-		path: "product",
+		state: "sanpham",
+		path: "sanpham",
 	},
 	{
 		index: true,
@@ -76,24 +76,24 @@ const routes = [
 		element: (
 			<Provider />
 		),
-		state: "provider",
-		path: "provider",
+		state: "nhacungcap",
+		path: "nhacungcap",
 	},
 	{
 		index: true,
 		element: (
 			<Customer />
 		),
-		state: "customer",
-		path: "customer",
+		state: "khachhang",
+		path: "khachhang",
 	},
 	{
 		index: true,
 		element: (
 			<CustomerGroup />
 		),
-		state: "customer/group",
-		path: "customer/group",
+		state: "nhomkhachhang",
+		path: "nhomkhachhang",
 	},
 	// {
 	// 	index: true,
@@ -126,6 +126,22 @@ const routes = [
 		),
 		state: "quanlycuahang",
 		path: "quanlycuahang",
+	},
+	{
+		index: true,
+		element: (
+			<InvCustomer />
+		),
+		state: "hoadon",
+		path: "hoadon",
+	},
+	{
+		index: true,
+		element: (
+			<InvCustomerCreate />
+		),
+		state: "taohoadon",
+		path: "taohoadon",
 	},
 ];
 

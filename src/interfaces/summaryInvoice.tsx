@@ -31,6 +31,8 @@ export interface IDrgInvSummaryDetailCreate {
   price?: number;
   exp_date?: string;
   inv_detail?: string;
+  vat?:number; 
+  discount_amount?: number;
 }
 
 export interface IDrugInvSummaryPageRequest extends IPagingAndSortRequest {
