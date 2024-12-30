@@ -539,7 +539,7 @@ const InvCustomerCreate: React.FC = () => {
 												min={0}
 												name='discount_amount'
 												style={{ marginBottom: "8px" }}
-												value={invImportCreateReq.info.discount_amount}
+												value={(invImportCreateReq.info.discount_amount?.toString() || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 												addonAfter="đ"
 												onChange={(e: any) => {
 
@@ -602,7 +602,7 @@ const InvCustomerCreate: React.FC = () => {
 													placeholder={"Đã thanh toán"}
 													name={'amount_paid'}
 													id={'amount_paid'}
-													value={invImportCreateReq.info.amount_paid}
+													value={(invImportCreateReq.info.amount_paid?.toString() || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
 													addonAfter="đ"
 													onChange={(e: any) => {
 														var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
