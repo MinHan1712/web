@@ -21,7 +21,7 @@ privateClient.interceptors.request.use(async (config: AxiosRequestConfig) => {
 
 privateClient.interceptors.response.use(
     (response: AxiosResponse) => {
-        if (response && response.data) return response.data;
+        // if (response && response.data) return response.data;
         return response;
     },
     (error: any) => {

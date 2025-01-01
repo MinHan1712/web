@@ -1,5 +1,4 @@
 import {
-  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
@@ -8,17 +7,17 @@ import {
 } from "@ant-design/icons";
 import type { SelectProps, TabsProps } from "antd";
 import { Button, Empty, Flex, Form, InputNumber, Modal, notification, Popconfirm, Select, Table, Tabs, Tooltip } from "antd";
-import { useEffect, useState } from "react";
-import '../../assets/css/style.css';
-import { IDrugRequest, IDrugResponse } from "../../interfaces/drug";
-import ProductCreateInfo from "./ProductCreateInfo";
-import ProductCreateAvg from "./ProductCreateAvg";
 import { ColumnsType } from "antd/es/table";
 import { AlignType } from "rc-table/lib/interface";
-import { IDrugUnitCreate, IDrugUnitResponse } from "../../interfaces/drugUnit";
+import { useEffect, useState } from "react";
 import drugApi from "../../apis/drug.api";
-import { IDrugKindResponse } from "../../interfaces/drugKind";
+import '../../assets/css/style.css';
+import { IDrugRequest, IDrugResponse } from "../../interfaces/drug";
 import { IDrugGroupResponse } from "../../interfaces/drugGroup";
+import { IDrugKindResponse } from "../../interfaces/drugKind";
+import { IDrugUnitCreate } from "../../interfaces/drugUnit";
+import ProductCreateAvg from "./ProductCreateAvg";
+import ProductCreateInfo from "./ProductCreateInfo";
 
 
 interface IModalProductViewProps {
@@ -30,6 +29,7 @@ interface IModalProductViewProps {
   optionGroup: SelectProps<string>['options'];
   listKind: IDrugKindResponse[];
   listGroup: IDrugGroupResponse[];
+  optionDrgDescription: SelectProps<string>['options'];
 }
 
 const ProductView = (props: IModalProductViewProps) => {
@@ -189,6 +189,7 @@ const ProductView = (props: IModalProductViewProps) => {
           <Popconfirm
             placement="topLeft"
             title={"Bạn có muốn xóa khách hàng này?"}
+            disabled={!btnEdit}
             onConfirm={() => {
 
               const updatedDrugUnitItem = [...drugUnitItem];
@@ -205,7 +206,7 @@ const ProductView = (props: IModalProductViewProps) => {
             okText="Đồng ý"
             cancelText="Hủy"
           >
-            <DeleteOutlined style={{ fontWeight: "600", color: "red" }} />
+            <DeleteOutlined disabled={!btnEdit} style={{ fontWeight: "600", color: "red" }} />
           </Popconfirm>
         ) : null;
       },
@@ -227,7 +228,7 @@ const ProductView = (props: IModalProductViewProps) => {
       console.log(value);
       return await drugApi.update(value).then((response) => {
         console.log(response)
-        switch (response.meta[0].code) {
+        switch (response.meta.code) {
           case 200:
             notification['success']({
               message: "Thông báo",
@@ -258,7 +259,10 @@ const ProductView = (props: IModalProductViewProps) => {
           setLoadingUpdate(false);
         })
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setLoadingUpdate(false); }
   }
   const items: TabsProps["items"] = [
@@ -269,7 +273,9 @@ const ProductView = (props: IModalProductViewProps) => {
         optionKind={props.optionKind}
         listGroups={props.listGroup}
         listKind={props.listKind}
-        btnEdit={btnEdit} />,
+        btnEdit={btnEdit}
+        optionDrgDescription={props.optionDrgDescription}
+        action={false} />,
     },
     {
       key: "2",
@@ -294,26 +300,30 @@ const ProductView = (props: IModalProductViewProps) => {
       okText: 'Đồng ý',
       cancelText: 'Hủy',
       async onOk() {
-
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           setAction(false);
-          updateProduct(value, status, activeFlg);
-        }).catch(() => {
-          notification["error"]({
-            message: "Thông báo",
-            description: "Có một lỗi nào đó xảy ra, vui lòng thử lại",
-          });
-        })
+          updateProduct(value, status, activeFlg)
+            .then(() => {
+              resolve();
+            })
+            .catch(() => {
+              notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+              });
+              resolve();
+            });
+        });
       },
       onCancel() { },
     });
-  };
+  }
 
   return (
     <>
       <Modal
         open={props.open}
-        title="Tạo thuốc mới"
+        title="Chi tiết thuốc"
         okText="Create"
         maskClosable={false}
         cancelText="Cancel"
@@ -409,6 +419,7 @@ const ProductView = (props: IModalProductViewProps) => {
               <Button
                 key="submit"
                 type="primary"
+                disabled={!btnEdit}
                 onClick={() => {
                   var item = {
                     key: key,

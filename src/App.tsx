@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import AppLayout from './pages/AppLayout';
 import routes from './router';
-import { setAuth, setDrgGroup, setDrgKind, setExportType, setImportType, setInvSource, setPaymentMethods, setRoles, setUnits } from './utils/local';
+import { setAuth, setDrgGroup, setDrgKind, setDrugDescription, setExportType, setImportType, setInvSource, setPaymentMethods, setRoles, setUnits } from './utils/local';
 import './App.css';
 import './assets/css/nav.css';
 import './assets/css/style.css';
@@ -20,6 +20,7 @@ function App() {
     setRoles();
     setDrgGroup();
     setDrgKind();
+    setDrugDescription();
   }, []);
 
   return (

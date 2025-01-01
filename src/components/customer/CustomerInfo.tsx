@@ -1,13 +1,13 @@
 
-import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
-import { CheckCircleOutlined, DeleteOutlined, EditOutlined, SyncOutlined, QuestionCircleOutlined, PlusOutlined, MailOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Divider, Flex, Form, Input, Modal, notification, Popconfirm, Radio, Row, Select, SelectProps, Space, Tabs } from "antd";
-import { useEffect, useState } from "react";
-import { ICustomerCreate, ICustomerResponse, ICustomerUpdate } from "../../interfaces/customer";
-import '../../assets/css/style.css';
-import CustomerApi from "../../apis/customer.api";
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, MailOutlined, PhoneOutlined, SyncOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Flex, Form, Input, notification, Popconfirm, Radio, Select, SelectProps } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import CustomerApi from "../../apis/customer.api";
+import '../../assets/css/style.css';
+import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
+import { ICustomerCreate, ICustomerResponse, ICustomerUpdate } from "../../interfaces/customer";
 
 
 interface ICustomerInformationProps {
@@ -60,22 +60,22 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
 
             await CustomerApi.update(CustomerUpdate).then((response) => {
                 console.log(response)
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Cập nhập khách hàng thành công',
-                });
-                handleCloseModalView();
-                props.onCancel();
-                //     break;
-                // default:
-                //     notification['error']({
-                //         message: "Lỗi",
-                //         description: 'Cập nhập khách hàng không thành công',
-                //     });
-                //     break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Cập nhập khách hàng thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Cập nhập khách hàng không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({

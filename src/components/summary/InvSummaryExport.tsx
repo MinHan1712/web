@@ -33,14 +33,18 @@ const InvSummaryExport = (props: IInvSummaryWithExportInvProps) => {
                 classification: true,
                 summary_id: props.data.summary_id
             }).then((response) => {
+                if (response.meta.code === 200) {
+                    setInvImportRes(response.data.data.length > 0 ? response.data.data[0] : { inventory_id: '' });
+                    console.log(response.data.data.length > 0 ? response.data.data[0] : { inventory_id: '' }, detail);
+                    setIsEmptyData(false);
+                    return;
+                } else {
+                    notification['error']({
+                        message: "Lỗi",
+                        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+                    });
+                }
 
-                // if (response.meta[0].code !== API_STATUS.SUCCESS) {
-                // 	//error
-                // 	return;
-                // }
-                setInvImportRes(response.data.length > 0 ? response.data[0] : { inventory_id: '' });
-                console.log(response.data.length > 0 ? response.data[0] : { inventory_id: '' }, detail);
-                setIsEmptyData(false);
             })
                 .catch(() => {
                     notification['error']({

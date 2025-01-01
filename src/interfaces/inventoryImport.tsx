@@ -17,6 +17,7 @@ export interface IInvoiceImportResponse {
     pay_method?: string;
     amount?: number;
     amount_debt?: number;
+    amount_paid?: number; //TODO
     discount_amount?: number;
     vat?: number;
     status?: string;
@@ -115,6 +116,7 @@ export interface IImportInventoryCreate {
     classification?: boolean;
     provider_name?: string;
     amount_original?: number;
+    customer_id?: string;
     // amt_total?: number;
     // is_amount_debt?: boolean;
 }

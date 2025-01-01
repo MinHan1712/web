@@ -47,24 +47,24 @@ const ProviderInfo = (props: IProviderInformationProps) => {
             };
             console.log("providerUpdate", providerUpdate);
 
-            const response = await providerApi.update(providerUpdate).then((response) => {
+            await providerApi.update(providerUpdate).then((response) => {
                 console.log(response)
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Cập nhập nhà cung cấp thành công',
-                });
-                handleCloseModalView();
-                props.onCancel();
-                //     break;
-                // default:
-                //     notification['error']({
-                //         message: "Lỗi",
-                //         description: 'Cập nhập nhà cung cấp không thành công',
-                //     });
-                //     break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Cập nhập nhà cung cấp thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Cập nhập nhà cung cấp không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({
@@ -74,29 +74,32 @@ const ProviderInfo = (props: IProviderInformationProps) => {
                 })
 
         } catch (err) {
-            console.log(err);
+            notification['error']({
+                message: "Lỗi",
+                description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
         } finally { setConfirmLoadingUpdate(false); }
     }
 
     const deleteProvider = async () => {
-        return providerApi.delete(props.data.provider_id)
+        return await providerApi.delete(props.data.provider_id)
             .then((response) => {
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Xóa nhà cung cấp thành công',
-                });
-                handleCloseModalView();
-                props.onCancel();
-                // break;
-                //     default:
-                //         notification['error']({
-                //             message: "Lỗi",
-                //             description: 'Xóa nhà cung cấp không thành công',
-                //         });
-                //         break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Xóa nhà cung cấp thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Xóa nhà cung cấp không thành công',
+                        });
+                        break;
+                }
             })
             .catch(() => {
                 notification['error']({

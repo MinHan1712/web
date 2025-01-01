@@ -132,20 +132,19 @@ const Provider: React.FC = () => {
 	const getListProvider = async () => {
 		setLoading(true);
 		try {
-			const response = await providerApi.getList(providerReq).then((response) => {
-				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				setProviderRes(response);
-				console.log(response);
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Cập nhập nhà cung cấp không thành công',
-				//     });
-				//     break;
-				// }
+			await providerApi.getList(providerReq).then((response) => {
+				console.log(response.meta);
+				switch (response.meta.code) {
+					case 200:
+						setProviderRes(response.data);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
 			})
 				.catch(() => {
 					notification['error']({
@@ -175,8 +174,6 @@ const Provider: React.FC = () => {
 	useEffect(() => {
 		setIsReload(false);
 		getListProvider();
-		console.log('request', providerReq);
-		// getListProvider();
 	}, [providerReq, isReload])
 
 	return (

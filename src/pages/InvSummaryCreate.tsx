@@ -7,11 +7,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import invoiceSummaryApi from "../apis/summary.api";
+import userApi from "../apis/user.api";
 import InvSummaryFormCreate from "../components/summary/invSummaryFormCreate";
 import { formItemLayout } from "../constants/general.constant";
 import { IDrgInvProductResponse, IDrugInvProductPageRequest } from "../interfaces/inventoryImport";
 import { IDrugInvSummaryRequest } from "../interfaces/summaryInvoice";
-import userApi from "../apis/user.api";
 import { IUserWithRoleResponse } from "../interfaces/userManager";
 
 export interface SummaryContextType {
@@ -65,25 +65,20 @@ const InvSummaryCreate = () => {
     setLoading(true);
     try {
       await invoiceApi.getListInvProduct(invProductReq).then((response) => {
-        console.log(response)
-        // switch (response.meta[0].code) {
-        //     case 200:
-        setProductRes(prevState => [...prevState, ...response.data]);
-        console.log(response);
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Cập nhập nhà cung cấp không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            setProductRes(prevState => [...prevState, ...response.data.data]);
+            console.log(response);
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            break;
+        }
       })
         .catch(() => {
-          // notification['error']({
-          // 	message: "Lỗi",
-          // 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-          // });
         })
 
     } catch (err) {
@@ -91,22 +86,22 @@ const InvSummaryCreate = () => {
     } finally { setLoading(false); }
   }
 
-  const getListUserManger = () => {
-    userApi.get({ page: 0, size: 0 })
+  const getListUserManger = async () => {
+    await userApi.get({ page: 0, size: 0 })
       .then((response) => {
-        // if (response.meta[0].code === 200) {
-        setOptionUserList(response.data?.map((user: IUserWithRoleResponse) => {
-          return {
-            value: user.login,
-            label: user.user_name
-          }
-        }));
-        // } else {
-        //   notification['error']({
-        //     message: "Thông báo",
-        //     description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
-        //   });
-        // }
+        if (response.meta.code === 200) {
+          setOptionUserList(response.data?.data.map((user: IUserWithRoleResponse) => {
+            return {
+              value: user.login,
+              label: user.user_name
+            }
+          }));
+        } else {
+          notification['error']({
+            message: "Thông báo",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
+          });
+        }
       }).catch(() => {
       })
       .finally(() => {
@@ -200,26 +195,26 @@ const InvSummaryCreate = () => {
     }
   }
 
-  const createInvSummaryToApi = () => {
+  const createInvSummaryToApi = async () => {
     setLoadingScreen(true);
-    return invoiceSummaryApi.create(invSummaryCreateReq).then((response) => {
+    return await invoiceSummaryApi.create(invSummaryCreateReq).then((response) => {
       console.log(response);
-      // if (response.meta[0].code === 200) {
-      form.resetFields();
-      notification["success"]({
-        message: "Thông báo",
-        description: "Tạo phiếu kiểm kho thành công",
-      });
-      setInvSummaryCreateReq({
-        products: []
-      });
-      navigate('/kho/kiemkho');
-      // } else {
-      //   notification["error"]({
-      //     message: "Thông báo",
-      //     description: "Tạo phiếu kiểm kho không thành công",
-      //   });
-      // }
+      if (response.meta.code === 200) {
+        form.resetFields();
+        notification["success"]({
+          message: "Thông báo",
+          description: "Tạo phiếu kiểm kho thành công",
+        });
+        setInvSummaryCreateReq({
+          products: []
+        });
+        navigate('/kho/kiemkho');
+      } else {
+        notification["error"]({
+          message: "Thông báo",
+          description: "Tạo phiếu kiểm kho không thành công",
+        });
+      }
       setLoadingScreen(false);
     })
       .catch(() => {

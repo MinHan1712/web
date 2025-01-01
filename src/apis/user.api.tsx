@@ -10,9 +10,9 @@ const endpoint = {
 };
 
 const userApi = {
-  get: async (params: any): Promise<IPageResponse<IUserWithRoleResponse[]>> => {
+  get: async (params: any): Promise<IResponse<IPageResponse<IUserWithRoleResponse[]>>> => {
     try {
-      const response = await privateClient.post<IPageResponse<IUserWithRoleResponse[]>>(
+      const response = await privateClient.post<IResponse<IPageResponse<IUserWithRoleResponse[]>>>(
         endpoint.getList,
         params
       );

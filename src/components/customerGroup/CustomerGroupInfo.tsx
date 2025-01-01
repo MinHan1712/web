@@ -46,22 +46,22 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
 
             await customerGroupApi.update(CustomerGroupUpdate).then((response) => {
                 console.log(response)
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Cập nhập nhóm khách hàng thành công',
-                });
-                handleCloseModalView();
-                props.onCancel();
-                //     break;
-                // default:
-                //     notification['error']({
-                //         message: "Lỗi",
-                //         description: 'Cập nhập nhóm khách hàng không thành công',
-                //     });
-                //     break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Cập nhập nhóm khách hàng thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Cập nhập nhóm khách hàng không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({
@@ -82,22 +82,22 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
         try {
             await customerGroupApi.remove(id).then((response) => {
                 console.log(response)
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Xóa nhóm khách hàng thành công',
-                });
-                handleCloseModalView();
-                props.onCancel();
-                //     break;
-                // default:
-                //     notification['error']({
-                //         message: "Lỗi",
-                //         description: 'Xóa nhóm khách hàng không thành công',
-                //     });
-                //     break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Xóa nhóm khách hàng thành công',
+                        });
+                        handleCloseModalView();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Xóa nhóm khách hàng không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({

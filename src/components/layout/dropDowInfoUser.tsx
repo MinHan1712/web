@@ -1,5 +1,5 @@
 import { DownOutlined, LogoutOutlined, ShopOutlined, UserOutlined, UsergroupAddOutlined } from "@ant-design/icons";
-import { Dropdown, Menu, MenuProps } from "antd";
+import { Dropdown, Flex, Menu, MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getStore } from "../../utils/local";
 import { useEffect, useState } from "react";
@@ -86,8 +86,10 @@ const DropDowInfoUser = () => {
 
             <Menu.Item key="4">
                 <div className="menu-item" onClick={() => {
-                    // resetAuth();
-                    window.location.href = '/';
+                    
+                    navigate({
+                        pathname: 'dangnhap',
+                    });
                 }}>
                     <LogoutOutlined className="icon-menu" />
                     <h5 className="title">Đăng xuất</h5>
@@ -104,26 +106,25 @@ const DropDowInfoUser = () => {
         <>
             <Dropdown overlay={userMenu}>
                 <div className="user-info">
-                    <UserOutlined style={{
-                        color: 'white',
-                        fontSize: '20px',
-                        cursor: 'pointer'
-                    }} />
-                    {/* <p className="name-user">{getAuthToLocal.userName || getAuthToLocal.LoginId || ''}</p> */}
-                    <DownOutlined />
+                    <Flex>
+                        <UserOutlined style={{
+                            color: 'white',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            paddingRight: '5px'
+                        }} />
+                        <p className="name-user" style={{
+                            color: 'white',
+                            fontSize: '18px',
+                            cursor: 'pointer',
+                            paddingRight: '5px'
+                        }}>{store.userName || ''}</p>
+                        <DownOutlined />
+                    </Flex>
+
                 </div>
-            </Dropdown>
-            {/* <Dropdown.Button menu={menuProps} onClick={handleMenuClick}>
-                <div className="user-info">
-                    <UserOutlined style={{
-                        color: 'white',
-                        fontSize: '20px',
-                        cursor: 'pointer'
-                    }} />
-                    <p className="name-user">han</p>
-                    <DownOutlined />
-                </div>
-            </Dropdown.Button> */}
+            </Dropdown >
+
         </>
     )
 }

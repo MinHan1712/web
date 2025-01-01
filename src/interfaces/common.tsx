@@ -9,14 +9,10 @@ export interface IMeta {
 }
 
 export interface IResponse<T> {
-  meta: IMeta[];
+  meta: IMeta;
   data: T;
 }
 
-// export interface IMessageCodeType{
-//   code?: number;
-//   message?: string;
-// }
 
 
 export interface IPageResponse<T> {

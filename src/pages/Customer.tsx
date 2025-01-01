@@ -103,7 +103,7 @@ const columns: ColumnsType<ICustomerResponse> = [
     ),
   },
   {
-    title: "Nợ nhà cung cấp",
+    title: "Tổng nợ",
     dataIndex: "amount_debt",
     key: "amount_debt",
     width: "10%",
@@ -156,20 +156,20 @@ const Customer = () => {
     setLoading(true);
 
     try {
-      const response = await customerApi.getList(customerReq).then((response) => {
+      await customerApi.getList(customerReq).then((response) => {
         console.log(response)
-        // switch (response.meta[0].code) {
-        //     case 200:
-        setCustomerRes(response);
-        console.log(customerRes);
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Cập nhập nhà cung cấp không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            setCustomerRes(response.data);
+            console.log(customerRes);
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({
@@ -179,30 +179,24 @@ const Customer = () => {
         })
 
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setLoading(false); }
   }
 
   const getListCustomerGroup = async () => {
     setLoading(true);
     try {
-      const response = await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
+      await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
         console.log(response)
-        setOptionsCusGroup(response.data && response.data?.map((item) => ({
-          value: item.customer_group_id,
-          label: item.customer_group_name,
-        })) || []);
-        // switch (response.meta[0].code) {
-        //     case 200:
-
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Cập nhập nhà cung cấp không thành công',
-        //     });
-        //     break;
-        // }
+        if (response.meta.code === 200) {
+          setOptionsCusGroup(response.data && response.data.data.map((item) => ({
+            value: item.customer_group_id,
+            label: item.customer_group_name,
+          })) || []);
+        }
       })
         .catch(() => {
         })

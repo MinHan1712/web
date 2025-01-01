@@ -56,34 +56,34 @@ const UserDetailView = (props: IModalProviderViewProps) => {
 
       await userApi.update(update).then((response) => {
         console.log(response)
-        // switch (response.meta[0].code) {
-        //   case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Cập nhập nhân viên thành công',
-        });
-        handleCloseModalView();
-        props.onCancel();
-        //     break;
-        //   case 513:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
-        //     });
-        //     break;
-        //   case 517:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Email đã tồn tại, vui lòng nhập email khác',
-        //     });
-        //     break;
-        //   default:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Cập nhập nhân viên không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Cập nhập nhân viên thành công',
+            });
+            handleCloseModalView();
+            props.onCancel();
+            break;
+          case 513:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
+            });
+            break;
+          case 517:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Email đã tồn tại, vui lòng nhập email khác',
+            });
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Cập nhập nhân viên không thành công',
+            });
+            break;
+        }
       })
         .catch((error) => {
           notification['error']({
@@ -96,29 +96,32 @@ const UserDetailView = (props: IModalProviderViewProps) => {
         })
 
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setConfirmLoadingUpdate(false); }
   }
 
   const deleteUser = async () => {
-    return userApi.delete(props.data.login)
+    return await userApi.delete(props.data.login)
       .then((response) => {
-        // switch (response.meta[0].code) {
-        //     case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Xóa nhân viên thành công',
-        });
-        handleCloseModalView();
-        props.onCancel();
-        // break;
-        //     default:
-        //         notification['error']({
-        //             message: "Lỗi",
-        //             description: 'Xóa nhân viên không thành công',
-        //         });
-        //         break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Xóa nhân viên thành công',
+            });
+            handleCloseModalView();
+            props.onCancel();
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Xóa nhân viên không thành công',
+            });
+            break;
+        }
       })
       .catch(() => {
         notification['error']({
@@ -328,6 +331,7 @@ const UserDetailView = (props: IModalProviderViewProps) => {
                     id={'role_id'}
                     value={props.data.role_id}
                     options={[...props.optionRole || []]}
+                    disabled={!btnEdit}
                   />
 
                 </Form.Item>

@@ -26,24 +26,24 @@ const ProviderCreate = (props: IProviderInformationProps) => {
 
     const createProvider = async (value: IProviderCreate) => {
         try {
-            return providerApi.create(value)
+            return await providerApi.create(value)
                 .then((response) => {
-                    // switch (response.meta[0].code) {
-                    //     case 200:
-                    notification['success']({
-                        message: "Thông báo",
-                        description: 'Tạo nhà cung cấp thành công',
-                    });
-                    form.resetFields();
-                    props.onCancel();
-                    // break;
-                    //     default:
-                    //         notification['error']({
-                    //             message: "Lỗi",
-                    //             description: 'Tạo nhà cung cấp không thành công',
-                    //         });
-                    //         break;
-                    // }
+                    switch (response.meta.code) {
+                        case 200:
+                            notification['success']({
+                                message: "Thông báo",
+                                description: 'Tạo nhà cung cấp thành công',
+                            });
+                            form.resetFields();
+                            props.onCancel();
+                            break;
+                        default:
+                            notification['error']({
+                                message: "Lỗi",
+                                description: 'Tạo nhà cung cấp không thành công',
+                            });
+                            break;
+                    }
                 })
                 .catch(() => {
                     notification['error']({

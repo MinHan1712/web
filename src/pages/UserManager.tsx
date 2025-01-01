@@ -1,5 +1,5 @@
-import { DeleteOutlined, PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Form, Input, notification, Pagination, Popconfirm, Select, SelectProps, Table, Tag } from "antd";
+import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Empty, Flex, Form, Input, notification, Pagination, Select, SelectProps, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import userApi from "../apis/user.api";
@@ -7,7 +7,7 @@ import UserCreate from "../components/users/UserCreate";
 import UserDetailView from "../components/users/UserDetailView";
 import { activeStatus, formItemLayout, selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
-import { IUserRequestUpdate, IUserWithRolePageRequest, IUserWithRoleResponse } from "../interfaces/userManager";
+import { IUserWithRolePageRequest, IUserWithRoleResponse } from "../interfaces/userManager";
 import { getListRoleOption } from "../utils/local";
 
 interface Props {
@@ -186,18 +186,18 @@ const UserManager = () => {
     size: 20
   });
 
-  const getListUserManger = () => {
+  const getListUserManger = async () => {
     setLoading(true);
-    userApi.get(userRoleReq)
+    await userApi.get(userRoleReq)
       .then((response) => {
-        // if (response.meta[0].code === 200) {
-          setUserRoleRes(response);
-        // } else {
-        //   notification['error']({
-        //     message: "Thông báo",
-        //     description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
-        //   });
-        // }
+        if (response.meta.code === 200) {
+          setUserRoleRes(response.data);
+        } else {
+          notification['error']({
+            message: "Thông báo",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng tải lại trang',
+          });
+        }
       }).catch((error) => {
         notification['error']({
           message: "Thông báo",
@@ -288,11 +288,11 @@ const UserManager = () => {
       width: "8%",
       align: "center",
       render: (text) => {
-        let color = text == "1" ? "green" : "red";
+        let color = text === "1" ? "green" : "red";
         return (
           <div className="style-text-limit-number-line2">
             <Tag color={color} key={text} className="style-text-limit-number-line2" style={{ textAlign: 'center', padding: '2px' }}>
-              {text == true ? "Đang hoạt động" : 'Không hoạt động'}
+              {text === true ? "Đang hoạt động" : 'Không hoạt động'}
             </Tag>
           </div>
         );

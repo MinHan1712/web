@@ -1,10 +1,10 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Flex, Form, Input, Select, SelectProps } from "antd";
-import { CustonerType, formItemLayout, StatusType } from "../../constants/general.constant";
+import dayjs from 'dayjs';
 import { useEffect } from "react";
+import { formItemLayout, StatusType } from "../../constants/general.constant";
 import { ICustomerPageRequest } from "../../interfaces/customer";
 import { IDrugPageRequest } from "../../interfaces/drug";
-import dayjs from 'dayjs';
 
 interface mapDrgFormSearchToProps {
   productReq: IDrugPageRequest;
@@ -47,7 +47,7 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
               <Form.Item
                 {...formItemLayout}
                 labelAlign={"left"}
-                name={'customer_name'}
+                name={'drug_name'}
                 label={
                   <span style={{ fontWeight: "550", fontSize: "14px" }}>Tìm kiếm</span>
                 }
@@ -82,7 +82,7 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...props.optionGroup || []]} //TODO
+                  }, ...props.optionGroup || []]}
                 />
               </Form.Item>
 
@@ -142,7 +142,7 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...props.optionKind || []]} //TODO
+                  }, ...props.optionKind || []]}
                 />
               </Form.Item>
 

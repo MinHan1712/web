@@ -14,6 +14,7 @@ import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfac
 import { IProperty } from "../interfaces/property";
 import { IUserWithRoleResponse } from "../interfaces/userManager";
 import { getListPayMenthodsOption, getPayMethods } from "../utils/local";
+import InvCustomerView from "../components/Invoice/InvCustomerView";
 
 
 const InvCustomer: React.FC = () => {
@@ -24,8 +25,8 @@ const InvCustomer: React.FC = () => {
 
   const [payMenthodsOption, setMenthodsOption] = useState<SelectProps<string>['options']>([]);
   const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
-  const [users, setUsers] = useState<SelectProps<string>['options']>([]);
-
+  const [usersOptions, setUsersOptions] = useState<SelectProps<string>['options']>([]);
+  const [users, setUsersList] = useState<IUserWithRoleResponse[]>([]);
   const navigate = useNavigate();
 
   // const properties = localStorage.getItem('properties');
@@ -146,12 +147,18 @@ const InvCustomer: React.FC = () => {
       await invoiceApi.getList(invImportReq).then((response) => {
         console.log(response)
 
-        // if (response.meta[0].code !== API_STATUS.SUCCESS) {
-        // 	//error
-        // 	return;
-        // }
+        if (response.meta.code === 200) {
+          //error
+          setInvImportRes(response.data);
+          return;
+        } else {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+          });
+        }
 
-        setInvImportRes(response);
+
       })
         .catch(() => {
           notification['error']({
@@ -161,19 +168,27 @@ const InvCustomer: React.FC = () => {
         })
 
     } catch (err) {
-      console.log(err);
+      notification['error']({
+        message: "Lỗi",
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+      });
     } finally { setLoading(false); }
   }
 
-  const getListUserManger = () => {
-    userApi.get({ page: 0, size: 0 })
+  const getListUserManger = async () => {
+    await userApi.get({ page: 0, size: 0 })
       .then((response) => {
-        setUsers(response.data.map((user: IUserWithRoleResponse) => {
-          return {
-            value: user.login,
-            label: user.user_name
-          }
-        }));
+        if (response.meta.code === 200) {
+          setUsersList(response.data.data);
+          setUsersOptions(response.data.data.map((user: IUserWithRoleResponse) => {
+            return {
+              value: user.login,
+              label: user.user_name
+            }
+          }));
+        }
+      }).catch(() => {
+
       })
   }
 
@@ -219,7 +234,7 @@ const InvCustomer: React.FC = () => {
             <span>Thêm mới</span>
           </Button>
         </Flex>
-        <InvCustomerSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} user={users} payMentod={payMenthodsOption} />
+        <InvCustomerSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} user={usersOptions} payMentod={payMenthodsOption} />
       </Flex>
       <div className="table-wrapper">
         <Table
@@ -287,7 +302,7 @@ const InvCustomer: React.FC = () => {
 
       </div>
 
-      {/* <InvImportView
+      <InvCustomerView
         open={openViewDate}
         onCancel={() => {
           setOpenviewDate(false);
@@ -295,9 +310,8 @@ const InvCustomer: React.FC = () => {
         }}
         data={dataItem}
         payMenthods={listPayMenthods}
-        importTypes={listImportType}
-
-      /> */}
+        users={users}
+      />
 
     </>
   );

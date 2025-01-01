@@ -102,20 +102,20 @@ const CustomerGroup: React.FC = () => {
   const getListCustomerGroup = async () => {
     setLoading(true);
     try {
-      const response = await customerGroupApi.getList(customerGroupReq).then((response) => {
+      await customerGroupApi.getList(customerGroupReq).then((response) => {
         console.log(response)
-        // switch (response.meta[0].code) {
-        //     case 200:
-        setCustomerGroupRes(response);
-        console.log(customerGroupRes);
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Cập nhập nhà cung cấp không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            setCustomerGroupRes(response.data);
+            console.log(customerGroupRes);
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({
@@ -127,7 +127,7 @@ const CustomerGroup: React.FC = () => {
     } catch (err) {
       notification['error']({
         message: "Lỗi",
-        description: 'Cập nhập nhà cung cấp không thành công',
+        description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
       });
     } finally { setLoading(false); }
 
@@ -139,15 +139,7 @@ const CustomerGroup: React.FC = () => {
       page: customerGroupReq.page,
       size: customerGroupReq.size
     });
-
-    // get list CustomerGroup
   }
-
-  let locale = {
-    emptyText: (
-      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />
-    )
-  };
 
   useEffect(() => {
     setIsReload(false);

@@ -1,6 +1,6 @@
 import { IPageResponse, IResponse } from "../interfaces/common";
 import { ILoginResponse } from "../interfaces/login";
-import { IProperty } from "../interfaces/property";
+import { IDrugDescription, IProperty } from "../interfaces/property";
 import { IGroups } from "../interfaces/role";
 import privateClient from "./clients/private.client";
 
@@ -10,6 +10,7 @@ const endpoint = {
   getListRole: () => `/user/role`,
   login: () => 'login',
   register: () => 'store/create',
+  description: () => 'product/description',
 };
 
 const commonApi = {
@@ -35,6 +36,17 @@ const commonApi = {
       throw error;
     }
   },
+  getDrugDescription: async (): Promise<IResponse<IPageResponse<IDrugDescription[]>>> => {
+    try {
+      const response = await privateClient.get<IResponse<IPageResponse<IDrugDescription[]>>>(
+        endpoint.description(),
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
   getRole: async (): Promise<IResponse<IPageResponse<IGroups[]>>> => {
     try {
       const response = await privateClient.get<IResponse<IPageResponse<IGroups[]>>>(
@@ -46,9 +58,9 @@ const commonApi = {
       throw error;
     }
   },
-  login: async (params: any): Promise<ILoginResponse> => {
+  login: async (params: any): Promise<IResponse<ILoginResponse>> => {
     try {
-      const response = await privateClient.post<ILoginResponse>(
+      const response = await privateClient.post<IResponse<ILoginResponse>>(
         endpoint.login(),
         params
       );
@@ -60,8 +72,9 @@ const commonApi = {
   },
   registerStore: async (params: any): Promise<IResponse<ILoginResponse>> => {
     try {
-      const response = await privateClient.get<IResponse<ILoginResponse>>(
+      const response = await privateClient.post<IResponse<ILoginResponse>>(
         endpoint.register(),
+        params
       );
       console.log(response);
       return response.data;

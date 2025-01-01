@@ -19,23 +19,23 @@ interface IModalInvHistoryImportProps {
 
 const InvImportView = (props: IModalInvHistoryImportProps) => {
 
-  const cancelInventoryImport = (inventory_id: string) => {
+  const cancelInventoryImport = async (inventory_id: string) => {
     try {
       console.log(inventory_id);
-      return invoiceApi.cancel(inventory_id, "i")
+      return await invoiceApi.cancel(inventory_id, "i")
         .then((response) => {
-          // if (response.meta[0].code === 200) {
-          notification['success']({
-            message: "Thông báo",
-            description: 'Hủy phiếu xuất kho thành công',
-          });
-          props.onCancel();
-          // } else {
-          //   notification['error']({
-          //     message: "Lỗi",
-          //     description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
-          //   });
-          // }
+          if (response.meta.code === 200) {
+            notification['success']({
+              message: "Thông báo",
+              description: 'Hủy phiếu nhập kho thành công',
+            });
+            props.onCancel();
+          } else {
+            notification['error']({
+              message: "Lỗi",
+              description: 'Hủy phiếu nhập kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+            });
+          }
         })
         .catch(() => {
           notification['error']({

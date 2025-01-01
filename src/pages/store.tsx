@@ -14,37 +14,37 @@ const Store = () => {
   const [store, setStore] = useState<IStoreResponse | null>(null);
 
 
-  const updateStore = (value: IStoreCreate) => {
-    return storeApi.update(value)
+  const updateStore = async (value: IStoreCreate) => {
+    return await storeApi.update(value)
       .then((response) => {
-        // switch (response.meta[0].code) {
-        //   case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Cập nhập thông tin cửa hàng thành công',
-        });
-        getStore();
-        setBtnEdit(false);
-        //     break;
-        //   case 513:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
-        //     });
-        //     break;
-        //   case 517:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Email đã tồn tại, vui lòng nhập email khác',
-        //     });
-        //     break;
-        //   default:
-        //     notification['error']({
-        //       message: "Lỗi",
-        //       description: 'Cập nhập thông tin cửa hàng không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Cập nhập thông tin cửa hàng thành công',
+            });
+            getStore();
+            setBtnEdit(false);
+            break;
+          case 513:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Số điện thoại đã tồn tại, vui lòng nhập SĐT khác',
+            });
+            break;
+          case 517:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Email đã tồn tại, vui lòng nhập email khác',
+            });
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Cập nhập thông tin cửa hàng không thành công',
+            });
+            break;
+        }
       })
       .catch((error) => {
         notification['error']({
@@ -56,20 +56,20 @@ const Store = () => {
       });
   }
 
-  const getStore = () => {
-    return storeApi.get()
+  const getStore = async () => {
+    return await storeApi.get()
       .then((response) => {
-        // if (response.meta[0].code === 200) {
-        // form.setFieldsValue({ ...response.data });
-        setStore(response);
-        console.log(response);
+        if (response.meta.code === 200) {
+          form.setFieldsValue({ ...response.data });
+          setStore(response.data);
+          console.log(response);
 
-        // } else {
-        //   notification['error']({
-        //     message: "Lỗi",
-        //     description: 'Không tìm thấy thông tin cửa hàng. Vui lòng thử lại',
-        //   });
-        // }
+        } else {
+          notification['error']({
+            message: "Lỗi",
+            description: 'Không tìm thấy thông tin cửa hàng. Vui lòng thử lại',
+          });
+        }
       })
       .catch(() => {
         notification['error']({
@@ -88,17 +88,16 @@ const Store = () => {
       async onOk() {
         return new Promise<void>((resolve, reject) => {
           console.log(value);
-          // Gọi updateStore và truyền resolve() vào đây
           updateStore(value)
             .then(() => {
-              resolve(); // Resolve promise khi update thành công
+              resolve();
             })
             .catch(() => {
               notification['error']({
                 message: "Lỗi",
                 description: 'Cập nhật thông tin cửa hàng không thành công',
               });
-              resolve(); // Resolve promise để đóng modal ngay cả khi có lỗi
+              resolve();
             });
         });
       },
@@ -113,7 +112,6 @@ const Store = () => {
 
   useEffect(() => {
     if (store && Object.keys(store).length > 0) {
-      console.log("Setting form values with:", store); // Debugging
       form.setFieldsValue({
         store_id: store.store_id,
         store_name: store.store_name,
@@ -125,7 +123,7 @@ const Store = () => {
         tax_no: store.tax_no,
       });
     }
-  }, [store, form]); // Form 
+  }, [store, form]);
 
   return (
     <>

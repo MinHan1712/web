@@ -60,7 +60,7 @@ const InvSummarySearch = (props: Props) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...props.users || []]} //TODO
+                  }, ...props.users || []]}
                 />
               </Form.Item>
 

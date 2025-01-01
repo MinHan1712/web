@@ -1,13 +1,13 @@
 
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Divider, Flex, Form, Input, Select, SelectProps, Space } from "antd";
+import { useState } from "react";
 import '../../assets/css/style.css';
 import { CityType, formItemLayout, vat } from "../../constants/general.constant";
-import DrugKind from "./drugKind";
-import { useState } from "react";
-import { IDrugKindResponse } from "../../interfaces/drugKind";
 import { IDrugGroupResponse } from "../../interfaces/drugGroup";
+import { IDrugKindResponse } from "../../interfaces/drugKind";
 import DrugGroup from "./drugGroup";
+import DrugKind from "./drugKind";
 
 interface Props {
   optionKind: SelectProps<string>['options'];
@@ -15,6 +15,8 @@ interface Props {
   listKind: IDrugKindResponse[];
   listGroups: IDrugGroupResponse[];
   btnEdit: boolean;
+  optionDrgDescription: SelectProps<string>['options'];
+  action: boolean;
 }
 const ProductCreateInfo = (props: Props) => {
   const [openDrgKind, setOpenDrgKind] = useState(false);
@@ -43,7 +45,7 @@ const ProductCreateInfo = (props: Props) => {
                 placeholder={"Mã sản phẩm (Nhà thuốc tự định nghĩa)"}
                 name={'drug_code'}
                 id={'drug_code'}
-                disabled={true}
+                disabled={props.action ? false : true }
               />
             </Form.Item>
           </div>
@@ -282,7 +284,7 @@ const ProductCreateInfo = (props: Props) => {
                 className="d-flex"
                 style={{ marginBottom: "8px" }}
                 size="middle"
-                options={CityType}
+                options={props.optionDrgDescription}
                 disabled={!props.btnEdit}
 
               />

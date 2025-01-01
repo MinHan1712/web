@@ -8,9 +8,9 @@ const endpoint = {
 };
 
 const drgGroupApi = {
-  get: async (): Promise<IPageResponse<IDrugGroupResponse[]>> => {
+  get: async (): Promise<IResponse<IPageResponse<IDrugGroupResponse[]>>> => {
     try {
-      const response = await privateClient.get<IPageResponse<IDrugGroupResponse[]>>(
+      const response = await privateClient.get<IResponse<IPageResponse<IDrugGroupResponse[]>>>(
         endpoint.url
       );
       // console.log(response);

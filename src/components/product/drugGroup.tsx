@@ -1,17 +1,18 @@
 import {
-    Button, Col, Flex, Form,
+    Button,
+    Flex, Form,
     Input,
-    Modal, notification, Row
+    Modal, notification
 } from "antd";
 import { useEffect, useState } from "react";
 
 import "../../assets/css/page.css";
 import "../../assets/css/supplier.css";
 
-import { formItemLayout } from "../../constants/general.constant";
-import { reloadDrgGrop, reloadDrgKind } from "../../utils/local";
-import { IDrugGroupCreateRequest, IDrugGroupResponse, IDrugGroupUpdateRequest } from "../../interfaces/drugGroup";
 import drgGroupApi from "../../apis/drugGroup.api";
+import { formItemLayout } from "../../constants/general.constant";
+import { IDrugGroupCreateRequest, IDrugGroupResponse, IDrugGroupUpdateRequest } from "../../interfaces/drugGroup";
+import { reloadDrgGrop } from "../../utils/local";
 
 
 
@@ -24,8 +25,6 @@ interface IModalDrugGroupProps {
 }
 
 const DrugGroup = (props: IModalDrugGroupProps) => {
-
-
     const [form] = Form.useForm<IDrugGroupResponse>();
     const [loading, setLoading] = useState(false);
     const [action, setAction] = useState(0);
@@ -63,27 +62,27 @@ const DrugGroup = (props: IModalDrugGroupProps) => {
 
     }
 
-    const createDrugGroupToApi = (drgKindRequest: IDrugGroupCreateRequest) => {
+    const createDrugGroupToApi = async (drgKindRequest: IDrugGroupCreateRequest) => {
         try {
             setLoading(true);
-            drgGroupApi.create(drgKindRequest).then((response) => {
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Thêm phân nhóm hàng mới thành công',
-                });
-                reloadDrgGrop();
-                form.resetFields();
-                handleCancel();
-                // break;
-                //     default:
-                //         notification['error']({
-                //             message: "Lỗi",
-                //             description: 'Thêm phân nhóm hàng mới không thành công',
-                //         });
-                //         break;
-                // }
+            await drgGroupApi.create(drgKindRequest).then((response) => {
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Thêm phân nhóm hàng mới thành công',
+                        });
+                        reloadDrgGrop();
+                        form.resetFields();
+                        handleCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Thêm phân nhóm hàng mới không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({
@@ -99,28 +98,28 @@ const DrugGroup = (props: IModalDrugGroupProps) => {
         } finally { setLoading(false); }
     }
 
-    const removeDrugGroupToApi = (drg_kind_id: string) => {
+    const removeDrugGroupToApi = async (drg_kind_id: string) => {
         setLoading(true);
         try {
             setLoading(true);
-            drgGroupApi.delete(drg_kind_id).then((response) => {
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Xoá phân nhóm hàng mới thành công',
-                });
-                reloadDrgGrop();
-                form.resetFields();
-                handleCancel();
-                // break;
-                //     default:
-                //         notification['error']({
-                //             message: "Lỗi",
-                //             description: 'Xoá phân nhóm hàng mới không thành công',
-                //         });
-                //         break;
-                // }
+            await drgGroupApi.delete(drg_kind_id).then((response) => {
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Xoá phân nhóm hàng mới thành công',
+                        });
+                        reloadDrgGrop();
+                        form.resetFields();
+                        handleCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Xoá phân nhóm hàng mới không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({
@@ -136,28 +135,28 @@ const DrugGroup = (props: IModalDrugGroupProps) => {
         } finally { setLoading(false); }
     }
 
-    const updateDrugGroupToApi = (drgKindUpdate: IDrugGroupUpdateRequest) => {
+    const updateDrugGroupToApi = async (drgKindUpdate: IDrugGroupUpdateRequest) => {
         setLoading(true);
         try {
             setLoading(true);
-            drgGroupApi.update(drgKindUpdate).then((response) => {
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Cập nhập phân nhóm hàng mới thành công',
-                });
-                reloadDrgGrop();
-                form.resetFields();
-                handleCancel();
-                // break;
-                //     default:
-                //         notification['error']({
-                //             message: "Lỗi",
-                //             description: 'Cập nhập phân nhóm hàng mới không thành công',
-                //         });
-                //         break;
-                // }
+            await drgGroupApi.update(drgKindUpdate).then((response) => {
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Cập nhập phân nhóm hàng mới thành công',
+                        });
+                        reloadDrgGrop();
+                        form.resetFields();
+                        handleCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Cập nhập phân nhóm hàng mới không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({

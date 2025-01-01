@@ -9,9 +9,9 @@ const endpoint = {
 };
 
 const storeApi = {
-  get: async (): Promise<IStoreResponse> => {
+  get: async (): Promise<IResponse<IStoreResponse>> => {
     try {
-      const response = await privateClient.get<IStoreResponse>(
+      const response = await privateClient.get<IResponse<IStoreResponse>>(
         endpoint.getList
       );
       // console.log(response);

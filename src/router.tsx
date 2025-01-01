@@ -20,6 +20,14 @@ const routes = [
 		element: (
 			<Product />
 		),
+		state: "",
+		path: "",
+	},
+	{
+		index: true,
+		element: (
+			<Product />
+		),
 		state: "sanpham",
 		path: "sanpham",
 	},

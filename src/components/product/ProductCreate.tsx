@@ -27,6 +27,7 @@ interface IModalProductViewProps {
   optionUnit: SelectProps<string>['options'];
   listKind: IDrugKindResponse[];
   listGroup: IDrugGroupResponse[];
+  optionDrgDescription: SelectProps<string>['options'];
 }
 
 const ProductCreate = (props: IModalProductViewProps) => {
@@ -220,12 +221,14 @@ const ProductCreate = (props: IModalProductViewProps) => {
         optionKind={props.optionKind}
         listGroups={props.listGroup}
         listKind={props.listKind}
-        btnEdit={true} />,
+        btnEdit={true}
+        optionDrgDescription={props.optionDrgDescription} 
+        action= {true}/>,
     },
     {
       key: "2",
       label: "Thông tin nâng cao",
-      children: <ProductCreateAvg  btnEdit={true}/>,
+      children: <ProductCreateAvg btnEdit={true} />,
     }
   ];
 
@@ -253,25 +256,25 @@ const ProductCreate = (props: IModalProductViewProps) => {
     console.log(value);
     return await drugApi.create(value).then((response) => {
       console.log(response)
-      // switch (response.meta[0].code) {
-      //   case 200:
-      notification['success']({
-        message: "Thông báo",
-        description: 'Thêm thuốc thành công',
-      });
-      setDrugUnitItem([]);
-      setKey(0);
-      form.resetFields();
-      props.onCancel();
-      // break;
+      switch (response.meta.code) {
+        case 200:
+          notification['success']({
+            message: "Thông báo",
+            description: 'Thêm thuốc thành công',
+          });
+          setDrugUnitItem([]);
+          setKey(0);
+          form.resetFields();
+          props.onCancel();
+          break;
 
-      // default:
-      //   notification['error']({
-      //     message: "Lỗi",
-      //     description: 'Thêm thuốc không thành công',
-      //   });
-      //   break;
-      // }
+        default:
+          notification['error']({
+            message: "Lỗi",
+            description: 'Thêm thuốc không thành công',
+          });
+          break;
+      }
     })
       .catch(() => {
         notification['error']({

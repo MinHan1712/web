@@ -14,7 +14,6 @@ import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
 import { IDrugInvSummaryPageRequest, IDrugInvSummaryResponse } from "../interfaces/summaryInvoice";
-import routes from "../router";
 import { getListImportTypeOption } from "../utils/local";
 
 
@@ -129,18 +128,18 @@ const InvoiceSummary: React.FC = () => {
     try {
       await invoiceSummaryApi.getList(invSummaryReq).then((response) => {
         console.log(response)
-        // switch (response.meta[0].code) {
-        //     case 200:
-        setInvSummaryRes(response);
-        console.log(response);
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Cập nhập nhà cung cấp không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            setInvSummaryRes(response.data);
+            console.log(response);
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({

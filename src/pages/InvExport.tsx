@@ -1,21 +1,22 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Pagination, Select, SelectProps, Tag } from "antd";
+import { Button, Empty, Flex, notification, Pagination, Select, SelectProps, Tag } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
+import userApi from "../apis/user.api";
 import '../assets/css/style.css';
 import InvExportSearch from "../components/Invoice/InvExportSearch";
 import InvExportView from "../components/Invoice/InvExportView";
 import { ImportStatus, selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfaces/inventoryImport";
+import { ILoginResponse } from "../interfaces/login";
 import { IProperty } from "../interfaces/property";
-import { getExportType, getListExportTypeOption } from "../utils/local";
-import userApi from "../apis/user.api";
 import { IUserWithRoleResponse } from "../interfaces/userManager";
+import { getExportType, getListExportTypeOption, getStore } from "../utils/local";
 
 
 const InvoiceExport: React.FC = () => {
@@ -23,9 +24,11 @@ const InvoiceExport: React.FC = () => {
 	const [pageSize, setPageSize] = useState(Number(selectPageSize[0].value));
 	const [openViewDate, setOpenviewDate] = useState(false);
 	const [dataItem, setDataItem] = useState({ inventory_id: '0' });
-	const [users, setUsers] = useState<SelectProps<string>['options']>([]); //TODO
+	const [usersOptions, setUsersOptions] = useState<SelectProps<string>['options']>([]);
+	const [user, setUserList] = useState<IUserWithRoleResponse[]>([]);
 	const [exportType, setExportType] = useState<SelectProps<string>['options']>([]);
 	const [listTypeExports, setListTypeExports] = useState<IProperty[]>([]);
+	const [store, setStore] = useState<ILoginResponse>({});
 	const navigate = useNavigate();
 
 	let stt: number = 1;
@@ -141,29 +144,50 @@ const InvoiceExport: React.FC = () => {
 	const getListInvImport = async () => {
 		setLoading(true);
 		try {
-			const response = await invoiceApi.getList(invImportReq);
-			console.log(response)
-
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setInvImportRes(response);
+			await invoiceApi.getList(invImportReq).then((response) => {
+				console.log(response)
+				switch (response.meta.code) {
+					case 200:
+						setInvImportRes(response.data);
+						console.log(response);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
 		} catch (err) {
-			console.log(err);
+			notification['error']({
+				message: "Lỗi",
+				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+			});
 		} finally { setLoading(false); }
 	}
 
-	const getListUserManger = () => {
-		userApi.get({ page: 0, size: 0 })
+	const getListUserManger = async () => {
+		await userApi.get({ page: 0, size: 0 })
 			.then((response) => {
-				setUsers(response.data.map((user: IUserWithRoleResponse) => {
-					return {
-						value: user.login,
-						label: user.user_name
-					}
-				}));
+				if (response.meta.code === 200) {
+					setUserList(response.data.data);
+					setUsersOptions(response.data.data.map((user: IUserWithRoleResponse) => {
+						return {
+							value: user.login,
+							label: user.user_name
+						}
+					}));
+
+				}
+			}).catch(() => {
+
 			})
 	}
 
@@ -186,6 +210,7 @@ const InvoiceExport: React.FC = () => {
 
 	useEffect(() => {
 		getListUserManger();
+		setStore(getStore());
 	}, []);
 
 	useEffect(() => {
@@ -210,7 +235,7 @@ const InvoiceExport: React.FC = () => {
 						<span>Thêm mới</span>
 					</Button>
 				</Flex>
-				<InvExportSearch InvExportReq={invImportReq} triggerFormEvent={triggerFormEvent} users={users} exportType={exportType} />
+				<InvExportSearch InvExportReq={invImportReq} triggerFormEvent={triggerFormEvent} users={usersOptions} exportType={exportType} />
 			</Flex>
 			<div className="table-wrapper">
 				<Table
@@ -290,7 +315,8 @@ const InvoiceExport: React.FC = () => {
 					getListInvImport();
 				}}
 				data={dataItem}
-
+				users={user}
+				store={store}
 			/>
 
 		</>

@@ -1,5 +1,5 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Flex, Pagination, Select, SelectProps, Tag } from "antd";
+import { Button, Flex, notification, Pagination, Select, SelectProps, Tag } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
@@ -14,8 +14,7 @@ import { ImportStatus, selectPageSize } from "../constants/general.constant";
 import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
-import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
-import routes from "../router";
+import { IProviderResponse } from "../interfaces/provider";
 import { getImportType, getListImportTypeOption, getPayMethods } from "../utils/local";
 
 
@@ -172,38 +171,52 @@ const InvoiceImport: React.FC = () => {
 	const getListInvImport = async () => {
 		setLoading(true);
 		try {
-			const response = await invoiceApi.getList(invImportReq);
-			console.log(response)
-
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setInvImportRes(response);
+			await invoiceApi.getList(invImportReq).then((response) => {
+				console.log(response)
+				switch (response.meta.code) {
+					case 200:
+						setInvImportRes(response.data);
+						console.log(response);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
 		} catch (err) {
-			console.log(err);
+			notification['error']({
+				message: "Lỗi",
+				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+			});
 		} finally { setLoading(false); }
 	}
 
 	const getListProvider = async () => {
 		try {
-			let provider: IProviderPageRequest = {
+			await providerApi.getList({
 				page: 0,
 				size: 0
-			}
-
-			await providerApi.getList(provider).then((response) => {
-				setProvider(response.data.map((provider: IProviderResponse) => {
-					return {
-						value: provider.provider_id,
-						label: provider.provider_name
-					}
-				}));
+			}).then((response) => {
+				if (response.meta.code === 200) {
+					setProvider(response.data.data.map((provider: IProviderResponse) => {
+						return {
+							value: provider.provider_id,
+							label: provider.provider_name
+						}
+					}));
+				} else {
+					setProvider([]);
+				}
 			})
-
-
-
 		} catch (err) {
 			console.log(err);
 		} finally { }
@@ -218,8 +231,6 @@ const InvoiceImport: React.FC = () => {
 		});
 
 		console.log(invImportReq);
-
-		// create a new instance
 	}
 
 	const handleCreateReceipt = () => {

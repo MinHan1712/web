@@ -82,7 +82,7 @@ const InvExportSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...props.users || []]} //TODO
+                  }, ...props.users || []]} 
                 />
               </Form.Item>
 
@@ -151,7 +151,7 @@ const InvExportSearch = (props: mapDrgFormSearchToProps) => {
                   options={[{
                     value: '',
                     label: 'Tất cả'
-                  }, ...ImportStatus || []]} //TODO
+                  }, ...ImportStatus || []]}
                 />
               </Form.Item>
 

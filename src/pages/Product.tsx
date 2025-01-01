@@ -1,5 +1,5 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Empty, Flex, Pagination, Select, SelectProps, Tag } from "antd";
+import { Button, Empty, Flex, notification, Pagination, Select, SelectProps, Tag } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
 import { format } from "date-fns/format";
 import { AlignType } from "rc-table/lib/interface";
@@ -14,154 +14,7 @@ import { IPageResponse } from "../interfaces/common";
 import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
 import { IDrugKindResponse } from "../interfaces/drugKind";
 import { IDrugGroupResponse } from "../interfaces/drugGroup";
-import { getDrgGroup, getDrgKind, getListGroupOption, getListKindOption, getListUnitOption } from "../utils/local";
-
-const productColumns: ColumnsType<IDrugResponse> = [
-	{
-		title: "Mã sản phẩm",
-		dataIndex: "drug_code",
-		key: "drug_code",
-		width: "10%",
-		align: "left" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-
-		),
-	},
-	{
-		title: "Tên sản phẩm",
-		dataIndex: "drug_name",
-		key: "drug_name",
-		width: "15%",
-		align: "left" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-
-		),
-	},
-	{
-		title: "Số đăng ký",
-		dataIndex: "license_cd",
-		key: "license_cd",
-		width: "7%",
-		align: "left" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-
-		),
-	},
-	{
-		title: "Hoạt chất",
-		dataIndex: "active_ingredient",
-		key: "active_ingredient",
-		width: "10%",
-		align: "left" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-
-		),
-	},
-	{
-		title: "Nhà SX",
-		dataIndex: "company_name",
-		key: "company_name",
-		width: "10%",
-		align: "left" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-
-		),
-	},
-	{
-		title: "Trạng thái",
-		dataIndex: "active_flg",
-		key: "active_flg",
-		width: "7%",
-		align: "center" as AlignType,
-		render: (text) => {
-			let color = text == "1" ? "green" : "red";
-			return (
-				<Tag color={color} key={text} className="style-text-limit-number-line2 p-1">
-					{text == "1" ? "Đang kinh doanh" : "Ngừng kinh doanh"}
-				</Tag>
-			);
-		},
-	},
-	{
-		title: "Cập nhật",
-		dataIndex: "created_date",
-		key: "created_date",
-		width: "10%",
-		align: "center" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text ? format(new Date(text), "dd-MM-yyyy HH:mm:ss") : ''}</span>
-			</div>
-		),
-	},
-	{
-		title: "Người tạo",
-		dataIndex: "updated_user",
-		key: "updated_user",
-		width: "7%",
-		align: "center" as AlignType,
-		render: (text) => {
-			// var user = listUser.find(x => x.login == text)?.user_name;
-			return (
-				<div className="style-text-limit-number-line2">
-					<span>{text}</span>
-				</div>
-			)
-		},
-	},
-	{
-		title: "Mã dược quốc gia",
-		dataIndex: "drg_ref_cd",
-		key: "drg_ref_cd",
-		width: "7%",
-		align: "center" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-		),
-	},
-	{
-		title: "Nhóm thuốc",
-		dataIndex: "drug_kind",
-		key: "drug_kind",
-		width: "7%",
-		align: "center" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-				{/* <span>{optionDrugKind?.find(x => x.value == text)?.label}</span> */}
-			</div>
-		),
-	},
-	{
-		title: "Quy cách đóng gói",
-		dataIndex: "package_desc",
-		key: "package_desc",
-		width: "10%",
-		align: "center" as AlignType,
-		render: (text) => (
-			<div className="style-text-limit-number-line2">
-				<span>{text}</span>
-			</div>
-		),
-	},
-];
+import { getDrgGroup, getDrgKind, getListDrgDescription, getListGroupOption, getListKindOption, getListUnitOption } from "../utils/local";
 
 const Product: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -176,6 +29,7 @@ const Product: React.FC = () => {
 	const [optionUnit, setOptionUnit] = useState<SelectProps<string>['options']>([]);
 	const [listKind, setListKind] = useState<IDrugKindResponse[]>([]);
 	const [listGroup, setListGroup] = useState<IDrugGroupResponse[]>([]);
+	const [optionDrgDescription, setOptionDrgDescription] = useState<SelectProps<string>['options']>([]);
 
 
 	const [productRes, setProductRes] = useState<IPageResponse<IDrugResponse[]>>({
@@ -193,18 +47,33 @@ const Product: React.FC = () => {
 	const getListProduct = async () => {
 		setLoading(true);
 		try {
-			const response = await drugApi.getList(productReq);
-			console.log(response)
+			await drugApi.getList(productReq).then((response) => {
+				switch (response.meta.code) {
+					case 200:
+						setProductRes(response.data);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
 
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setProductRes(response);
 		} catch (err) {
-			console.log(err);
+			notification['error']({
+				message: "Lỗi",
+				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+			});
 		} finally { setLoading(false); }
+
 	}
 
 	const triggerFormEvent = (value: IDrugPageRequest) => {
@@ -220,20 +89,167 @@ const Product: React.FC = () => {
 	useEffect(() => {
 		setIsReload(false);
 		getListProduct();
-		console.log('request', productReq);
 		setListKind(getDrgKind());
 		setListGroup(getDrgGroup());
 		setOptionKind(getListKindOption());
 		setOptionGroup(getListGroupOption());
 		setOptionUnit(getListUnitOption());
-
+		setOptionDrgDescription(getListDrgDescription());
 	}, [productReq, isReload])
+
+	const productColumns: ColumnsType<IDrugResponse> = [
+		{
+			title: "Mã sản phẩm",
+			dataIndex: "drug_code",
+			key: "drug_code",
+			width: "10%",
+			align: "left" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text}</span>
+				</div>
+
+			),
+		},
+		{
+			title: "Tên sản phẩm",
+			dataIndex: "drug_name",
+			key: "drug_name",
+			width: "15%",
+			align: "left" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text}</span>
+				</div>
+
+			),
+		},
+		{
+			title: "Số đăng ký",
+			dataIndex: "license_cd",
+			key: "license_cd",
+			width: "7%",
+			align: "left" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text}</span>
+				</div>
+
+			),
+		},
+		{
+			title: "Hoạt chất",
+			dataIndex: "active_ingredient",
+			key: "active_ingredient",
+			width: "10%",
+			align: "left" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text}</span>
+				</div>
+
+			),
+		},
+		{
+			title: "Nhà SX",
+			dataIndex: "company_name",
+			key: "company_name",
+			width: "10%",
+			align: "left" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text}</span>
+				</div>
+
+			),
+		},
+		{
+			title: "Trạng thái",
+			dataIndex: "active_flg",
+			key: "active_flg",
+			width: "7%",
+			align: "center" as AlignType,
+			render: (text) => {
+				let color = text === true ? "green" : "red";
+				return (
+					<Tag color={color} key={text} className="style-text-limit-number-line2 p-1">
+						{text === true ? "Đang kinh doanh" : "Ngừng kinh doanh"}
+					</Tag>
+				);
+			},
+		},
+		{
+			title: "Cập nhật",
+			dataIndex: "created_date",
+			key: "created_date",
+			width: "10%",
+			align: "center" as AlignType,
+			render: (text) => (
+				<div className="style-text-limit-number-line2">
+					<span>{text ? format(new Date(text), "dd-MM-yyyy HH:mm:ss") : ''}</span>
+				</div>
+			),
+		},
+		// {
+		// 	title: "Người tạo",
+		// 	dataIndex: "updated_user",
+		// 	key: "updated_user",
+		// 	width: "7%",
+		// 	align: "center" as AlignType,
+		// 	render: (text) => {
+		// 		// var user = listUser.find(x => x.login == text)?.user_name;
+		// 		return (
+		// 			<div className="style-text-limit-number-line2">
+		// 				<span>{text}</span>
+		// 				<span>{users?.find(x => x.drug_kind_id === text)?.name}</span>
+		// 			</div>
+		// 		)
+		// 	},
+		// },
+		// {
+		// 	title: "Mã dược quốc gia",
+		// 	dataIndex: "drg_ref_cd",
+		// 	key: "drg_ref_cd",
+		// 	width: "7%",
+		// 	align: "center" as AlignType,
+		// 	render: (text) => (
+		// 		<div className="style-text-limit-number-line2">
+		// 			<span>{text}</span>
+		// 		</div>
+		// 	),
+		// },
+		// {
+		// 	title: "Nhóm thuốc",
+		// 	dataIndex: "drug_kind",
+		// 	key: "drug_kind",
+		// 	width: "7%",
+		// 	align: "center" as AlignType,
+		// 	render: (text) => (
+		// 		<div className="style-text-limit-number-line2">
+		// 			{/* <span>{text}</span> */}
+		// 			<span>{listKind?.find(x => x.drug_kind_id === text)?.name}</span>
+		// 		</div>
+		// 	),
+		// },
+		// {
+		// 	title: "Quy cách đóng gói",
+		// 	dataIndex: "package_desc",
+		// 	key: "package_desc",
+		// 	width: "10%",
+		// 	align: "center" as AlignType,
+		// 	render: (text) => (
+		// 		<div className="style-text-limit-number-line2">
+		// 			<span>{text}</span>
+		// 		</div>
+		// 	),
+		// },
+	];
 
 	return (
 		<>
 			<Flex gap="middle" vertical justify="space-between" align={'center'} style={{ width: '100%' }} >
 				<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
-					<h3 className="title">Nhà cung cấp</h3>
+					<h3 className="title">Danh mục sản phẩm</h3>
 					<Button
 						className="button btn-add"
 						type="primary"
@@ -320,7 +336,7 @@ const Product: React.FC = () => {
 				open={openViewDate}
 				onCancel={() => {
 					setOpenviewDate(false);
-					getListProduct();
+					// getListProduct();
 					setIsReload(true);
 				}}
 				data={dataItem}
@@ -329,6 +345,7 @@ const Product: React.FC = () => {
 				listGroup={listGroup}
 				listKind={listKind}
 				optionUnit={optionUnit}
+				optionDrgDescription={optionDrgDescription}
 
 			/>
 
@@ -343,6 +360,7 @@ const Product: React.FC = () => {
 				listGroup={listGroup}
 				listKind={listKind}
 				optionUnit={optionUnit}
+				optionDrgDescription={optionDrgDescription}
 			/>
 		</>
 	);

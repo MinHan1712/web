@@ -17,9 +17,8 @@ import { IDrugGroupResponse } from "../interfaces/drugGroup";
 import { IDrugKindResponse } from "../interfaces/drugKind";
 import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
 import { ICreateInvImport, IImportInventoryCreate } from "../interfaces/inventoryImport";
-import { IProviderPageRequest, IProviderResponse } from "../interfaces/provider";
-import routes from "../router";
-import { getDrgGroup, getDrgKind, getListGroupOption, getListImportTypeOption, getListKindOption, getListPayMenthodsOption, getListUnitOption } from "../utils/local";
+import { IProviderResponse } from "../interfaces/provider";
+import { getDrgGroup, getDrgKind, getListDrgDescription, getListGroupOption, getListImportTypeOption, getListKindOption, getListPayMenthodsOption, getListUnitOption } from "../utils/local";
 import { InvContextType } from "./InvExportCreate";
 
 const InvImportContext = createContext<InvContextType | undefined>(undefined);
@@ -52,6 +51,7 @@ const InvImportCreate: React.FC = () => {
 	const [optionUnit, setOptionUnit] = useState<SelectProps<string>['options']>([]);
 	const [listKind, setListKind] = useState<IDrugKindResponse[]>([]);
 	const [listGroup, setListGroup] = useState<IDrugGroupResponse[]>([]);
+	const [optionDrgDescription, setOptionDrgDescription] = useState<SelectProps<string>['options']>([]);
 
 	const [loading, setLoading] = useState(false);
 	const [loadingScreen, setLoadingScreen] = useState(false);
@@ -84,6 +84,7 @@ const InvImportCreate: React.FC = () => {
 		setOptionKind(getListKindOption());
 		setOptionGroup(getListGroupOption());
 		setOptionUnit(getListUnitOption());
+		setOptionDrgDescription(getListDrgDescription());
 	}, []);
 
 	const createInvImport = async () => {
@@ -91,27 +92,27 @@ const InvImportCreate: React.FC = () => {
 		try {
 			await invoiceApi.create(invImportCreateReq).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				notification['success']({
-					message: "Thông báo",
-					description: 'Thêm phiếu nhập kho thành công',
-				});
-				setInvImportCreateReq({
-					info: {
-					},
-					products: []
-				});
+				switch (response.meta.code) {
+					case 200:
+						notification['success']({
+							message: "Thông báo",
+							description: 'Thêm phiếu nhập kho thành công',
+						});
+						setInvImportCreateReq({
+							info: {
+							},
+							products: []
+						});
 
-				navigate('/kho/nhapkho');
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Thêm phiếu nhập kho không thành công',
-				//     });
-				//     break;
-				// }
+						navigate('/kho/nhapkho');
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Thêm phiếu nhập kho không thành công',
+						});
+						break;
+				}
 			})
 				.catch(() => {
 					notification['error']({
@@ -134,31 +135,24 @@ const InvImportCreate: React.FC = () => {
 		confirmCreateInvExport();
 	}
 
-	const handleCreateReceipt = () => {
-		navigate({
-			pathname: routes[2].path,
-		});
-	};
-
 	const getListProvider = async () => {
 		setLoading(true);
 		try {
-			let provider: IProviderPageRequest = {
+			const response = await providerApi.getList({
 				page: 0,
 				size: 0
-			}
-
-			const response = await providerApi.getList(provider);
+			});
 			console.log(response)
-
-			setOptionsProvider(response.data.map((provider: IProviderResponse) => {
-				return {
-					value: provider.provider_id,
-					label: provider.provider_name
-				}
-			}));
-
-
+			if (response.meta.code === 200) {
+				setOptionsProvider(response.data.data.map((provider: IProviderResponse) => {
+					return {
+						value: provider.provider_id,
+						label: provider.provider_name
+					}
+				}));
+			} else {
+				setOptionsProvider([]);
+			}
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -167,15 +161,26 @@ const InvImportCreate: React.FC = () => {
 	const getListProduct = async () => {
 		setLoading(true);
 		try {
-			const response = await drugApi.getList(productReq);
-			console.log(response)
-
-			// if (response.meta[0].code !== API_STATUS.SUCCESS) {
-			// 	//error
-			// 	return;
-			// }
-
-			setProductRes(prevState => [...prevState, ...response.data]);
+			await drugApi.getList(productReq).then((response) => {
+				console.log(response)
+				switch (response.meta.code) {
+					case 200:
+						setProductRes(prevState => [...prevState, ...response.data.data]);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
 		} catch (err) {
 			console.log(err);
 		} finally { setLoading(false); }
@@ -192,15 +197,15 @@ const InvImportCreate: React.FC = () => {
 				inventory_id: '',
 				lot: '',
 				quantity: 0,
-				price: units && units.import_price || 0,
-				unit_id: units && units?.unit_id || '',
-				unit_parent_id: units && units?.unit_parent_id || '',
+				price: (units && units.import_price) || 0,
+				unit_id: (units && units?.unit_id) || '',
+				unit_parent_id: (units && units?.unit_parent_id) || '',
 				exp_date: '',
 				vat_percent: value.vat_percent || 0,
 				discount_amount: 0,
 				drug_units: value.drug_units,
 				total_amount: 0,
-				cur_price: units && units?.price || 0,
+				cur_price: (units && units?.price) || 0,
 				type: 'i'
 			};
 			setKey(key + 1);
@@ -240,7 +245,7 @@ const InvImportCreate: React.FC = () => {
 	};
 
 	const confirmCreateInvExport = () => {
-		var errorListInvDetail = invImportCreateReq.products.filter(item => item.quantity == 0)
+		var errorListInvDetail = invImportCreateReq.products.filter(item => item.quantity === 0)
 		if (errorListInvDetail && errorListInvDetail.length > 0) {
 			notification["error"]({
 				message: "Thông báo",
@@ -320,7 +325,7 @@ const InvImportCreate: React.FC = () => {
 									onPopupScroll={onScrollSelectProduct}
 									loading={loading}
 									onSelect={(e: string) => {
-										addNewRowdetail(productRes.find(x => x.drug_id == e) || { drug_id: '' });
+										addNewRowdetail(productRes.find(x => x.drug_id === e) || { drug_id: '' });
 									}}
 									notFoundContent={productRes ? <Empty description="Không có dữ liệu" /> : null}
 								>
@@ -663,6 +668,7 @@ const InvImportCreate: React.FC = () => {
 				listGroup={listGroup}
 				listKind={listKind}
 				optionUnit={optionUnit}
+				optionDrgDescription={optionDrgDescription}
 			/>
 		</>
 	);

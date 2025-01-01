@@ -62,27 +62,27 @@ const DrugKind = (props: IModalDrugKindProps) => {
 
   }
 
-  const createDrugKindToApi = (drgKindRequest: IDrugKindCreateRequest) => {
+  const createDrugKindToApi = async (drgKindRequest: IDrugKindCreateRequest) => {
     try {
       setLoading(true);
-      drgKindApi.create(drgKindRequest).then((response) => {
-        // switch (response.meta[0].code) {
-        //     case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Thêm ngành hàng mới thành công',
-        });
-        reloadDrgKind();
-        form.resetFields();
-        handleCancel();
-        // break;
-        //     default:
-        //         notification['error']({
-        //             message: "Lỗi",
-        //             description: 'Thêm ngành hàng mới không thành công',
-        //         });
-        //         break;
-        // }
+      await drgKindApi.create(drgKindRequest).then((response) => {
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Thêm ngành hàng mới thành công',
+            });
+            reloadDrgKind();
+            form.resetFields();
+            handleCancel();
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Thêm ngành hàng mới không thành công',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({
@@ -98,28 +98,28 @@ const DrugKind = (props: IModalDrugKindProps) => {
     } finally { setLoading(false); }
   }
 
-  const removeDrugKindToApi = (drg_kind_id: string) => {
+  const removeDrugKindToApi = async (drg_kind_id: string) => {
     setLoading(true);
     try {
       setLoading(true);
-      drgKindApi.delete(drg_kind_id).then((response) => {
-        // switch (response.meta[0].code) {
-        //     case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Xoá ngành hàng mới thành công',
-        });
-        reloadDrgKind();
-        form.resetFields();
-        handleCancel();
-        // break;
-        //     default:
-        //         notification['error']({
-        //             message: "Lỗi",
-        //             description: 'Xoá ngành hàng mới không thành công',
-        //         });
-        //         break;
-        // }
+      await drgKindApi.delete(drg_kind_id).then((response) => {
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Xoá ngành hàng mới thành công',
+            });
+            reloadDrgKind();
+            form.resetFields();
+            handleCancel();
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Xoá ngành hàng mới không thành công',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({
@@ -135,28 +135,28 @@ const DrugKind = (props: IModalDrugKindProps) => {
     } finally { setLoading(false); }
   }
 
-  const updateDrugKindToApi = (drgKindUpdate: IDrugKindUpdateRequest) => {
+  const updateDrugKindToApi = async (drgKindUpdate: IDrugKindUpdateRequest) => {
     setLoading(true);
     try {
       setLoading(true);
-      drgKindApi.update(drgKindUpdate).then((response) => {
-        // switch (response.meta[0].code) {
-        //     case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Cập nhập ngành hàng mới thành công',
-        });
-        reloadDrgKind();
-        form.resetFields();
-        handleCancel();
-        // break;
-        //     default:
-        //         notification['error']({
-        //             message: "Lỗi",
-        //             description: 'Cập nhập ngành hàng mới không thành công',
-        //         });
-        //         break;
-        // }
+      await drgKindApi.update(drgKindUpdate).then((response) => {
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Cập nhập ngành hàng mới thành công',
+            });
+            reloadDrgKind();
+            form.resetFields();
+            handleCancel();
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Cập nhập ngành hàng mới không thành công',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({

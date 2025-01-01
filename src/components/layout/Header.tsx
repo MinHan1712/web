@@ -40,11 +40,9 @@ const HeaderLayout = (props: any) => {
               <Button
                 className="button btn-add button-invoice"
                 type="primary"
-                style={{ height: 35, backgroundColor: '#000', borderWidth: '0px', fontWeight: 'bold' }}
+                style={{ height: 35, backgroundColor: '#000', borderWidth: '0px', fontWeight: 'bold', marginRight: '30px' }}
                 onClick={() => {
-                  navigate({
-                    // pathname: Routers.BillRetail.path,
-                  });
+                  navigate("./taohoadon");
                 }}
               >
                 <ProfileOutlined style={{ fontWeight: 'bold' }} />

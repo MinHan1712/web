@@ -1,38 +1,32 @@
 import { useState } from "react";
 import { IRegisterStore } from "../interfaces/login";
 
-import { Button, Col, Empty, Flex, Form, Input, notification, Row, Select, SelectProps } from "antd";
-import FormItem from "antd/es/form/FormItem";
+import { Button, Empty, Flex, Form, Input, notification, Select, SelectProps } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import '../assets/css/register.css';
 import commonApi from "../apis/common.api";
-import { CityType, DistrictType, formItemLayout } from "../constants/general.constant";
+import '../assets/css/register.css';
+import { CityType, DistrictType } from "../constants/general.constant";
 
 const Register = () => {
 
   const [form] = Form.useForm<IRegisterStore>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
-  const [messageLogin, setMessageLogin] = useState("");
-
-
-  const [registerStore, setRegisterStore] = useState<IRegisterStore>({});
-
   const [optionDistrict, setOptionDistrict] = useState<SelectProps<string>['options']>([])
 
 
   const triggerFormEvent = async (register: IRegisterStore) => {
+    console.log(register);
     return await commonApi.registerStore(register)
       .then(response => {
         console.log(response)
-        switch (response.meta[0].code) {
+        switch (response.meta.code) {
           case 200:
             navigate('/dangnhap');
             setLoading(false);
             notification['success']({
               message: "Thông báo",
-              description: 'Tạo tài khoản thành công',
+              description: 'Tạo tài khoản thành công. Vui lòng kiểm tra mail để active tài khoản',
             });
             break;
           case 513:
@@ -91,7 +85,6 @@ const Register = () => {
                     <Form.Item
                       name="store_name"
                       rules={[{ required: true, message: 'Nhập tên nhà thuốc' }]}
-
                       label={
                         <h5 className="text-muted">
                           Tên nhà thuốc
@@ -124,7 +117,7 @@ const Register = () => {
                         id="city"
                         placeholder="Địa chỉ"
                         onChange={(e: any) => {
-                          setOptionDistrict(DistrictType.find(x => x.value == e)?.content || []);
+                          setOptionDistrict(DistrictType.find(x => x.value === e)?.content || []);
                         }} />
                     </Form.Item>
                   </div>

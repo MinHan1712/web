@@ -30,22 +30,22 @@ const CustomerGroupCreate = (props: ICustomerGroupInformationProps) => {
     try {
       await customerGroupApi.create(value).then((response) => {
         console.log(response)
-        // switch (response.meta[0].code) {
-        //     case 200:
-        notification['success']({
-          message: "Thông báo",
-          description: 'Thêm nhóm khách hàng thành công',
-        });
-        form.resetFields();
-        props.onCancel();
-        //     break;
-        // default:
-        //     notification['error']({
-        //         message: "Lỗi",
-        //         description: 'Thêm nhóm khách hàng không thành công',
-        //     });
-        //     break;
-        // }
+        switch (response.meta.code) {
+          case 200:
+            notification['success']({
+              message: "Thông báo",
+              description: 'Thêm nhóm khách hàng thành công',
+            });
+            form.resetFields();
+            props.onCancel();
+            break;
+          default:
+            notification['error']({
+              message: "Lỗi",
+              description: 'Thêm nhóm khách hàng không thành công',
+            });
+            break;
+        }
       })
         .catch(() => {
           notification['error']({

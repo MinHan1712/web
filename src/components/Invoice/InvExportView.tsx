@@ -9,12 +9,16 @@ import { IProperty } from "../../interfaces/property";
 import { renderText } from "../common";
 import { ImportStatus } from "../../constants/general.constant";
 import invoiceApi from "../../apis/invoice.api";
+import { IUserWithRoleResponse } from "../../interfaces/userManager";
+import { ILoginResponse } from "../../interfaces/login";
 
 interface IModalInvHistoryExportProps {
     open: boolean;
     onCancel: () => void;
     data: IInvoiceImportResponse;
     // users: IProperty[];
+    users: IUserWithRoleResponse[];
+    store: ILoginResponse;
 }
 
 const InvExportView = (props: IModalInvHistoryExportProps) => {
@@ -102,23 +106,23 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
         }
     ];
 
-    const cancelInventoryExport = (inventory_id: string) => {
+    const cancelInventoryExport = async (inventory_id: string) => {
         try {
             console.log(inventory_id);
-            return invoiceApi.cancel(inventory_id, "e")
+            return await invoiceApi.cancel(inventory_id, "e")
                 .then((response) => {
-                    // if (response.meta[0].code === 200) {
-                    notification['success']({
-                        message: "Thông báo",
-                        description: 'Hủy phiếu xuất kho thành công',
-                    });
-                    props.onCancel();
-                    // } else {
-                    //     notification['error']({
-                    //         message: "Lỗi",
-                    //         description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
-                    //     });
-                    // }
+                    if (response.meta.code === 200) {
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Hủy phiếu xuất kho thành công',
+                        });
+                        props.onCancel();
+                    } else {
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Hủy phiếu xuất kho không thành công. Có một lỗi nào đó. Vui lòng thử lại',
+                        });
+                    }
                 })
                 .catch(() => {
                     notification['error']({
@@ -154,12 +158,12 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
                     </Col>
                     <Col span={8} style={{ padding: "5px" }}>
                         {renderText("Mã cửa hàng", props.data.drg_store_id || '')}
-                        {renderText("Tên cửa hàng", 'Hang')} {/*TODO */}
-                        {renderText("Người tạo phiếu", 'Hang')} {/*props.users.find(x => x.user_id == props.data.updated_user)?.user_name || ''*/}
+                        {renderText("Tên cửa hàng", props.store.storeName || '')}
+                        {renderText("Người tạo phiếu", props.users.find(x => x.user_id == props.data.updated_user)?.user_name || '')}
                     </Col>
 
                     <Col span={8} style={{ padding: "5px" }}>
-                        {renderText("Tổng tiền", `${props.data.amount || '0'.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
+                        {renderText("Tổng tiền", `${(props.data.amount || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
                         {renderText("Trạng thái", ImportStatus.find((x) => x.value == props.data.status)?.label || '')}
                         {renderText("Ghi chú", props.data.note || '')}
                     </Col>

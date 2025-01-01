@@ -9,9 +9,9 @@ import invoiceApi from "../apis/invoice.api";
 import '../assets/css/style.css';
 import InvExportCreateTable from "../components/Invoice/InvExportCreateTable";
 import { formItemLayout } from "../constants/general.constant";
+import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
 import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
 import { getListExportTypeOption, getListUnitOption } from "../utils/local";
-import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
 
 export interface InvContextType {
 	invImportCreateReq: ICreateInvImport | {
@@ -85,27 +85,27 @@ const InvExportCreate: React.FC = () => {
 		try {
 			await invoiceApi.create(invImportCreateReq).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				notification['success']({
-					message: "Thông báo",
-					description: 'Thêm phiếu xuất kho thành công',
-				});
-				setInvImportCreateReq({
-					info: {
-					},
-					products: []
-				});
+				switch (response.meta.code) {
+					case 200:
+						notification['success']({
+							message: "Thông báo",
+							description: 'Thêm phiếu xuất kho thành công',
+						});
+						setInvImportCreateReq({
+							info: {
+							},
+							products: []
+						});
 
-				navigate('/kho/xuatkho');
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Thêm phiếu xuất không thành công',
-				//     });
-				//     break;
-				// }
+						navigate('/kho/xuatkho');
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Thêm phiếu xuất không thành công',
+						});
+						break;
+				}
 			})
 				.catch(() => {
 					notification['error']({
@@ -124,24 +124,24 @@ const InvExportCreate: React.FC = () => {
 		try {
 			await invoiceApi.getListInvProduct(invProductReq).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				setProductRes(prevState => [...prevState, ...response.data]);
-				console.log(response);
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Cập nhập nhà cung cấp không thành công',
-				//     });
-				//     break;
-				// }
+				switch (response.meta.code) {
+					case 200:
+						setProductRes(prevState => [...prevState, ...response.data.data]);
+						console.log(response);
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+						});
+						break;
+				}
 			})
 				.catch(() => {
-					// notification['error']({
-					// 	message: "Lỗi",
-					// 	description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
-					// });
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
 				})
 
 		} catch (err) {

@@ -49,23 +49,19 @@ const Login = (prop: ILogin) => {
     return await commonApi.login(login)
       .then(response => {
         console.log(response);
-        // if (response.meta[0].code === 200) {
-          setAuth(response)
-          navigate('/sanpham', {
-            state: {
-              token: response.token
-            }
-          });
+        if (response.meta.code === 200) {
+          setAuth(response.data)
+          navigate('/');
           setLoading(false);
           return;
-      //   }
+        }
 
-      //   notification['error']({
-      //     message: "Lỗi",
-      //     description: 'Sai mật khẩu hoặc tên đăng nhập',
-      //   });
+        notification['error']({
+          message: "Lỗi",
+          description: 'Sai mật khẩu hoặc tên đăng nhập',
+        });
 
-      //   setLoading(false);
+        setLoading(false);
       })
       .catch(() => {
         notification['error']({
@@ -159,7 +155,7 @@ const Login = (prop: ILogin) => {
                 <span>Đăng nhập</span>
               </Button>
               <div className="textRegister">
-                <Link className="txtLinkRegister" to={'/dangky'} >
+                <Link to={'/dangky'} >
                   Đăng ký?
                 </Link>{" "}
                 nếu bạn chưa có tài khoản!

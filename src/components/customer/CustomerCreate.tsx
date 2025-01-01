@@ -1,18 +1,17 @@
-import { Button, DatePicker, Divider, Flex, Form, Input, Modal, notification, Radio, Select, SelectProps, Space } from "antd";
-import { useState } from "react";
-import { ICustomerCreate, ICustomerResponse } from '../../interfaces/customer';
-import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
 import {
     CloseCircleOutlined,
     MailOutlined,
     PhoneOutlined,
     PlusCircleOutlined,
-    PlusOutlined,
-    UserOutlined,
+    UserOutlined
 } from "@ant-design/icons";
-import customerApi from "../../apis/customer.api";
+import { Button, DatePicker, Flex, Form, Input, Modal, notification, Radio, Select, SelectProps } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
+import { useState } from "react";
+import customerApi from "../../apis/customer.api";
+import { CityType, CustonerSource, CustonerType, formItemLayout, sexType } from "../../constants/general.constant";
+import { ICustomerCreate, ICustomerResponse } from '../../interfaces/customer';
 
 interface ICustomerInformationProps {
     open: boolean;
@@ -35,22 +34,22 @@ const CustomerCreate = (props: ICustomerInformationProps) => {
 
             await customerApi.create(value).then((response) => {
                 console.log(response)
-                // switch (response.meta[0].code) {
-                //     case 200:
-                notification['success']({
-                    message: "Thông báo",
-                    description: 'Thêm khách hàng thành công',
-                });
-                form.resetFields();
-                props.onCancel();
-                //     break;
-                // default:
-                //     notification['error']({
-                //         message: "Lỗi",
-                //         description: 'Thêm khách hàng không thành công',
-                //     });
-                //     break;
-                // }
+                switch (response.meta.code) {
+                    case 200:
+                        notification['success']({
+                            message: "Thông báo",
+                            description: 'Thêm khách hàng thành công',
+                        });
+                        form.resetFields();
+                        props.onCancel();
+                        break;
+                    default:
+                        notification['error']({
+                            message: "Lỗi",
+                            description: 'Thêm khách hàng không thành công',
+                        });
+                        break;
+                }
             })
                 .catch(() => {
                     notification['error']({

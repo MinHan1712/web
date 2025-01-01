@@ -76,7 +76,7 @@ const InvCustomerCreate: React.FC = () => {
 			amount: 0,
 			amount_paid: 0,
 			classification: true,
-			import_type: 'ORD'
+			import_type: 'ORD',
 		},
 		products: []
 	});
@@ -96,27 +96,27 @@ const InvCustomerCreate: React.FC = () => {
 		try {
 			await invoiceApi.create(invImportCreateReq).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				notification['success']({
-					message: "Thông báo",
-					description: 'Thêm hóa đơn thành công',
-				});
-				setInvImportCreateReq({
-					info: {
-					},
-					products: []
-				});
+				switch (response.meta.code) {
+					case 200:
+						notification['success']({
+							message: "Thông báo",
+							description: 'Thêm hóa đơn thành công',
+						});
+						setInvImportCreateReq({
+							info: {
+							},
+							products: []
+						});
 
-				navigate('/kho/xuatkho');
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Thêm hóa đơn không thành công',
-				//     });
-				//     break;
-				// }
+						navigate('/hoadon');
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Thêm hóa đơn không thành công',
+						});
+						break;
+				}
 			})
 				.catch(() => {
 					notification['error']({
@@ -135,18 +135,11 @@ const InvCustomerCreate: React.FC = () => {
 		try {
 			await invoiceApi.getListInvProduct(invProductReq).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				setProductRes(prevState => [...prevState, ...response.data]);
-				console.log(response);
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Cập nhập nhà cung cấp không thành công',
-				//     });
-				//     break;
-				// }
+
+				if (response.meta.code === 200) {
+					setProductRes(prevState => [...prevState, ...response.data.data]);
+				}
+
 			})
 				.catch(() => {
 					// notification['error']({
@@ -166,23 +159,14 @@ const InvCustomerCreate: React.FC = () => {
 		try {
 			await customerApi.getList({ page: 0, size: 0 }).then((response) => {
 				console.log(response)
-				// switch (response.meta[0].code) {
-				//     case 200:
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Cập nhập nhà cung cấp không thành công',
-				//     });
-				//     break;
-				// }
-
-				setOptionsCustomer(response.data.map((provider: ICustomerResponse) => {
-					return {
-						value: provider.customer_id,
-						label: provider.customer_name
-					}
-				}));
+				if (response.meta.code === 200) {
+					setOptionsCustomer(response.data.data.map((provider: ICustomerResponse) => {
+						return {
+							value: provider.customer_id,
+							label: provider.customer_name
+						}
+					}));
+				}
 
 			})
 				.catch(() => {
@@ -202,21 +186,12 @@ const InvCustomerCreate: React.FC = () => {
 		try {
 			const response = await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
 				console.log(response)
-				setOptionsCusGroup(response.data && response.data?.map((item) => ({
-					value: item.customer_group_id,
-					label: item.customer_group_name,
-				})) || []);
-				// switch (response.meta[0].code) {
-				//     case 200:
-
-				//     break;
-				// default:
-				//     notification['error']({
-				//         message: "Lỗi",
-				//         description: 'Cập nhập nhà cung cấp không thành công',
-				//     });
-				//     break;
-				// }
+				if (response.meta.code === 200) {
+					setOptionsCusGroup(response.data && response.data.data.map((item) => ({
+						value: item.customer_group_id,
+						label: item.customer_group_name,
+					})) || []);
+				}
 			})
 				.catch(() => {
 				})
@@ -247,7 +222,7 @@ const InvCustomerCreate: React.FC = () => {
 	const addNewRowdetail = (value: IDrgInvProductResponse) => {
 		console.log(value);
 		if (value) {
-			var checkItemDuplicate = invImportCreateReq.products.find(x => x.inventory_detail_id == value.id);
+			var checkItemDuplicate = invImportCreateReq.products.find(x => x.inventory_detail_id === value.id);
 
 			if (checkItemDuplicate) {
 				notification["error"]({
@@ -423,7 +398,7 @@ const InvCustomerCreate: React.FC = () => {
 										<Form.Item
 											{...formItemLayout}
 											labelAlign={"left"}
-											name={'provider_id'}
+											name={'customer_id'}
 											label={
 												<span style={{ fontWeight: "550", fontSize: "14px" }}>Tên KH</span>
 											}
@@ -435,14 +410,14 @@ const InvCustomerCreate: React.FC = () => {
 													optionFilterProp="children"
 													options={optionsCustomer}
 													placeholder="Tìm khách hàng"
-													id={'provider_id'}
+													id={'customer_id'}
 													filterOption={(input, option) =>
 														(option?.label?.toString() ?? '').toLowerCase().includes(input.toLowerCase())
 													}
-													value={invImportCreateReq.info.provider_id}
+													value={invImportCreateReq.info.customer_id}
 													notFoundContent={optionsCustomer ? <Empty description="Không tìm thấy dữ liệu" /> : null}
 													onChange={(e: any) => {
-														invImportCreateReq.info.provider_id = e;
+														invImportCreateReq.info.customer_id = e;
 													}}
 												/>
 												<Button

@@ -1,7 +1,7 @@
 import { SelectProps } from "antd";
 import commonApi from "../apis/common.api";
 import { IUnit } from "../interfaces/common";
-import { IProperty } from "../interfaces/property";
+import { IDrugDescription, IProperty } from "../interfaces/property";
 import { IGroups } from "../interfaces/role";
 import { ILoginResponse } from "../interfaces/login";
 import { KEY_LOCAL_STORAGE } from "../constants/general.constant";
@@ -53,6 +53,10 @@ export const getUnits = (): IUnit[] => {
   return getLocalStorage('units')
 }
 
+export const getDrugDescription = (): IDrugDescription[] => {
+  return getLocalStorage('drg_description')
+}
+
 export const getRoles = (): IGroups[] => {
   return getLocalStorage('roles')
 }
@@ -73,6 +77,11 @@ export const setAuth = async (value: ILoginResponse) => {
   console.log(value);
   setLocalStorage('store', value);
   setLocalStorage(KEY_LOCAL_STORAGE.AUTHEN, value.token?.replace(/"/g, ''));
+}
+
+export const removeStore = () => {
+  localStorage.removeItem('store');
+  localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
 }
 
 export const setExportType = async () => {
@@ -129,6 +138,18 @@ export const setUnits = async () => {
     await commonApi.getUnits()
       .then(response => {
         setLocalStorage('units', response.data)
+      })
+      .catch(() => {
+      });
+  }
+}
+
+export const setDrugDescription = async () => {
+  var value = getLocalStorage('drg_description');
+  if (value == null || value === undefined || (value && value.length < 0)) {
+    await commonApi.getDrugDescription()
+      .then(response => {
+        setLocalStorage('drg_description', response.data)
       })
       .catch(() => {
       });
@@ -192,11 +213,11 @@ export const setDrgGroup = async () => {
 export const getListOption = <T>(key: string, keyValue: keyof T, keyLabel: keyof T, keyName: keyof T): SelectProps<string>['options'] => {
   const list = getLocalStorage(key);
 
-  return list && list?.map((item: T) => ({
+  return (list && list?.map((item: T) => ({
     value: item[keyValue],
     label: item[keyLabel],
     name: item[keyName]
-  })) || [];
+  }))) || [];
 };
 
 
@@ -219,6 +240,10 @@ export const getListInvSourceOption = () => {
 
 export const getListUnitOption = () => {
   return getListOption<IUnit>('units', 'unit_id', 'unit_name', 'updated_user');;
+}
+
+export const getListDrgDescription = () => {
+  return getListOption<IDrugDescription>('drg_description', 'drug_description_id', 'value', 'updated_user');;
 }
 
 export const getListRoleOption = () => {
