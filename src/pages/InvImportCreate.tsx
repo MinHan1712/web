@@ -3,7 +3,7 @@ import { Button, Checkbox, DatePicker, Empty, Flex, Form, Input, Modal, notifica
 import TextArea from "antd/es/input/TextArea";
 import dayjs from 'dayjs';
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import drugApi from "../apis/drug.api";
 import invoiceApi from "../apis/invoice.api";
 import providerApi from "../apis/provider.api";
@@ -16,7 +16,7 @@ import { IDrugPageRequest, IDrugResponse } from "../interfaces/drug";
 import { IDrugGroupResponse } from "../interfaces/drugGroup";
 import { IDrugKindResponse } from "../interfaces/drugKind";
 import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
-import { ICreateInvImport, IImportInventoryCreate } from "../interfaces/inventoryImport";
+import { ICreateInvImport, IImportInventoryCreate, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProviderResponse } from "../interfaces/provider";
 import { getDrgGroup, getDrgKind, getListDrgDescription, getListGroupOption, getListImportTypeOption, getListKindOption, getListPayMenthodsOption, getListUnitOption } from "../utils/local";
 import { InvContextType } from "./InvExportCreate";
@@ -36,15 +36,18 @@ export const UseInvImportContext = (): InvContextType => {
 const InvImportCreate: React.FC = () => {
 	const [form] = Form.useForm<IImportInventoryCreate>();
 	const { confirm } = Modal;
+	const location = useLocation();
+
 
 	const [optionsProvider, setOptionsProvider] = useState<SelectProps<string>['options']>([]);
 	const [optionPaymentMethods, setOptionPaymentMethods] = useState<SelectProps<string>['options']>([]);
 	const [optionsImportType, setOptionsImportType] = useState<SelectProps<string>['options']>([]);
 
-	const [key, setKey] = useState(0);
+	const [key, setKey] = useState(1);
 	const [isDebt, setIsDebt] = useState(false);
 	const [openProvider, setOpenProvider] = useState(false);
 	const [openProduct, setOpenProduct] = useState(false);
+	const [isUpdate, setIsUpdate] = useState(false);
 
 	const [optionKind, setOptionKind] = useState<SelectProps<string>['options']>([]);
 	const [optionGroup, setOptionGroup] = useState<SelectProps<string>['options']>([]);
@@ -60,7 +63,8 @@ const InvImportCreate: React.FC = () => {
 
 	const [productReq, setProductReq] = useState<IDrugPageRequest>({
 		page: 1,
-		size: 20
+		size: 20,
+		active_flg: true
 	});
 
 	const [productRes, setProductRes] = useState<IDrugResponse[]>([]);
@@ -73,6 +77,64 @@ const InvImportCreate: React.FC = () => {
 	});
 
 	useEffect(() => {
+		console.log(location.state)
+		const data: IInvoiceImportResponse = location.state;
+		if (data) {
+
+			const mappedData = data.drg_inv_inventory_details?.map((item, index) => ({
+				key: index,
+				inventory_detail_id: item.id,
+				drug_id: item.drug_id,
+				drug_code: item.drug_code,
+				drug_name: item.drug_name,
+				inventory_id: item.inventory_id,
+				lot: item.lot,
+				quantity: item.quantity,
+				price: item.price,
+				unit_id: item.drug_unit_id,
+				unit_parent_id: item.unit_parent_id,
+				exp_date: item.exp_date,
+				vat_percent: item.vat_percent,
+				discount_amount: item.discount_amount,
+				total_amount: item.total_amount,
+				drug_units: item.units,
+				// cur_price: item.cur_price,
+				type: 'i'
+			})) || [];
+
+			const totalAmountSum = mappedData.reduce((accumulator, currentItem) => {
+				return accumulator + (currentItem.total_amount || 0);
+			}, 0);
+
+			var info = {
+				classification: false,
+				process_date: data.process_date,
+				import_type: data.inventory_type,
+				invoice_code: data.inventory_code,
+				note: data.note,
+				provider_id: data.provider_id,
+				pay_method: data.pay_method,
+				discount_amount: data.discount_amount,
+				discount_vat: data.vat,
+				amount_paid: data.amount_debt,
+				amount: data.amount,
+				amount_debt: data.amount_debt,
+				vat: data.vat,
+				amount_original: totalAmountSum,
+				inv_id: data.inventory_id,
+				is_bill: true
+			};
+			setInvImportCreateReq({
+				info: info,
+				products: mappedData,
+			})
+
+			setKey(mappedData.length || 1);
+			form.setFieldsValue({ ...info, process_date: '' });
+			form.setFieldValue("process_date", info.process_date ? dayjs(info.process_date) || null : null);
+			setIsUpdate(true);
+		}
+
 		setOptionsImportType(getListImportTypeOption);
 		setOptionPaymentMethods(getListPayMenthodsOption);
 
@@ -85,6 +147,8 @@ const InvImportCreate: React.FC = () => {
 		setOptionGroup(getListGroupOption());
 		setOptionUnit(getListUnitOption());
 		setOptionDrgDescription(getListDrgDescription());
+
+		console.log(invImportCreateReq);
 	}, []);
 
 	const createInvImport = async () => {
@@ -110,6 +174,49 @@ const InvImportCreate: React.FC = () => {
 						notification['error']({
 							message: "Lỗi",
 							description: 'Thêm phiếu nhập kho không thành công',
+						});
+						break;
+				}
+			})
+				.catch(() => {
+					notification['error']({
+						message: "Lỗi",
+						description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					});
+				})
+
+		} catch (err) {
+			notification['error']({
+				message: "Lỗi",
+				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+			});
+			console.log(err);
+		} finally { setLoadingScreen(false); }
+	}
+
+	const updateInvImport = async () => {
+		setLoadingScreen(true);
+		try {
+			await invoiceApi.update(invImportCreateReq).then((response) => {
+				console.log(response)
+				switch (response.meta.code) {
+					case 200:
+						notification['success']({
+							message: "Thông báo",
+							description: 'Cập nhập phiếu nhập kho thành công',
+						});
+						setInvImportCreateReq({
+							info: {
+							},
+							products: []
+						});
+
+						navigate('/kho/nhapkho');
+						break;
+					default:
+						notification['error']({
+							message: "Lỗi",
+							description: 'Cập nhập phiếu nhập kho không thành công',
 						});
 						break;
 				}
@@ -255,22 +362,38 @@ const InvImportCreate: React.FC = () => {
 		}
 
 		confirm({
-			title: 'Bạn có đồng ý nhập kho?',
+			title: isUpdate ? 'Bạn có đồng ý cập nhập phiếu nhập kho?' : 'Bạn có đồng ý nhập kho?',
 			okText: "Đồng ý",
 			cancelText: 'Hủy',
 			async onOk() {
 				return new Promise<void>((resolve, reject) => {
-					createInvImport()
-						.then(() => {
-							resolve();
-						})
-						.catch(() => {
-							notification['error']({
-								message: "Lỗi",
-								description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+					if (isUpdate) {
+						updateInvImport()
+							.then(() => {
+								resolve();
+							})
+							.catch(() => {
+								notification['error']({
+									message: "Lỗi",
+									description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+								});
+								resolve();
 							});
-							resolve();
-						});
+					} else {
+						createInvImport()
+							.then(() => {
+								resolve();
+							})
+							.catch(() => {
+								notification['error']({
+									message: "Lỗi",
+									description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
+								});
+								resolve();
+							});
+					}
+
+
 				});
 			},
 			onCancel() { },
@@ -617,6 +740,7 @@ const InvImportCreate: React.FC = () => {
 												value={invImportCreateReq.info.note}
 												onChange={(e: any) => {
 													invImportCreateReq.info.note = e?.target?.value;
+													setInvImportCreateReq({ ...invImportCreateReq });
 												}}
 											/>
 										</Form.Item>

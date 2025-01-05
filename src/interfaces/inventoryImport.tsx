@@ -117,6 +117,8 @@ export interface IImportInventoryCreate {
     provider_name?: string;
     amount_original?: number;
     customer_id?: string;
+    is_bill?:boolean;
+    inv_id?: string;
     // amt_total?: number;
     // is_amount_debt?: boolean;
 }

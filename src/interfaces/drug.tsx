@@ -70,6 +70,7 @@ export interface IDrugPageRequest extends IPagingAndSortRequest {
     create_date?: string;
     store_id?: string;
     provider_id?: string;
+    active_flg?: boolean;
 }
 
 // create

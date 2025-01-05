@@ -47,6 +47,7 @@ const ProductView = (props: IModalProductViewProps) => {
     form.setFieldsValue({ ...props.data });
     setDrugUnitItem(props.data.drug_units || []);
     console.log(props.data);
+    setKey(props.data.drug_units?.length || 1)
   }, [props.data]);
 
   const columnsDrugUnit: ColumnsType<IDrugUnitCreate> = [
@@ -116,68 +117,68 @@ const ProductView = (props: IModalProductViewProps) => {
         );
       },
     },
-    {
-      title: "Giá nhập",
-      dataIndex: "import_price",
-      key: "import_price",
-      width: "25%",
-      align: "center" as AlignType,
-      render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return (
-          <InputNumber
-            size="middle"
-            value={record.import_price}
-            controls={false}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            min={0}
-            name="import_price"
-            disabled={!btnEdit}
-            onChange={(e: any) => {
+    // {
+    //   title: "Giá nhập",
+    //   dataIndex: "import_price",
+    //   key: "import_price",
+    //   width: "25%",
+    //   align: "center" as AlignType,
+    //   render: (_: any, record: IDrugUnitCreate, index: number) => {
+    //     return (
+    //       <InputNumber
+    //         size="middle"
+    //         value={record.import_price}
+    //         controls={false}
+    //         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+    //         min={0}
+    //         name="import_price"
+    //         disabled={!btnEdit}
+    //         onChange={(e: any) => {
 
-              const updatedRecord = { ...record, import_price: e };
-
-
-              const updatedDrugUnitItem = [...drugUnitItem];
-              updatedDrugUnitItem[index] = updatedRecord;
+    //           const updatedRecord = { ...record, import_price: e };
 
 
-              setDrugUnitItem(updatedDrugUnitItem);
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: "Giá bán lẻ",
-      dataIndex: "price",
-      key: "price",
-      width: "25%",
-      align: "center" as AlignType,
-      render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return (
-          <InputNumber
-            size="middle"
-            min={0}
-            value={record.price}
-            controls={false}
-            name="price"
-            disabled={!btnEdit}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            onChange={(e: any) => {
-
-              const updatedRecord = { ...record, price: e };
+    //           const updatedDrugUnitItem = [...drugUnitItem];
+    //           updatedDrugUnitItem[index] = updatedRecord;
 
 
-              const updatedDrugUnitItem = [...drugUnitItem];
-              updatedDrugUnitItem[index] = updatedRecord;
+    //           setDrugUnitItem(updatedDrugUnitItem);
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
+    // {
+    //   title: "Giá bán lẻ",
+    //   dataIndex: "price",
+    //   key: "price",
+    //   width: "25%",
+    //   align: "center" as AlignType,
+    //   render: (_: any, record: IDrugUnitCreate, index: number) => {
+    //     return (
+    //       <InputNumber
+    //         size="middle"
+    //         min={0}
+    //         value={record.price}
+    //         controls={false}
+    //         name="price"
+    //         disabled={!btnEdit}
+    //         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+    //         onChange={(e: any) => {
+
+    //           const updatedRecord = { ...record, price: e };
 
 
-              setDrugUnitItem(updatedDrugUnitItem);
-            }}
-          />
-        );
-      },
-    },
+    //           const updatedDrugUnitItem = [...drugUnitItem];
+    //           updatedDrugUnitItem[index] = updatedRecord;
+
+
+    //           setDrugUnitItem(updatedDrugUnitItem);
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
     {
       title: "Xóa",
       dataIndex: "key",
@@ -188,7 +189,7 @@ const ProductView = (props: IModalProductViewProps) => {
         return record.key !== 1 ? (
           <Popconfirm
             placement="topLeft"
-            title={"Bạn có muốn xóa khách hàng này?"}
+            title={"Bạn có muốn xóa đơn vị này?"}
             disabled={!btnEdit}
             onConfirm={() => {
 
@@ -403,7 +404,7 @@ const ProductView = (props: IModalProductViewProps) => {
             className="h-100"
           />
           <div className="table-wrapper">
-            <div className="table-container">
+            <div className="table-container" style={{width: '49%'}}>
               <Table locale={{
                 emptyText: (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />

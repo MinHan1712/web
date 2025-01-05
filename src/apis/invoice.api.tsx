@@ -6,7 +6,7 @@ import privateClient from "./clients/private.client";
 const endpoint = {
   getList: '/inventory/import/search',
   getListInvProduct: '/inventory/products',
-  update: `provider`,
+  update: `/inventory/update`,
   create: 'inventory',
   cancel: (id: any, type: string) => `/inventory/cancel?import_id=${id}&&type=${type}`
 };
@@ -53,6 +53,18 @@ const invoiceApi = {
     try {
       const response = await privateClient.post<IResponse<IInvoiceImportResponse>>(
         endpoint.create,
+        params
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  update: async (params: any): Promise<IResponse<IInvoiceImportResponse>> => {
+    try {
+      const response = await privateClient.post<IResponse<IInvoiceImportResponse>>(
+        endpoint.update,
         params
       );
       console.log(response);

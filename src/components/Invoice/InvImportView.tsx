@@ -8,6 +8,7 @@ import { IDrugInventoryDetailResponse } from "../../interfaces/inventoryDetail";
 import { renderText } from "../common";
 import { IProperty } from "../../interfaces/property";
 import invoiceApi from "../../apis/invoice.api";
+import { useNavigate } from "react-router-dom";
 
 interface IModalInvHistoryImportProps {
   open: boolean;
@@ -18,6 +19,7 @@ interface IModalInvHistoryImportProps {
 }
 
 const InvImportView = (props: IModalInvHistoryImportProps) => {
+  const navigate = useNavigate();
 
   const cancelInventoryImport = async (inventory_id: string) => {
     try {
@@ -164,6 +166,10 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
     }
   ];
 
+  const handleNavigate = () => {
+    navigate('/kho/taophieunhapkho', { state: props.data });
+  };
+
   return (
     <Modal
       open={props.open}
@@ -246,6 +252,15 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
             </Popconfirm>
 
           }
+
+          <Button
+            className="button btn-update d-flex flex-row justify-content-center align-content-center"
+            type="primary"
+            onClick={handleNavigate}
+          >
+            <CheckCircleOutlined />
+            <span>Sửa phiếu</span>
+          </Button>
 
           <Button
             className="button btn-cancel d-flex flex-row justify-content-center align-content-center"

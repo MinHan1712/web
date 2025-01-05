@@ -31,9 +31,6 @@ const InvoiceImport: React.FC = () => {
 
 	const navigate = useNavigate();
 
-	// const properties = localStorage.getItem('properties');
-	// console.log(properties);
-
 	let stt: number = 1;
 	const columnInvoiceHistoryImport: ColumnsType<IInvoiceImportResponse> = [
 		{

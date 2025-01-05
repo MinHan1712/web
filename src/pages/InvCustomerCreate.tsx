@@ -77,6 +77,7 @@ const InvCustomerCreate: React.FC = () => {
 			amount_paid: 0,
 			classification: true,
 			import_type: 'ORD',
+			is_bill: true
 		},
 		products: []
 	});
