@@ -61,22 +61,22 @@ const columnsCustomerGroup: ColumnsType<ICustomerGroupResponse> = [
       </div>
     ),
   },
-  {
-    title: "Loại nhóm KH",
-    dataIndex: "customer_group_type",
-    key: "customer_group_type",
-    width: "20%",
-    align: "center" as AlignType,
-    render: (text) => (
-      <div className="style-text-limit-number-line2">
-        <span>
-          <Tag style={{ fontWeight: "600" }} color="#012970">
-            {CustonerGroupType.find((x) => x.value == text)?.label}
-          </Tag>
-        </span>
-      </div>
-    ),
-  },
+  // {
+  //   title: "Loại nhóm KH",
+  //   dataIndex: "customer_group_type",
+  //   key: "customer_group_type",
+  //   width: "20%",
+  //   align: "center" as AlignType,
+  //   render: (text) => (
+  //     <div className="style-text-limit-number-line2">
+  //       <span>
+  //         <Tag style={{ fontWeight: "600" }} color="#012970">
+  //           {CustonerGroupType.find((x) => x.value == text)?.label}
+  //         </Tag>
+  //       </span>
+  //     </div>
+  //   ),
+  // },
 ];
 
 const CustomerGroup: React.FC = () => {

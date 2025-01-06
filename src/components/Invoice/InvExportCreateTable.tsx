@@ -98,6 +98,7 @@ const InvExportCreateTable = (props: Props) => {
             value={quantity}
             status={quantity || 0 > 0 ? "" : "error"}
             name="quantity"
+            max={record.quantity_pre === 0 ? record.quantity : record.quantity_pre}
             onChange={(e: any) => {
               var value = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
 

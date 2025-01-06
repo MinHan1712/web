@@ -50,6 +50,14 @@ const routes = [
 	{
 		index: true,
 		element: (
+			<InvoiceImportCreate />
+		),
+		state: "kho/suaphieunhapkho",
+		path: "kho/suaphieunhapkho",
+	},
+	{
+		index: true,
+		element: (
 			<InvoiceExport />
 		),
 		state: "kho/xuatkho",

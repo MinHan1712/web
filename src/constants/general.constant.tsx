@@ -167,9 +167,9 @@ export const vat = [
 
 export const ImportStatus = [
   { value: "0", label: "Đã hủy", name: "red" },
-  { value: "1", label: "Đã hoàn thành", name: "green" },
-  { value: "2", label: "Thanh toán một phần", name: "yellow" },
-  { value: "3", label: "Chưa thanh toán", name: "red" }
+  { value: "1", label: "Chờ duyệt", name: "green" },
+  { value: "2", label: "Đã hoàn thành", name: "green" },
+  { value: "3", label: "Thanh toán một phần", name: "yellow" }
 ]
 
 export const ImportImportType = [

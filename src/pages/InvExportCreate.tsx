@@ -4,13 +4,13 @@ import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns/format";
 import dayjs from 'dayjs';
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import invoiceApi from "../apis/invoice.api";
 import '../assets/css/style.css';
 import InvExportCreateTable from "../components/Invoice/InvExportCreateTable";
 import { formItemLayout } from "../constants/general.constant";
 import { IImportInventoryDetailCreate } from "../interfaces/inventoryDetail";
-import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate } from "../interfaces/inventoryImport";
+import { ICreateInvImport, IDrgInvProductResponse, IDrugInvProductPageRequest, IImportInventoryCreate, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { getListExportTypeOption, getListUnitOption } from "../utils/local";
 
 export interface InvContextType {
@@ -46,10 +46,11 @@ export const UseInvExportContext = (): InvContextType => {
 const InvExportCreate: React.FC = () => {
 	const [key, setKey] = useState(0);
 	const { confirm } = Modal;
-
+	const location = useLocation();
 
 	const [loadingScreen, setLoadingScreen] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [isUpdate, setIsUpdate] = useState(false);
 
 	const [form] = Form.useForm<IImportInventoryCreate>();
 	const [optionsExportType, setOptionsExportType] = useState<SelectProps<string>['options']>([]);
@@ -75,6 +76,68 @@ const InvExportCreate: React.FC = () => {
 
 
 	useEffect(() => {
+		console.log(location.state)
+		const data: IInvoiceImportResponse = location.state;
+		if (data) {
+
+			const mappedData = data.drg_inv_inventory_details?.map((item, index) => ({
+				key: index,
+				inventory_detail_id: item.id,
+				inv_id: item.inventory_id,
+				drug_id: item.drug_id,
+				drug_code: item.drug_code,
+				drug_name: item.drug_name,
+				inventory_id: item.inventory_id,
+				lot: item.lot,
+				quantity: item.quantity,
+				quantity_pre: item.sum_base_quantity || item.base_quantity,
+				price: item.price,
+				unit_id: item.drug_unit_id,
+				unit_parent_id: item.unit_parent_id,
+				exp_date: item.exp_date,
+				vat_percent: item.vat_percent,
+				discount_amount: item.discount_amount,
+				total_amount: item.total_amount,
+				drug_units: item.units,
+				is_update: true,
+				qty_export: item.qty_export,
+				// cur_price: item.cur_price,
+				type: 'e'
+			})) || [];
+
+			const totalAmountSum = mappedData.reduce((accumulator, currentItem) => {
+				return accumulator + (currentItem.total_amount || 0);
+			}, 0);
+
+			var info = {
+				classification: false,
+				process_date: data.process_date,
+				import_type: data.inventory_type,
+				invoice_code: data.inventory_code,
+				note: data.note,
+				provider_id: data.provider_id,
+				pay_method: data.pay_method,
+				discount_amount: data.discount_amount,
+				discount_vat: data.vat,
+				amount_paid: (data.amount || 0) - (data.amount_debt || 0),
+				amount: data.amount,
+				amount_debt: data.amount_debt,
+				vat: data.vat,
+				amount_original: totalAmountSum,
+				inv_id: data.inventory_id,
+				is_bill: false,
+			};
+			setInvImportCreateReq({
+				info: info,
+				products: mappedData,
+			})
+
+			setKey(mappedData.length || 1);
+			form.setFieldsValue({ ...info, process_date: '' });
+			form.setFieldValue("process_date", info.process_date ? dayjs(info.process_date) || null : null);
+			setIsUpdate(true);
+		}
+
 		getListProduct();
 		setOptionsExportType(getListExportTypeOption);
 		setOptionUnit(getListUnitOption());

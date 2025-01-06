@@ -25,6 +25,8 @@ export interface IDrugInventoryDetailResponse {
     unit_name?: string;
     total_amount?: number;
     inv_id?: string;
+    sum_base_quantity?: number;
+    qty_export?: number;
     units?: IDrugUnitResponse[];
 }
 
@@ -52,4 +54,6 @@ export interface IImportInventoryDetailCreate {
     total_price?: number;
     unit_quantity?: number;
     cur_price?: number;
+    is_update?: boolean;
+    qty_export?: number;
 }

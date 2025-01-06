@@ -100,15 +100,22 @@ const InvImportCreateTable = (props: Props) => {
         return (
           <Input
             size="middle"
-            min={0}
+            min={record.is_update ? record.qty_export : 0}
             value={record.quantity}
             name="quantity"
             status={record.quantity || 0 > 0 ? "" : "error"}
             onChange={(e: any) => {
-
+              console.log(record, record.is_update ? record.quantity : 0)
+              var data = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              if (record.is_update && data < (record.qty_export || 0)) {
+                notification["error"]({
+                  message: "Lỗi",
+                  description: 'Sô lượng nhập không được nhỏ hơn số lượng đã xuất kho',
+                });
+              }
               var totalAmntCurrent = record.total_amount || 0;
 
-              record.quantity = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
+              record.quantity = record.is_update ? Math.max(record.qty_export || 0, data) : data;
               record.total_amount = amountTotal(record.quantity, record.price, record.discount_amount, record.vat_percent);
 
               invImportCreateReq.products[index] = record;
@@ -340,16 +347,16 @@ const InvImportCreateTable = (props: Props) => {
             scroll={{ x: 900 }}
             components={{
               header: {
-                  cell: (props: any) => {
-                      return (
-                          <th
-                              {...props}
-                              style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
-                          />
-                      );
-                  },
+                cell: (props: any) => {
+                  return (
+                    <th
+                      {...props}
+                      style={{ ...props.style, backgroundColor: '#012970', color: '#ffffff' }}
+                    />
+                  );
+                },
               },
-          }}
+            }}
             className="table table-hover provider-table"
             columns={columnsInvImportDetail}
             dataSource={invImportCreateReq.products}

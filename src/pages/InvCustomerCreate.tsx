@@ -551,7 +551,7 @@ const InvCustomerCreate: React.FC = () => {
 
 										</Form.Item>
 									</div>
-									<div style={{ width: '100%' }}>
+									{/* <div style={{ width: '100%' }}>
 										<Form.Item
 											{...formItemLayout}
 											name='is_amount_debt'
@@ -562,8 +562,8 @@ const InvCustomerCreate: React.FC = () => {
 										>
 											<Checkbox disabled={invImportCreateReq.info.amount === 0} onChange={(e) => setIsDebt(e.target.checked)}></Checkbox>
 										</Form.Item>
-									</div>
-									{isDebt ? <>
+									</div> */}
+									{/* {isDebt ? <>
 										<div style={{ width: '100%' }}>
 											<Form.Item
 												{...formItemLayout}
@@ -604,7 +604,7 @@ const InvCustomerCreate: React.FC = () => {
 											</Form.Item>
 										</div>
 									</> : ""
-									}
+									} */}
 									<div style={{ width: '100%' }}>
 										<Form.Item
 											{...formItemLayout}

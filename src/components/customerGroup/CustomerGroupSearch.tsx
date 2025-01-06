@@ -61,28 +61,7 @@ const CustomerGroupSearch = (props: mapCustomerGroupFormSearchToProps) => {
               </Form.Item>
 
             </div>
-            <div style={{ width: '30%' }}>
-              <Form.Item
-                {...formItemLayout}
-                labelAlign={"left"}
-                name={'customer_group_type'}
-                label={
-                  <span style={{ fontWeight: "550", fontSize: "14px" }}>Loại nhóm</span>
-                }
-              >
-                <Select
-                  className="d-flex"
-                  size="middle"
-                  placeholder={"Loại nhóm"}
-                  id={'customer_group_type'}
-                  value={props.customerGroupReq.customer_group_type}
-                  options={[{
-                    value: '',
-                    label: 'Tất cả'
-                  }, ...CustonerGroupType || []]}
-                />
-              </Form.Item>
-            </div>
+
           </Flex>
         </Form>
         <Flex gap="middle" justify="flex-end" align={'center'} style={{ width: '100%', paddingBottom: '10px' }}>

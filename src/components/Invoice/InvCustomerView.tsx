@@ -226,7 +226,7 @@ const InvCustomerView = (props: IModalInvHistoryExportProps) => {
           </Row>
           {renderText("NV bán hàng", props.users.find(x => x.user_id == props.data.updated_user)?.user_name || '')}
           {renderText("PT thanh toán", (props.payMenthods.find((x) => x.unit_cd == (props.data.pay_method || ''))?.value) || '')}
-          {renderText("PT thanh toán", props.data.note || "")}
+          {renderText("Ghi chú", props.data.note || "")}
 
         </Col>
         <Col span={8} style={{ padding: "8px 24px" }}>

@@ -43,7 +43,7 @@ const InvImportCreate: React.FC = () => {
 	const [optionPaymentMethods, setOptionPaymentMethods] = useState<SelectProps<string>['options']>([]);
 	const [optionsImportType, setOptionsImportType] = useState<SelectProps<string>['options']>([]);
 
-	const [key, setKey] = useState(1);
+	const [key, setKey] = useState(0);
 	const [isDebt, setIsDebt] = useState(false);
 	const [openProvider, setOpenProvider] = useState(false);
 	const [openProduct, setOpenProduct] = useState(false);
@@ -77,7 +77,6 @@ const InvImportCreate: React.FC = () => {
 	});
 
 	useEffect(() => {
-		console.log(location.state)
 		const data: IInvoiceImportResponse = location.state;
 		if (data) {
 
@@ -98,6 +97,8 @@ const InvImportCreate: React.FC = () => {
 				discount_amount: item.discount_amount,
 				total_amount: item.total_amount,
 				drug_units: item.units,
+				is_update: true,
+				qty_export: item.qty_export,
 				// cur_price: item.cur_price,
 				type: 'i'
 			})) || [];
@@ -116,7 +117,7 @@ const InvImportCreate: React.FC = () => {
 				pay_method: data.pay_method,
 				discount_amount: data.discount_amount,
 				discount_vat: data.vat,
-				amount_paid: data.amount_debt,
+				amount_paid: (data.amount || 0) - (data.amount_debt || 0),
 				amount: data.amount,
 				amount_debt: data.amount_debt,
 				vat: data.vat,
@@ -129,7 +130,7 @@ const InvImportCreate: React.FC = () => {
 				products: mappedData,
 			})
 
-			setKey(mappedData.length || 1);
+			setKey(mappedData.length || 0);
 			form.setFieldsValue({ ...info, process_date: '' });
 			form.setFieldValue("process_date", info.process_date ? dayjs(info.process_date) || null : null);
 			setIsUpdate(true);
@@ -147,8 +148,6 @@ const InvImportCreate: React.FC = () => {
 		setOptionGroup(getListGroupOption());
 		setOptionUnit(getListUnitOption());
 		setOptionDrgDescription(getListDrgDescription());
-
-		console.log(invImportCreateReq);
 	}, []);
 
 	const createInvImport = async () => {
@@ -646,12 +645,11 @@ const InvImportCreate: React.FC = () => {
 															message: "Lỗi",
 															description: 'Giảm giá không được lớn hơn tổng số tiền',
 														});
-														return;
 													}
 
 													// var discountAmtCurrent = (invImportCreateReq.info.discount_amount || 0);
-
-													invImportCreateReq.info.discount_amount = value;
+													console.log(amountTotal(invImportCreateReq.info.amount_original, invImportCreateReq.info.discount_amount, invImportCreateReq.info.vat))
+													invImportCreateReq.info.discount_amount = Math.min(value, amountTotal(invImportCreateReq.info.amount_original, invImportCreateReq.info.discount_amount, invImportCreateReq.info.vat));
 													updateAmtInfo(invImportCreateReq.info.amount_original || 0);
 												}}
 											/>

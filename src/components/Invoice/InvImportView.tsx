@@ -167,7 +167,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
   ];
 
   const handleNavigate = () => {
-    navigate('/kho/taophieunhapkho', { state: props.data });
+    navigate('/kho/suaphieunhapkho', { state: props.data });
   };
 
   return (
@@ -253,15 +253,16 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
 
           }
 
-          <Button
-            className="button btn-update d-flex flex-row justify-content-center align-content-center"
-            type="primary"
-            onClick={handleNavigate}
-          >
-            <CheckCircleOutlined />
-            <span>Sửa phiếu</span>
-          </Button>
-
+          {props.data.status === "1" || props.data.status === "3" ?
+            <Button
+              className="button btn-update d-flex flex-row justify-content-center align-content-center"
+              type="primary"
+              onClick={handleNavigate}
+            >
+              <CheckCircleOutlined />
+              <span>Sửa phiếu</span>
+            </Button>
+            : ""}
           <Button
             className="button btn-cancel d-flex flex-row justify-content-center align-content-center"
             type="primary"

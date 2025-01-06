@@ -11,6 +11,7 @@ import { ImportStatus } from "../../constants/general.constant";
 import invoiceApi from "../../apis/invoice.api";
 import { IUserWithRoleResponse } from "../../interfaces/userManager";
 import { ILoginResponse } from "../../interfaces/login";
+import { useNavigate } from "react-router-dom";
 
 interface IModalInvHistoryExportProps {
     open: boolean;
@@ -22,7 +23,7 @@ interface IModalInvHistoryExportProps {
 }
 
 const InvExportView = (props: IModalInvHistoryExportProps) => {
-
+    const navigate = useNavigate();
     const columnInvoiceDetailHistoryImport: ColumnsType<IDrugInventoryDetailResponse> = [
         {
             title: "Mã sản phẩm",
@@ -105,6 +106,10 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
             )
         }
     ];
+
+    const handleNavigate = () => {
+        navigate('/kho/suaphieuxuatkho', { state: props.data });
+    };
 
     const cancelInventoryExport = async (inventory_id: string) => {
         try {
@@ -216,7 +221,16 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
                         </Popconfirm>
 
                     }
-
+                    {props.data.status === "1" || props.data.status === "3" ?
+                        <Button
+                            className="button btn-update d-flex flex-row justify-content-center align-content-center"
+                            type="primary"
+                            onClick={handleNavigate}
+                        >
+                            <CheckCircleOutlined />
+                            <span>Sửa phiếu</span>
+                        </Button>
+                        : ""}
 
                     <Button
                         className="button btn-cancel d-flex flex-row justify-content-center align-content-center"
