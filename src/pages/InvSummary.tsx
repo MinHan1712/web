@@ -15,6 +15,8 @@ import { IInventoryImportPageRequest } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
 import { IDrugInvSummaryPageRequest, IDrugInvSummaryResponse } from "../interfaces/summaryInvoice";
 import { getListImportTypeOption } from "../utils/local";
+import userApi from "../apis/user.api";
+import { IUserWithRoleResponse } from "../interfaces/userManager";
 
 
 const InvoiceSummary: React.FC = () => {
@@ -156,6 +158,23 @@ const InvoiceSummary: React.FC = () => {
     } finally { setLoading(false); }
   }
 
+  const getListUserManger = async () => {
+		await userApi.get({ page: 0, size: 0 })
+			.then((response) => {
+				if (response.meta.code === 200) {
+					setUser(response.data.data.map((user: IUserWithRoleResponse) => {
+						return {
+							value: user.login,
+							label: user.user_name
+						}
+					}));
+
+				}
+			}).catch(() => {
+
+			})
+	}
+
   const triggerFormEvent = (value: IInventoryImportPageRequest) => {
     setInvSummaryReq({
       ...value,
@@ -173,7 +192,8 @@ const InvoiceSummary: React.FC = () => {
   };
 
   useEffect(() => {
-    setImportTypeOptions(getListImportTypeOption)
+    setImportTypeOptions(getListImportTypeOption);
+    getListUserManger();
   }, [])
 
   useEffect(() => {

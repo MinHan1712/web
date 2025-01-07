@@ -61,7 +61,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "15%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text}</span>
+          <span style={{ fontWeight: "500" }}>{text}</span>
         </div>
       )
     },
@@ -71,7 +71,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       align: "left" as AlignType,
       width: "20%",
       render: (text) => (
-        <div className="style-text-limit-number-line2">
+        <div className="style-text-limit-number-line2" style={{ fontWeight: "500" }}>
           {text}
         </div>
       )
@@ -83,7 +83,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "10%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text}</span>
+          <span style={{ fontWeight: "500" }}>{text}</span>
         </div>
       )
     },
@@ -94,7 +94,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "14%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text ? format(new Date(text), "dd-MM-yyyy") : ''}</span>
+          <span style={{ fontWeight: "500" }}>{text ? format(new Date(text), "dd-MM-yyyy") : ''}</span>
         </div>
       )
     },
@@ -105,7 +105,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "9%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text || 0}</span>
+          <span style={{ fontWeight: "500" }}>{text || 0}</span>
         </div>
       )
     },
@@ -116,7 +116,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "9%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text}</span>
+          <span style={{ fontWeight: "500" }}>{text}</span>
         </div>
       )
     },
@@ -127,7 +127,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "15%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ fontWeight: "600", color: "red" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
+          <span style={{ fontWeight: "500", color: "red" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     },
@@ -138,7 +138,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "10%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ fontWeight: "400" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
+          <span style={{ fontWeight: "500" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     },
@@ -149,7 +149,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "5%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span>{text || 0} %</span>
+          <span style={{ fontWeight: "500" }}>{text || 0} %</span>
         </div>
       )
     },
@@ -160,7 +160,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
       width: "15%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ color: "red" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
+          <span style={{ fontWeight: "500", color: "red" }}>{(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     }
@@ -201,7 +201,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
             {renderText("VAT", props.data.vat + "%" || '0%')}
             {renderText("Giảm giá", `${(props.data.discount_amount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
             {renderText("Thành tiền", `${(props.data.amount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
-            {renderText("Còn nợ", `${(props.data.amount_debt || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
+            {renderText("Còn nợ", `${(props.data.amount_debt || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`, true)}
           </Col>
         </Row>
 
@@ -243,7 +243,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
               cancelText="Hủy"
             >
               <Button
-                className={`button btn-delete d-flex flex-row justify-content-center align-content-center btn-delete`}
+                className={`button btn-delete`}
                 type="primary"
               >
                 <DeleteOutlined />
@@ -255,7 +255,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
 
           {props.data.status === "1" || props.data.status === "3" ?
             <Button
-              className="button btn-update d-flex flex-row justify-content-center align-content-center"
+              className="button btn-add"
               type="primary"
               onClick={handleNavigate}
             >
@@ -264,7 +264,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
             </Button>
             : ""}
           <Button
-            className="button btn-cancel d-flex flex-row justify-content-center align-content-center"
+            className="button btn-cancel"
             type="primary"
             onClick={() => { props.onCancel(); }}
           >

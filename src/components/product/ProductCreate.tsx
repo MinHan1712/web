@@ -125,64 +125,64 @@ const ProductCreate = (props: IModalProductViewProps) => {
         );
       },
     },
-    {
-      title: "Giá nhập",
-      dataIndex: "import_price",
-      key: "import_price",
-      width: "18%",
-      align: "center" as AlignType,
-      render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return (
-          <InputNumber
-            size="middle"
-            value={record.import_price}
-            controls={false}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            min={0}
-            name="import_price"
-            onChange={(e: any) => {
-              // Tạo bản sao mới của record và cập nhật import_price
-              const updatedDrugUnitItem = [...drugUnitItem];
-              updatedDrugUnitItem[index] = {
-                ...record,
-                import_price: e,
-              };
-              setDrugUnitItem(updatedDrugUnitItem);
-              console.log(updatedDrugUnitItem);
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: "Giá bán lẻ",
-      dataIndex: "price",
-      key: "price",
-      width: "18%",
-      align: "center" as AlignType,
-      render: (_: any, record: IDrugUnitCreate, index: number) => {
-        return (
-          <InputNumber
-            size="middle"
-            min={0}
-            value={record.price}
-            controls={false}
-            name="price"
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            onChange={(e: any) => {
-              // Tạo bản sao mới của record và cập nhật price
-              const updatedDrugUnitItem = [...drugUnitItem];
-              updatedDrugUnitItem[index] = {
-                ...record,
-                price: e,
-              };
-              setDrugUnitItem(updatedDrugUnitItem);
-              console.log(updatedDrugUnitItem);
-            }}
-          />
-        );
-      },
-    },
+    // {
+    //   title: "Giá nhập",
+    //   dataIndex: "import_price",
+    //   key: "import_price",
+    //   width: "18%",
+    //   align: "center" as AlignType,
+    //   render: (_: any, record: IDrugUnitCreate, index: number) => {
+    //     return (
+    //       <InputNumber
+    //         size="middle"
+    //         value={record.import_price}
+    //         controls={false}
+    //         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+    //         min={0}
+    //         name="import_price"
+    //         onChange={(e: any) => {
+    //           // Tạo bản sao mới của record và cập nhật import_price
+    //           const updatedDrugUnitItem = [...drugUnitItem];
+    //           updatedDrugUnitItem[index] = {
+    //             ...record,
+    //             import_price: e,
+    //           };
+    //           setDrugUnitItem(updatedDrugUnitItem);
+    //           console.log(updatedDrugUnitItem);
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
+    // {
+    //   title: "Giá bán lẻ",
+    //   dataIndex: "price",
+    //   key: "price",
+    //   width: "18%",
+    //   align: "center" as AlignType,
+    //   render: (_: any, record: IDrugUnitCreate, index: number) => {
+    //     return (
+    //       <InputNumber
+    //         size="middle"
+    //         min={0}
+    //         value={record.price}
+    //         controls={false}
+    //         name="price"
+    //         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+    //         onChange={(e: any) => {
+    //           // Tạo bản sao mới của record và cập nhật price
+    //           const updatedDrugUnitItem = [...drugUnitItem];
+    //           updatedDrugUnitItem[index] = {
+    //             ...record,
+    //             price: e,
+    //           };
+    //           setDrugUnitItem(updatedDrugUnitItem);
+    //           console.log(updatedDrugUnitItem);
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
     {
       title: "Xóa",
       dataIndex: "key",
@@ -222,8 +222,8 @@ const ProductCreate = (props: IModalProductViewProps) => {
         listGroups={props.listGroup}
         listKind={props.listKind}
         btnEdit={true}
-        optionDrgDescription={props.optionDrgDescription} 
-        action= {true}/>,
+        optionDrgDescription={props.optionDrgDescription}
+        action={true} />,
     },
     {
       key: "2",
@@ -346,7 +346,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
             className="h-100"
           />
           <div className="table-wrapper">
-            <div className="table-container">
+            <div className="table-container" style={{ width: '49%' }}>
               <Table locale={{
                 emptyText: (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />

@@ -350,7 +350,7 @@ const InvCustomerCreate: React.FC = () => {
 			) : (<>
 				<InvCustomerExportContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
 					<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
-						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '80%' }}>
 							<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
 								<h5 style={{ width: '150px', display: 'flex', alignItems: 'center' }}>Thêm sản phẩm</h5>
 								<Select
@@ -389,7 +389,7 @@ const InvCustomerCreate: React.FC = () => {
 								confirmDeleteCellToTable={confirmDeleteCellToTable} />
 						</Flex>
 
-						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '30%' }}>
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '20%' }}>
 							<Form form={form} name="Customer_filter" className="common-form wrapper-form"
 								style={{ width: '100%', background: '#fff', padding: '10px' }}
 								onFinish={triggerFormEvent}>

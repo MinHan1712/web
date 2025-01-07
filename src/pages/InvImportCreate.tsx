@@ -437,7 +437,7 @@ const InvImportCreate: React.FC = () => {
 			) : (<>
 				<InvImportContext.Provider value={{ invImportCreateReq, setInvImportCreateReq }}>
 					<Flex gap="middle" justify="space-between" align={'start'} style={{ width: '100%' }} >
-						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '70%' }}>
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '80%' }}>
 							<Flex gap="middle" justify="flex-start" align={'center'} style={{ width: '100%' }}>
 								<Select
 									className="d-flex w-100 form-select-search "
@@ -482,7 +482,7 @@ const InvImportCreate: React.FC = () => {
 							<InvImportCreateTable confirmDeleteCellToTable={confirmDeleteCellToTable} updateAmtInfo={updateAmtInfo} />
 						</Flex>
 
-						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '30%' }}>
+						<Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '20%' }}>
 							<Form form={form} name="Customer_filter" className="common-form wrapper-form"
 								style={{ width: '100%', background: '#fff', padding: '10px' }}
 								onFinish={triggerFormEvent}>

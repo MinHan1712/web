@@ -101,7 +101,7 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
             width: "13%",
             render: (text) => (
                 <div className="style-text-limit-number-line2">
-                    <span style={{ color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
+                    <span style={{ fontWeight: "600", color: "red" }}>{Math.abs(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
                 </div>
             )
         }
@@ -164,11 +164,11 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
                     <Col span={8} style={{ padding: "5px" }}>
                         {renderText("Mã cửa hàng", props.data.drg_store_id || '')}
                         {renderText("Tên cửa hàng", props.store.storeName || '')}
-                        {renderText("Người tạo phiếu", props.users.find(x => x.user_id == props.data.updated_user)?.user_name || '')}
+                        {renderText("Người tạo phiếu", props.users.find(x => x.login == props.data.updated_user)?.user_name || '')}
                     </Col>
 
                     <Col span={8} style={{ padding: "5px" }}>
-                        {renderText("Tổng tiền", `${(props.data.amount || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`)}
+                        {renderText("Tổng tiền", `${(props.data.amount || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫`, true)}
                         {renderText("Trạng thái", ImportStatus.find((x) => x.value == props.data.status)?.label || '')}
                         {renderText("Ghi chú", props.data.note || '')}
                     </Col>
