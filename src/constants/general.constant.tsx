@@ -136,8 +136,8 @@ export const DistrictType = [
 ];
 
 export const sexType = [
-  { value: 'false', label: 'Nữ' },
-  { value: 'true', label: 'Nam' }
+  { value: false, label: 'Nữ' },
+  { value: true, label: 'Nam' }
 ]
 
 export const CustonerSource = [
@@ -154,8 +154,8 @@ export const CustonerGroupType = [
 ];
 
 export const StatusType = [
-  { value: "1", label: "Đang kinh doanh" },
-  { value: "0", label: "Đã ngừng kinh doanh" },
+  { value: true, label: "Đang kinh doanh" },
+  { value: false, label: "Đã ngừng kinh doanh" },
 ];
 
 export const vat = [

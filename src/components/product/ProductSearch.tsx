@@ -1,5 +1,5 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, Flex, Form, Input, Select, SelectProps } from "antd";
+import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Checkbox, DatePicker, Flex, Form, Input, Radio, Select, SelectProps } from "antd";
 import dayjs from 'dayjs';
 import { useEffect } from "react";
 import { formItemLayout, StatusType } from "../../constants/general.constant";
@@ -151,10 +151,9 @@ const ProductSearch = (props: mapDrgFormSearchToProps) => {
               <Form.Item
                 {...formItemLayout}
                 labelAlign={"left"}
-                name={'status'}
-                initialValue={['0', '1']}
+                name={'active_flg'}
               >
-                <Checkbox.Group options={StatusType} name="status" />
+                <Radio.Group options={StatusType} name="active_flg" />
 
               </Form.Item>
 

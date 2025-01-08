@@ -45,7 +45,6 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
             };
 
             await customerGroupApi.update(CustomerGroupUpdate).then((response) => {
-                console.log(response)
                 switch (response.meta.code) {
                     case 200:
                         notification['success']({
@@ -81,7 +80,6 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
     const handleActiondDelete = async (id: string) => {
         try {
             await customerGroupApi.remove(id).then((response) => {
-                console.log(response)
                 switch (response.meta.code) {
                     case 200:
                         notification['success']({
@@ -135,7 +133,7 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
             >
                 <Flex justify="space-between" align={'center'} style={{ width: '100%' }}>
                     <Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '100%' }}>
-                        <div className="wrapper-column" style={{ width: '100%' }}>
+                        {/* <div className="wrapper-column" style={{ width: '100%' }}>
                             <Form.Item<ICustomerGroupResponse>
                                 {...formItemLayout}
                                 labelAlign={"left"}
@@ -153,7 +151,7 @@ const CustomerGroupInfo = (props: ICustomerGroupInformationProps) => {
                                     disabled={true}
                                 />
                             </Form.Item>
-                        </div>
+                        </div> */}
                         <div className="wrapper-column" style={{ width: '100%' }}>
                             <Form.Item<ICustomerGroupResponse>
                                 {...formItemLayout}

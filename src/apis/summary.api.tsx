@@ -17,7 +17,7 @@ const invoiceSummaryApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -30,7 +30,7 @@ const invoiceSummaryApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;

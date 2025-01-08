@@ -31,7 +31,6 @@ const Product: React.FC = () => {
 	const [listGroup, setListGroup] = useState<IDrugGroupResponse[]>([]);
 	const [optionDrgDescription, setOptionDrgDescription] = useState<SelectProps<string>['options']>([]);
 
-
 	const [productRes, setProductRes] = useState<IPageResponse<IDrugResponse[]>>({
 		page: 1,
 		size: 20,
@@ -82,6 +81,7 @@ const Product: React.FC = () => {
 			page: productReq.page,
 			size: productReq.size,
 		});
+
 
 		// get list provider
 	}
@@ -172,7 +172,7 @@ const Product: React.FC = () => {
 			render: (text) => {
 				let color = text === true ? "green" : "red";
 				return (
-					<Tag color={color} key={text} className="style-text-limit-number-line2 p-1">
+					<Tag style={{ padding: '3px', textAlign: 'center', fontWeight: '600' }} color={color} key={text} className="style-text-limit-number-line2 p-1">
 						{text === true ? "Đang kinh doanh" : "Ngừng kinh doanh"}
 					</Tag>
 				);
@@ -245,6 +245,7 @@ const Product: React.FC = () => {
 		// },
 	];
 
+
 	return (
 		<>
 			<Flex gap="middle" vertical justify="space-between" align={'center'} style={{ width: '100%' }} >
@@ -259,7 +260,7 @@ const Product: React.FC = () => {
 					</Button>
 				</Flex>
 				<ProductSearch productReq={productReq} triggerFormEvent={triggerFormEvent} optionGroup={optionGroup}
-					optionKind={optionKind} />
+					optionKind={optionKind}/>
 			</Flex>
 			<div className="table-wrapper">
 				<Table

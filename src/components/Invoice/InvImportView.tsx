@@ -23,7 +23,6 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
 
   const cancelInventoryImport = async (inventory_id: string) => {
     try {
-      console.log(inventory_id);
       return await invoiceApi.cancel(inventory_id, "i")
         .then((response) => {
           if (response.meta.code === 200) {
@@ -253,7 +252,7 @@ const InvImportView = (props: IModalInvHistoryImportProps) => {
 
           }
 
-          {props.data.status === "1" || props.data.status === "3" ?
+          {props.data.status?.toString() === "1" || props.data.status?.toString() === "3" ?
             <Button
               className="button btn-add"
               type="primary"

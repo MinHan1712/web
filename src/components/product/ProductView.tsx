@@ -46,7 +46,6 @@ const ProductView = (props: IModalProductViewProps) => {
   useEffect(() => {
     form.setFieldsValue({ ...props.data });
     setDrugUnitItem(props.data.drug_units || []);
-    console.log(props.data);
     setKey(props.data.drug_units?.length || 1)
   }, [props.data]);
 
@@ -226,9 +225,7 @@ const ProductView = (props: IModalProductViewProps) => {
       value.drug_id = props.data.drug_id;
       value.active_flg = activeFlg;
       value.status = status;
-      console.log(value);
       return await drugApi.update(value).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             notification['success']({

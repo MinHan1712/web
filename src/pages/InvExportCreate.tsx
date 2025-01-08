@@ -76,7 +76,6 @@ const InvExportCreate: React.FC = () => {
 
 
 	useEffect(() => {
-		console.log(location.state)
 		const data: IInvoiceImportResponse = location.state;
 		if (data) {
 
@@ -147,7 +146,6 @@ const InvExportCreate: React.FC = () => {
 		setLoadingScreen(true);
 		try {
 			await invoiceApi.create(invImportCreateReq).then((response) => {
-				console.log(response)
 				switch (response.meta.code) {
 					case 200:
 						notification['success']({
@@ -178,7 +176,7 @@ const InvExportCreate: React.FC = () => {
 				})
 
 		} catch (err) {
-			console.log(err);
+			
 		} finally { setLoadingScreen(false); }
 	}
 
@@ -186,11 +184,10 @@ const InvExportCreate: React.FC = () => {
 		setLoading(true);
 		try {
 			await invoiceApi.getListInvProduct(invProductReq).then((response) => {
-				console.log(response)
 				switch (response.meta.code) {
 					case 200:
 						setProductRes(prevState => [...prevState, ...response.data.data]);
-						console.log(response);
+						
 						break;
 					default:
 						notification['error']({
@@ -208,7 +205,7 @@ const InvExportCreate: React.FC = () => {
 				})
 
 		} catch (err) {
-			console.log(err);
+			
 		} finally { setLoading(false); }
 	}
 
@@ -229,7 +226,6 @@ const InvExportCreate: React.FC = () => {
 	}
 
 	const addNewRowdetail = (value: IDrgInvProductResponse) => {
-		console.log(value);
 		if (value) {
 			var checkItemDuplicate = invImportCreateReq.products.find(x => x.inventory_detail_id == value.id);
 
@@ -242,7 +238,6 @@ const InvExportCreate: React.FC = () => {
 			}
 
 			var unit = value.units && value.units.find(x => x.unit_id == value.drug_unit_id);
-			console.log(unit)
 			var data = {
 				key: key,
 				inventory_detail_id: value.id,
@@ -278,7 +273,6 @@ const InvExportCreate: React.FC = () => {
 	}
 
 	const confirmDeleteCellToTable = (key: number, index: number, record: IImportInventoryDetailCreate) => {
-		console.log(record, invImportCreateReq);
 		const updatedProducts = invImportCreateReq.products.filter(product => product.key !== key);
 		var amount = (invImportCreateReq.info.amount || 0) - (record.total_amount || 0);
 

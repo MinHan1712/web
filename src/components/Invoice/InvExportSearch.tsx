@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Flex, Form, Input, Select, SelectProps } from "antd";
 import { formItemLayout, ImportStatus } from "../../constants/general.constant";
 import { useEffect } from "react";
@@ -11,6 +11,7 @@ interface mapDrgFormSearchToProps {
   triggerFormEvent: (formValue: any) => void,
   users: SelectProps<string>['options'],
   exportType: SelectProps<string>['options'],
+  exportToExcel: () => void
 }
 
 const InvExportSearch = (props: mapDrgFormSearchToProps) => {
@@ -219,6 +220,14 @@ const InvExportSearch = (props: mapDrgFormSearchToProps) => {
                   }}>
                   <SearchOutlined style={{ verticalAlign: "baseline" }} />
                   <span>Tìm kiếm</span>
+                </Button>
+                <Button 
+                  className="button button-blue"
+                  type="primary" onClick={() => {
+                      props.exportToExcel();
+                  }}>
+                  <DownloadOutlined style={{ verticalAlign: "baseline" }} />
+                  <span>Xuất excel</span>
                 </Button>
               </Flex>
             </div>

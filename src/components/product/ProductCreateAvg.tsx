@@ -75,13 +75,13 @@ const ProductCreateAvg = (props: { btnEdit: boolean }) => {
               labelAlign={"left"}
               name={'dosage'}
               label={
-                <span style={{ fontWeight: "550", fontSize: "14px" }}>Đối tượng sử dụng</span>
+                <span style={{ fontWeight: "550", fontSize: "14px" }}>Liều lượng</span>
               }
             >
               <Input
                 className="form-input d-flex"
                 size="middle"
-                placeholder={'Nhập đối tượng sử dụng'}
+                placeholder={'Nhập liều lượng'}
                 name={'dosage'}
                 id={'dosage'}
                 disabled={!props.btnEdit}

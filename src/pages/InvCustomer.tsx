@@ -30,7 +30,7 @@ const InvCustomer: React.FC = () => {
   const navigate = useNavigate();
 
   // const properties = localStorage.getItem('properties');
-  // console.log(properties);
+  // (properties);
 
   let stt: number = 1;
   const columnsBill: ColumnsType<IInvoiceImportResponse> = [
@@ -85,7 +85,7 @@ const InvCustomer: React.FC = () => {
       width: "11%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ color: "red" }}>{(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          <span style={{ color: "red", fontWeight: '600' }}>{(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     },
@@ -97,7 +97,7 @@ const InvCustomer: React.FC = () => {
       width: "11%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ color: "red" }}>{(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          <span style={{ color: "red", fontWeight: '600' }}>{(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     },
@@ -119,7 +119,7 @@ const InvCustomer: React.FC = () => {
       width: "10%",
       render: (text) => {
         return (
-          <Tag color={ImportStatus.find((x) => x.value == text)?.name} key={text}>
+          <Tag style={{fontWeight: '600'}} color={ImportStatus.find((x) => x.value == text)?.name} key={text}>
             {ImportStatus.find((x) => x.value == text)?.label}
           </Tag>
         );
@@ -145,8 +145,6 @@ const InvCustomer: React.FC = () => {
     setLoading(true);
     try {
       await invoiceApi.getList(invImportReq).then((response) => {
-        console.log(response)
-
         if (response.meta.code === 200) {
           //error
           setInvImportRes(response.data);
@@ -200,9 +198,6 @@ const InvCustomer: React.FC = () => {
       classification: invImportReq.classification,
       inventory_type: invImportReq.inventory_type
     });
-
-    console.log(invImportReq);
-
     // create a new instance
   }
 
@@ -218,7 +213,6 @@ const InvCustomer: React.FC = () => {
 
   useEffect(() => {
     getListInvImport();
-    console.log('request', invImportReq);
   }, [invImportReq])
 
   return (

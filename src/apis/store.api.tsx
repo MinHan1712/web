@@ -14,7 +14,7 @@ const storeApi = {
       const response = await privateClient.get<IResponse<IStoreResponse>>(
         endpoint.getList
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -26,7 +26,7 @@ const storeApi = {
         endpoint.update,
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;

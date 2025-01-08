@@ -48,7 +48,6 @@ const Login = (prop: ILogin) => {
   const triggerFormEvent = async (login: ILoginRequest) => {
     return await commonApi.login(login)
       .then(response => {
-        console.log(response);
         if (response.meta.code === 200) {
           setAuth(response.data)
           navigate('/');

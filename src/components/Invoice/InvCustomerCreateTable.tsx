@@ -112,7 +112,6 @@ const InvCustomerCreateTable = (props: Props) => {
 
         }))
 
-        console.log(unitOptions, record);
         return (
           <Select
             size="middle"

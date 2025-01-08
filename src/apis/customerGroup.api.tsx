@@ -25,7 +25,7 @@ const customerGroupApi = {
 				endPoint.update,
 				params
 			);
-			console.log(response);
+			
 			return response.data;
 		} catch (error) {
 			throw error;
@@ -37,7 +37,7 @@ const customerGroupApi = {
 				endPoint.update,
 				params
 			);
-			console.log(response);
+			
 			return response.data;
 		} catch (error) {
 			throw error;

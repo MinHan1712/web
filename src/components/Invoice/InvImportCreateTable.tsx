@@ -105,7 +105,6 @@ const InvImportCreateTable = (props: Props) => {
             name="quantity"
             status={record.quantity || 0 > 0 ? "" : "error"}
             onChange={(e: any) => {
-              console.log(record, record.is_update ? record.quantity : 0)
               var data = parseFloat(e?.target?.value.replace(/,/g, '')) || 0;
               if (record.is_update && data < (record.qty_export || 0)) {
                 notification["error"]({
@@ -147,7 +146,6 @@ const InvImportCreateTable = (props: Props) => {
             onChange={(e: any) => {
 
               var drugUnit = getDrugUnitById(e, record);
-              console.log(drugUnit);
               var totalAmntCurrent = record.total_amount || 0;
               if (drugUnit === null) {
                 drugUnit = { unit_parent_id: e, unit_qty: 1, import_price: 0, price: 0 }
@@ -158,7 +156,6 @@ const InvImportCreateTable = (props: Props) => {
               record.price = drugUnit.import_price;
               record.total_amount = 0;
               record.quantity = 0;
-              console.log(record);
 
               invImportCreateReq.products[index] = record;
               invImportCreateReq.info.amount_original = (invImportCreateReq.info.amount_original || 0) - totalAmntCurrent + record.total_amount;

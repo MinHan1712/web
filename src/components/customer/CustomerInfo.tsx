@@ -32,18 +32,16 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
     }, [props.data]);
 
 
-    useEffect(() => {
-        console.log("vao")
-        if (isSummitForm) form.submit();
-    }, [isSummitForm]);
-
-
+    // useEffect(() => {
+    //     ("vao")
+    //     if (isSummitForm) form.submit();
+    // }, [isSummitForm]);
 
     const updateCustomer = async (value: ICustomerResponse) => {
         try {
             let CustomerUpdate: ICustomerUpdate = {
                 customer_id: props.data.customer_id,
-                city: props.data.city,
+                city: value.city,
                 customer_group_id: value.customer_group_id,
                 customer_name: value.customer_name,
                 customer_type: value.customer_type,
@@ -56,10 +54,8 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                 note: value.note,
                 status: action ? props.data.status : false
             };
-            console.log("CustomerUpdate", CustomerUpdate);
 
             await CustomerApi.update(CustomerUpdate).then((response) => {
-                console.log(response)
                 switch (response.meta.code) {
                     case 200:
                         notification['success']({
@@ -99,7 +95,6 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
         try {
             setConfirmLoadingDelete(true);
             setAction(false);
-            console.log(isSummitForm);
             setIsSummitForm(!isSummitForm);
         } catch {
             notification['error']({
@@ -406,6 +401,7 @@ const CustomerInfo = (props: ICustomerInformationProps) => {
                                 setConfirmLoadingUpdate(true);
                                 setIsSummitForm(!isSummitForm);
                                 setAction(true);
+                                form.submit();
                             }
                         }}
                     >

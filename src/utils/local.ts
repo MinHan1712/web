@@ -70,11 +70,10 @@ export const getDrgGroup = (): IDrugGroupResponse[] => {
 }
 
 export const getStore = (): ILoginResponse => {
-  return getLocalStorage('store')
+  return getLocalStorage('store') || {storeName: ''}
 }
 
 export const setAuth = async (value: ILoginResponse) => {
-  console.log(value);
   setLocalStorage('store', value);
   setLocalStorage(KEY_LOCAL_STORAGE.AUTHEN, value.token?.replace(/"/g, ''));
 }
@@ -89,7 +88,7 @@ export const setExportType = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getProperties("EXPORT_TYPE")
       .then(response => {
-        setLocalStorage('export_types', response.data)
+        setLocalStorage('export_types',response.data.data)
       })
       .catch(() => {
       });
@@ -101,7 +100,7 @@ export const setImportType = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getProperties("IMPORT_TYPE")
       .then(response => {
-        setLocalStorage('import_types', response.data)
+        setLocalStorage('import_types', response.data.data)
       })
       .catch(() => {
       });
@@ -113,7 +112,7 @@ export const setPaymentMethods = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getProperties("PAY_METHOD")
       .then(response => {
-        setLocalStorage('pay_menthods', response.data)
+        setLocalStorage('pay_menthods',response.data.data)
       })
       .catch(() => {
       });
@@ -125,7 +124,7 @@ export const setInvSource = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getProperties("INVOICE_SOURCE")
       .then(response => {
-        setLocalStorage('inv_sources', response.data)
+        setLocalStorage('inv_sources', response.data.data)
       })
       .catch(() => {
       });
@@ -137,7 +136,7 @@ export const setUnits = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getUnits()
       .then(response => {
-        setLocalStorage('units', response.data)
+        setLocalStorage('units', response.data.data)
       })
       .catch(() => {
       });
@@ -149,7 +148,7 @@ export const setDrugDescription = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getDrugDescription()
       .then(response => {
-        setLocalStorage('drg_description', response.data)
+        setLocalStorage('drg_description', response.data.data)
       })
       .catch(() => {
       });
@@ -161,7 +160,7 @@ export const setRoles = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await commonApi.getRole()
       .then(response => {
-        setLocalStorage('roles', response.data)
+        setLocalStorage('roles', response.data.data)
       })
       .catch(() => {
       });
@@ -173,7 +172,7 @@ export const setDrgKind = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await drgKindApi.getList()
       .then(response => {
-        setLocalStorage('drg_kinds', response.data)
+        setLocalStorage('drg_kinds', response.data.data)
       })
       .catch(() => {
       });
@@ -183,7 +182,7 @@ export const setDrgKind = async () => {
 export const reloadDrgKind = async () => {
   await drgKindApi.getList()
     .then(response => {
-      setLocalStorage('drg_kinds', response.data)
+      setLocalStorage('drg_kinds', response.data.data)
     })
     .catch(() => {
     });
@@ -192,7 +191,7 @@ export const reloadDrgKind = async () => {
 export const reloadDrgGrop = async () => {
   await drgGroupApi.get()
     .then(response => {
-      setLocalStorage('drg_groups', response.data)
+      setLocalStorage('drg_groups', response.data.data)
     })
     .catch(() => {
     });
@@ -203,7 +202,7 @@ export const setDrgGroup = async () => {
   if (value == null || value === undefined || (value && value.length < 0)) {
     await drgGroupApi.get()
       .then(response => {
-        setLocalStorage('drg_groups', response.data)
+        setLocalStorage('drg_groups', response.data.data)
       })
       .catch(() => {
       });

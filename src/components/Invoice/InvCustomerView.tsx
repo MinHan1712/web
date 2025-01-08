@@ -130,7 +130,7 @@ const InvCustomerView = (props: IModalInvHistoryExportProps) => {
       width: "15%",
       render: (text) => (
         <div className="style-text-limit-number-line2">
-          <span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          <span style={{ fontWeight: "600", color: "red" }}>{(text || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       )
     },
@@ -141,7 +141,7 @@ const InvCustomerView = (props: IModalInvHistoryExportProps) => {
       width: "10%",
       render: (_: any, record: IDrugInventoryDetailResponse, index: number) => {
         return <div className="style-text-limit-number-line2">
-          <span style={{ fontWeight: "400" }}>{((record.price || 0) - (record.discount_amount || 0)).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          <span style={{ fontWeight: "400" }}>{((record.price || 0) - (record.discount_amount || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       }
     },
@@ -152,7 +152,7 @@ const InvCustomerView = (props: IModalInvHistoryExportProps) => {
       width: "15%",
       render: (_: any, record: IDrugInventoryDetailResponse, index: number) => {
         return <div className="style-text-limit-number-line2">
-          <span style={{ color: "red" }}>{Math.abs(record.total_amount || 0).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+          <span style={{ color: "red" }}>{Math.abs(record.total_amount || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
         </div>
       }
     }
@@ -160,7 +160,6 @@ const InvCustomerView = (props: IModalInvHistoryExportProps) => {
 
   const cancelInventoryImport = async (inventory_id: string) => {
     try {
-      console.log(inventory_id);
       return await invoiceApi.cancel(inventory_id, "e")
         .then((response) => {
           if (response.meta.code === 200) {

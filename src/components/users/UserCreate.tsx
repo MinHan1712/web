@@ -28,13 +28,11 @@ const UserCreate = (props: Props) => {
 
     const createUser = async (value: IUserRequestUpdate) => {
         try {
-            console.log(`user`, value);
             value = {
                 ...value,
                 login: value.phone
             }
             return await userApi.create(value).then((response) => {
-                console.log(response)
                 switch (response.meta.code) {
                     case 200:
                         notification['success']({

@@ -180,11 +180,11 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                                         message: 'Vui lòng nhập thông tin',
                                         whitespace: true
                                     },
-                                    // {
-                                    //     required: false,
-                                    //     pattern: new RegExp("/\S+@\S+\.\S+/"),
-                                    //     message: 'Định dạng số điện thoại không đúng',
-                                    // },
+                                    {
+                                        required: false,
+                                        pattern: /^[0-9]{10}$/,
+                                        message: 'Định dạng số điện thoại không đúng',
+                                    },
                                 ]}
                             >
                                 <Input
@@ -228,13 +228,13 @@ const ProviderCreate = (props: IProviderInformationProps) => {
                                 label={
                                     <span style={{ fontWeight: "550", fontSize: "14px" }}>Địa chỉ</span>
                                 }
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Vui lòng nhập thông tin',
-                                        whitespace: true
-                                    }
-                                ]}
+                                // rules={[
+                                //     {
+                                //         required: true,
+                                //         message: 'Vui lòng nhập thông tin',
+                                //         whitespace: true
+                                //     }
+                                // ]}
                             >
                                 <Input
                                     className="form-input "

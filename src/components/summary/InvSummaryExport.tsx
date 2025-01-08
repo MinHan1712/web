@@ -35,7 +35,6 @@ const InvSummaryExport = (props: IInvSummaryWithExportInvProps) => {
             }).then((response) => {
                 if (response.meta.code === 200) {
                     setInvImportRes(response.data.data.length > 0 ? response.data.data[0] : { inventory_id: '' });
-                    console.log(response.data.data.length > 0 ? response.data.data[0] : { inventory_id: '' }, detail);
                     setIsEmptyData(false);
                     return;
                 } else {

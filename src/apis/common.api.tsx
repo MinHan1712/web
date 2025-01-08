@@ -19,7 +19,6 @@ const commonApi = {
       const response = await privateClient.get<IResponse<IPageResponse<IProperty[]>>>(
         endpoint.getListProperties(type),
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -30,7 +29,6 @@ const commonApi = {
       const response = await privateClient.get<IResponse<IPageResponse<IProperty[]>>>(
         endpoint.getListUnits(),
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -41,7 +39,6 @@ const commonApi = {
       const response = await privateClient.get<IResponse<IPageResponse<IDrugDescription[]>>>(
         endpoint.description(),
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -52,7 +49,6 @@ const commonApi = {
       const response = await privateClient.get<IResponse<IPageResponse<IGroups[]>>>(
         endpoint.getListRole(),
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -64,7 +60,6 @@ const commonApi = {
         endpoint.login(),
         params
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;
@@ -76,7 +71,6 @@ const commonApi = {
         endpoint.register(),
         params
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;

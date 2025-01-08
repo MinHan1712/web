@@ -19,7 +19,7 @@ const invoiceApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -32,7 +32,7 @@ const invoiceApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -43,7 +43,7 @@ const invoiceApi = {
       const response = await privateClient.get<IResponse<IInvoiceImportResponse>>(
         endpoint.cancel(id, type)
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -55,7 +55,7 @@ const invoiceApi = {
         endpoint.create,
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -67,7 +67,7 @@ const invoiceApi = {
         endpoint.update,
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;

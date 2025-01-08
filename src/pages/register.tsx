@@ -16,10 +16,8 @@ const Register = () => {
 
 
   const triggerFormEvent = async (register: IRegisterStore) => {
-    console.log(register);
     return await commonApi.registerStore(register)
       .then(response => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             navigate('/dangnhap');

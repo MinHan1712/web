@@ -129,8 +129,6 @@ const InvExportCreateTable = (props: Props) => {
           label: item.unit_name || '',
 
         }))
-
-        console.log(unitOptions, record);
         return (
           <Select
             size="middle"
@@ -152,7 +150,7 @@ const InvExportCreateTable = (props: Props) => {
       render: (_: any, record: IImportInventoryDetailCreate, index: number) => {
         return (
           <h5>
-            <span>{calcPrice(record.price, record.discount_amount, record.vat_percent)}</span>
+            <span>{calcPrice(record.price, record.discount_amount, record.vat_percent).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
           </h5>
         )
       },

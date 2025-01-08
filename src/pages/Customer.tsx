@@ -75,17 +75,17 @@ const columns: ColumnsType<ICustomerResponse> = [
     ),
   },
   {
-    title: "Loại khách hàng",
-    dataIndex: "customer_type",
-    key: "customer_type",
+    title: "Nhóm khách hàng",
+    dataIndex: "customer_group_name",
+    key: "customer_group_name",
     width: "10%",
     align: "center" as AlignType,
     render: (text) => (
       <div className="style-text-limit-number-line2">
-        <span>
-          <Tag style={{ fontWeight: "600" }} color="#012970">
+        <span>{text}
+          {/* <Tag style={{ fontWeight: "600" }} color="#012970">
             {CustonerType.find((x) => x.value == text)?.label}
-          </Tag>
+          </Tag> */}
         </span>
       </div>
     ),
@@ -157,11 +157,9 @@ const Customer = () => {
 
     try {
       await customerApi.getList(customerReq).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             setCustomerRes(response.data);
-            console.log(customerRes);
             break;
           default:
             notification['error']({
@@ -190,7 +188,6 @@ const Customer = () => {
     setLoading(true);
     try {
       await customerGroupApi.getList({ page: 0, size: 0 }).then((response) => {
-        console.log(response)
         if (response.meta.code === 200) {
           setOptionsCusGroup(response.data && response.data.data.map((item) => ({
             value: item.customer_group_id,
@@ -202,7 +199,6 @@ const Customer = () => {
         })
 
     } catch (err) {
-      console.log(err);
     } finally { setLoading(false); }
 
   }
@@ -214,7 +210,6 @@ const Customer = () => {
   useEffect(() => {
     setIsReload(false);
     getListCustomer();
-    console.log('request', customerReq);
   }, [customerReq, isReload])
 
   const triggerFormEvent = (value: ICustomerPageRequest) => {

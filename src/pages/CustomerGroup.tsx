@@ -103,11 +103,9 @@ const CustomerGroup: React.FC = () => {
     setLoading(true);
     try {
       await customerGroupApi.getList(customerGroupReq).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             setCustomerGroupRes(response.data);
-            console.log(customerGroupRes);
             break;
           default:
             notification['error']({
@@ -144,7 +142,6 @@ const CustomerGroup: React.FC = () => {
   useEffect(() => {
     setIsReload(false);
     getListCustomerGroup();
-    console.log('request', customerGroupReq);
   }, [customerGroupReq, isReload])
 
   return (

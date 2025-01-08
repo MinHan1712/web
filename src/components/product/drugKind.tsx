@@ -31,7 +31,6 @@ const DrugKind = (props: IModalDrugKindProps) => {
 
   useEffect(() => {
     form.setFieldsValue({ ...props.data });
-    console.log(form.getFieldValue("code"), form.getFieldValue("name"));
   }, [props.data]);
 
   const handleCancel = () => {
@@ -45,7 +44,6 @@ const DrugKind = (props: IModalDrugKindProps) => {
         createDrugKindToApi(value);
         return;
       case 2: //update
-        console.log(value);
         value = {
           ...value,
           drug_kind_id: props.data?.drug_kind_id
@@ -218,7 +216,7 @@ const DrugKind = (props: IModalDrugKindProps) => {
           onFinish={handleAction}
         >
           <Flex gap="middle" vertical justify="space-between" align={'center'} style={{ width: '100%', paddingTop: '10px' }}>
-            <div className="wrapper-column" style={{ width: '100%' }}>
+            {/* <div className="wrapper-column" style={{ width: '100%' }}>
               <Form.Item
                 {...formItemLayout}
                 labelAlign={"left"}
@@ -244,7 +242,7 @@ const DrugKind = (props: IModalDrugKindProps) => {
                 />
               </Form.Item>
 
-            </div>
+            </div> */}
             <div className="wrapper-column" style={{ width: '100%' }}>
               <Form.Item
                 {...formItemLayout}

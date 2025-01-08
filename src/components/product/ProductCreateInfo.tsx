@@ -28,9 +28,9 @@ const ProductCreateInfo = (props: Props) => {
   return (
     <>
 
-      <Flex justify="space-between" align={'center'} style={{ width: '100%' }}>
+      <Flex justify="space-between" align={'start'} style={{ width: '100%' }}>
         <Flex gap="middle" vertical justify="flex-start" align={'center'} style={{ width: '90%' }}>
-          <div className="wrapper-column" style={{ width: '90%' }}>
+          {props.action ? "" : <div className="wrapper-column" style={{ width: '90%' }}>
             <Form.Item
               {...formItemLayout}
               labelAlign={"left"}
@@ -45,10 +45,10 @@ const ProductCreateInfo = (props: Props) => {
                 placeholder={"Mã sản phẩm (Nhà thuốc tự định nghĩa)"}
                 name={'drug_code'}
                 id={'drug_code'}
-                disabled={props.action ? false : true }
+                disabled={true}
               />
             </Form.Item>
-          </div>
+          </div>}
           <div className="wrapper-column" style={{ width: '90%' }}>
             <Form.Item
               {...formItemLayout}
@@ -169,6 +169,7 @@ const ProductCreateInfo = (props: Props) => {
                 style={{ marginBottom: "8px" }}
                 size="middle"
                 optionLabelProp="label"
+                placeholder={'Chọn ngành hàng'}
                 disabled={!props.btnEdit}
                 dropdownRender={(menu) => (
                   <>
@@ -197,8 +198,7 @@ const ProductCreateInfo = (props: Props) => {
                         <p className="style-text-limit-number-line1">{item.label}</p>
                         <button type="button" className="button ant-btn ant-btn-background-ghost"
                           style={{ borderWidth: "1px" }} onClick={() => {
-                            console.log(item.value);
-                            console.log(props.listKind.find(option => option.drug_kind_id == item.value));
+                            (props.listKind.find(option => option.drug_kind_id == item.value));
                             setDrgKindItem(props.listKind.find(drgkind => drgkind.drug_kind_id == item.value));
                             setOpenDrgKind(true);
                             setIsSettingButton(false);
@@ -228,6 +228,7 @@ const ProductCreateInfo = (props: Props) => {
                 size="middle"
                 optionLabelProp="label"
                 disabled={!props.btnEdit}
+                placeholder={'Chọn phân nhóm'}
                 dropdownRender={(menu) => (
                   <>
                     {menu}
@@ -256,7 +257,7 @@ const ProductCreateInfo = (props: Props) => {
 
                         <button type="button" className="button ant-btn ant-btn-background-ghost"
                           style={{ borderWidth: "1px" }} onClick={() => {
-                            console.log(props.listGroups.find(option => option.drug_group_id == item.value));
+                            (props.listGroups.find(option => option.drug_group_id == item.value));
                             setDrgGroupItem(props.listGroups.find(option => option.drug_group_id == item.value));
                             setOpenDrgGroup(true);
                             setIsSettingButton(false);
@@ -286,6 +287,7 @@ const ProductCreateInfo = (props: Props) => {
                 size="middle"
                 options={props.optionDrgDescription}
                 disabled={!props.btnEdit}
+                placeholder={'Chọn bào chế'}
 
               />
             </Form.Item>
@@ -328,7 +330,7 @@ const ProductCreateInfo = (props: Props) => {
               />
             </Form.Item>
           </div>
-          <div className="wrapper-column" style={{ width: '90%' }}>
+          {/* <div className="wrapper-column" style={{ width: '90%' }}>
             <Form.Item
               {...formItemLayout}
               name={'vat_percent'}
@@ -343,9 +345,10 @@ const ProductCreateInfo = (props: Props) => {
                 size="middle"
                 options={vat}
                 disabled={!props.btnEdit}
+                placeholder={'Chọn thuế'}
               />
             </Form.Item>
-          </div>
+          </div> */}
         </Flex>
       </Flex>
 

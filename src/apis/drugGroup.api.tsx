@@ -13,7 +13,7 @@ const drgGroupApi = {
       const response = await privateClient.get<IResponse<IPageResponse<IDrugGroupResponse[]>>>(
         endpoint.url
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -24,7 +24,7 @@ const drgGroupApi = {
       const response = await privateClient.delete<IResponse<IDrugGroupResponse>>(
         endpoint.delete(params)
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -37,7 +37,7 @@ const drgGroupApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -49,7 +49,7 @@ const drgGroupApi = {
         endpoint.url,
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;

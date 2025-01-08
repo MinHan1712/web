@@ -18,7 +18,7 @@ const drugApi = {
 				// params depends BE to update params for suit cab be obj, ary, etc...
 				params
 			);
-			// console.log(response);
+			// 
 			return response.data;
 		} catch (error) {
 			throw error;
@@ -29,7 +29,7 @@ const drugApi = {
 			const response = await privateClient.get<IResponse<IPageResponse<IDrugResponse[]>>>(
 				endPoint.getInv(params),
 			);
-			// console.log(response);
+			// 
 			return response.data;
 		} catch (error) {
 			throw error;
@@ -41,7 +41,7 @@ const drugApi = {
 				endPoint.create,
 				params
 			);
-			console.log(response);
+			
 			return response.data;
 		} catch (error) {
 			throw error;
@@ -53,7 +53,7 @@ const drugApi = {
 				endPoint.update,
 				params
 			);
-			console.log(response);
+			
 			return response.data;
 		} catch (error) {
 			throw error;

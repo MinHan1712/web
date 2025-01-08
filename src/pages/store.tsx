@@ -62,7 +62,6 @@ const Store = () => {
         if (response.meta.code === 200) {
           form.setFieldsValue({ ...response.data });
           setStore(response.data);
-          console.log(response);
 
         } else {
           notification['error']({
@@ -87,7 +86,6 @@ const Store = () => {
       cancelText: 'Hủy',
       async onOk() {
         return new Promise<void>((resolve, reject) => {
-          console.log(value);
           updateStore(value)
             .then(() => {
               resolve();

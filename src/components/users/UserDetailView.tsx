@@ -52,10 +52,8 @@ const UserDetailView = (props: IModalProviderViewProps) => {
         role_id: value.role_id,
         role_name: value.role_name,
       };
-      console.log("update", update);
 
       await userApi.update(update).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             notification['success']({

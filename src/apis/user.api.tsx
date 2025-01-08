@@ -16,7 +16,7 @@ const userApi = {
         endpoint.getList,
         params
       );
-      // console.log(response);
+      // 
       return response.data;
     } catch (error) {
       throw error;
@@ -29,7 +29,7 @@ const userApi = {
         // params depends BE to update params for suit cab be obj, ary, etc...
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -41,7 +41,7 @@ const userApi = {
         endpoint.update,
         params
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;
@@ -52,7 +52,7 @@ const userApi = {
       const response = await privateClient.delete<IResponse<IUserWithRoleResponse>>(
         endpoint.delete(params)
       );
-      console.log(response);
+      
       return response.data;
     } catch (error) {
       throw error;

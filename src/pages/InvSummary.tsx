@@ -17,7 +17,8 @@ import { IDrugInvSummaryPageRequest, IDrugInvSummaryResponse } from "../interfac
 import { getListImportTypeOption } from "../utils/local";
 import userApi from "../apis/user.api";
 import { IUserWithRoleResponse } from "../interfaces/userManager";
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const InvoiceSummary: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ const InvoiceSummary: React.FC = () => {
   const [isReload, setIsReload] = useState(false);
   const [user, setUser] = useState<SelectProps<string>['options']>([]);
   const [importTypeOptions, setImportTypeOptions] = useState<SelectProps<string>['options']>([]);
-
+  const [isExcel, setIsExcel] = useState(false);
   const [listImportType, setListImportType] = useState<IProperty[]>([]);
 
   const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
@@ -128,12 +129,20 @@ const InvoiceSummary: React.FC = () => {
   const getListInvSummary = async () => {
     setLoading(true);
     try {
-      await invoiceSummaryApi.getList(invSummaryReq).then((response) => {
-        console.log(response)
+      var request = {
+        ...invSummaryReq,
+        page: isExcel ? 0 : invSummaryReq.page,
+        size: isExcel ? 0 : invSummaryReq.size
+      }
+      await invoiceSummaryApi.getList(request).then((response) => {
         switch (response.meta.code) {
           case 200:
-            setInvSummaryRes(response.data);
-            console.log(response);
+            if (isExcel) {
+              exportToExcel(response.data);
+              setIsExcel(false);
+            } else {
+              setInvSummaryRes(response.data);
+            }
             break;
           default:
             notification['error']({
@@ -159,21 +168,64 @@ const InvoiceSummary: React.FC = () => {
   }
 
   const getListUserManger = async () => {
-		await userApi.get({ page: 0, size: 0 })
-			.then((response) => {
-				if (response.meta.code === 200) {
-					setUser(response.data.data.map((user: IUserWithRoleResponse) => {
-						return {
-							value: user.login,
-							label: user.user_name
-						}
-					}));
+    await userApi.get({ page: 0, size: 0 })
+      .then((response) => {
+        if (response.meta.code === 200) {
+          setUser(response.data.data.map((user: IUserWithRoleResponse) => {
+            return {
+              value: user.login,
+              label: user.user_name
+            }
+          }));
 
-				}
-			}).catch(() => {
+        }
+      }).catch(() => {
 
-			})
-	}
+      })
+  }
+
+  const exportAndCallApi = async () => {
+    setIsExcel(true);
+    getListInvSummary();
+  }
+
+  const exportToExcel = (result: IPageResponse<IDrugInvSummaryResponse[]>) => {
+    if (result) {
+      const importData = result.data?.map((item) => {
+        if (item.drg_inv_summary_details) {
+          return item.drg_inv_summary_details.map((drg) => ({
+            "Mã phiếu": item.summary_id,
+            "Ghi chú": item.note,
+            "Người kiểm": item.check_user,
+            "Ngày tạo": item.check_date,
+            "Mã sản phẩm": drg.drg_drug_cd,
+            "Tên sản phẩm": drg.drg_drug_name,
+            "Số lô": drg.lot,
+            "SL tồn": drg.pre_qty,
+            "SL thực tế": drg.cur_qty,
+            "SL nhập": Math.max((drg.cur_qty || 0) - (drg.pre_qty || 0), 0),
+            "SL xuất": Math.max((drg.pre_qty || 0) - (drg.cur_qty || 0), 0),
+            "Đơn vị": drg.unit_name
+          }));
+        }
+        return [];
+      }).flat();
+
+      console.log(result.data);
+
+      const ws = XLSX.utils.json_to_sheet(importData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Import Data");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+      saveAs(file, `Lich-su-kiểm-kho${new Date().toISOString().split('T')[0]}.xlsx`);
+    } else {
+      notification['info']({
+        message: "Thông báo",
+        description: 'Không có dữ liệu để xuất file',
+      });
+    }
+  };
 
   const triggerFormEvent = (value: IInventoryImportPageRequest) => {
     setInvSummaryReq({
@@ -181,9 +233,6 @@ const InvoiceSummary: React.FC = () => {
       page: invSummaryReq.page,
       size: invSummaryReq.size,
     });
-
-    console.log(invSummaryReq);
-
     // get list provider
   }
 
@@ -199,7 +248,6 @@ const InvoiceSummary: React.FC = () => {
   useEffect(() => {
     setIsReload(false);
     getListInvSummary();
-    console.log('request', invSummaryReq);
   }, [invSummaryReq, isReload])
 
   return (
@@ -215,7 +263,7 @@ const InvoiceSummary: React.FC = () => {
             <span>Thêm mới</span>
           </Button>
         </Flex>
-        <InvSummarySearch invSummaryReq={invSummaryReq} triggerFormEvent={triggerFormEvent} users={user} />
+        <InvSummarySearch invSummaryReq={invSummaryReq} triggerFormEvent={triggerFormEvent} users={user} exportToExcel={exportAndCallApi} />
       </Flex>
       <div className="table-wrapper">
         <Table

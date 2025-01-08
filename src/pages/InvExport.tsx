@@ -17,7 +17,8 @@ import { ILoginResponse } from "../interfaces/login";
 import { IProperty } from "../interfaces/property";
 import { IUserWithRoleResponse } from "../interfaces/userManager";
 import { getExportType, getListExportTypeOption, getStore } from "../utils/local";
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const InvoiceExport: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ const InvoiceExport: React.FC = () => {
 	const [listTypeExports, setListTypeExports] = useState<IProperty[]>([]);
 	const [store, setStore] = useState<ILoginResponse>({});
 	const navigate = useNavigate();
+	const [isExcel, setIsExcel] = useState(false);
 
 	let stt: number = 1;
 	const columnExportHistory: ColumnsType<IInvoiceImportResponse> = [
@@ -118,7 +120,7 @@ const InvoiceExport: React.FC = () => {
 			align: "center" as AlignType,
 			width: "calc(15% - 50px)",
 			render: (text) => {
-				console.log(ImportStatus.find((x) => x.value == text));
+				(ImportStatus.find((x) => x.value == text));
 				return (
 					<Tag color={ImportStatus.find((x) => x.value == text)?.name} key={text}>
 						{ImportStatus.find((x) => x.value == text)?.label}
@@ -144,12 +146,22 @@ const InvoiceExport: React.FC = () => {
 	const getListInvImport = async () => {
 		setLoading(true);
 		try {
-			await invoiceApi.getList(invImportReq).then((response) => {
-				console.log(response)
+			var request = {
+				...invImportReq,
+				page: isExcel ? 0 : invImportReq.page,
+				size: isExcel ? 0 : invImportReq.size
+			}
+
+			await invoiceApi.getList(request).then((response) => {
 				switch (response.meta.code) {
 					case 200:
-						setInvImportRes(response.data);
-						console.log(response);
+						if (isExcel) {
+							exportToExcel(response.data);
+							setIsExcel(false);
+						} else {
+							setInvImportRes(response.data);
+						}
+
 						break;
 					default:
 						notification['error']({
@@ -191,6 +203,54 @@ const InvoiceExport: React.FC = () => {
 			})
 	}
 
+	const exportAndCallApi = async () => {
+		setIsExcel(true);
+		getListInvImport();
+	}
+
+	const exportToExcel = (result: IPageResponse<IInvoiceImportResponse[]>) => {
+		if (result) {
+			const importData = result.data?.map((item) => {
+				// Kiểm tra nếu có chi tiết hàng tồn kho
+				if (item.drg_inv_inventory_details) {
+					// Sử dụng `map` để tạo ra các bản ghi cho từng chi tiết trong `drg_inv_inventory_details`
+					return item.drg_inv_inventory_details.map((drg) => ({
+						"Mã phiếu": item.inventory_code,
+						"Loại xuất": listTypeExports.find((x) => x.unit_cd === item.inventory_type)?.value,
+						"Ghi chú": item.note,
+						"Trạng thái": ImportStatus.find((x) => x.value === item.status?.toString())?.label,
+						"Người tạo": item.updated_user,
+						"Ngày xuất thực tế": item.process_date,
+						"Mã sản phẩm": drg.drug_code,
+						"Tên sản phẩm": drg.drug_name,
+						"Số lô": drg.lot,
+						"Hạn sử dụng": drg.exp_date,
+						"Số lượng": drg.quantity,
+						"Đơn vị": drg.unit_name,
+						"Đơn giá": drg.price,
+						"VAT": drg.vat_percent,
+						"Tổng tiền": drg.total_amount,
+					}));
+				}
+				return [];
+			}).flat();
+
+			console.log(result.data);
+
+			const ws = XLSX.utils.json_to_sheet(importData);
+			const wb = XLSX.utils.book_new();
+			XLSX.utils.book_append_sheet(wb, ws, "Import Data");
+			const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+			const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+			saveAs(file, `Lich-su-xuat-kho${new Date().toISOString().split('T')[0]}.xlsx`);
+		} else {
+			notification['info']({
+				message: "Thông báo",
+				description: 'Không có dữ liệu để xuất file',
+			});
+		}
+	};
+
 	const triggerFormEvent = (value: IInventoryImportPageRequest) => {
 		setInvImportReq({
 			...value,
@@ -198,9 +258,6 @@ const InvoiceExport: React.FC = () => {
 			size: invImportReq.size,
 			classification: invImportReq.classification
 		});
-
-		console.log(invImportReq);
-
 		// get list provider
 	}
 
@@ -218,8 +275,6 @@ const InvoiceExport: React.FC = () => {
 
 		setExportType(getListExportTypeOption);
 		setListTypeExports(getExportType);
-
-		console.log('request', invImportReq);
 	}, [invImportReq])
 
 	return (
@@ -235,7 +290,8 @@ const InvoiceExport: React.FC = () => {
 						<span>Thêm mới</span>
 					</Button>
 				</Flex>
-				<InvExportSearch InvExportReq={invImportReq} triggerFormEvent={triggerFormEvent} users={usersOptions} exportType={exportType} />
+				<InvExportSearch InvExportReq={invImportReq} triggerFormEvent={triggerFormEvent} users={usersOptions}
+					exportType={exportType} exportToExcel={exportAndCallApi} />
 			</Flex>
 			<div className="table-wrapper">
 				<Table

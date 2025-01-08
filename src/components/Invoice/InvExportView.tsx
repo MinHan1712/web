@@ -113,7 +113,6 @@ const InvExportView = (props: IModalInvHistoryExportProps) => {
 
     const cancelInventoryExport = async (inventory_id: string) => {
         try {
-            console.log(inventory_id);
             return await invoiceApi.cancel(inventory_id, "e")
                 .then((response) => {
                     if (response.meta.code === 200) {

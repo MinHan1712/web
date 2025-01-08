@@ -33,7 +33,6 @@ const CustomerCreate = (props: ICustomerInformationProps) => {
             value.birthday = value.birthday ? dayjs(value.birthday, "YYYY-MM-DD").format("YYYY-MM-DD") || '' : '';
 
             await customerApi.create(value).then((response) => {
-                console.log(response)
                 switch (response.meta.code) {
                     case 200:
                         notification['success']({

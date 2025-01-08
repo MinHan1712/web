@@ -68,7 +68,7 @@ const InvSummaryCreate = () => {
         switch (response.meta.code) {
           case 200:
             setProductRes(prevState => [...prevState, ...response.data.data]);
-            console.log(response);
+            
             break;
           default:
             notification['error']({
@@ -82,7 +82,6 @@ const InvSummaryCreate = () => {
         })
 
     } catch (err) {
-      console.log(err);
     } finally { setLoading(false); }
   }
 
@@ -198,7 +197,7 @@ const InvSummaryCreate = () => {
   const createInvSummaryToApi = async () => {
     setLoadingScreen(true);
     return await invoiceSummaryApi.create(invSummaryCreateReq).then((response) => {
-      console.log(response);
+      
       if (response.meta.code === 200) {
         form.resetFields();
         notification["success"]({

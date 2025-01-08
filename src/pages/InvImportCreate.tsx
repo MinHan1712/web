@@ -129,7 +129,7 @@ const InvImportCreate: React.FC = () => {
 				info: info,
 				products: mappedData,
 			})
-
+			setIsDebt((info.amount_debt || 0) > 0 ? true : false);
 			setKey(mappedData.length || 0);
 			form.setFieldsValue({ ...info, process_date: '' });
 			form.setFieldValue("process_date", info.process_date ? dayjs(info.process_date) || null : null);
@@ -154,7 +154,6 @@ const InvImportCreate: React.FC = () => {
 		setLoadingScreen(true);
 		try {
 			await invoiceApi.create(invImportCreateReq).then((response) => {
-				console.log(response)
 				switch (response.meta.code) {
 					case 200:
 						notification['success']({
@@ -189,7 +188,6 @@ const InvImportCreate: React.FC = () => {
 				message: "Lỗi",
 				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
 			});
-			console.log(err);
 		} finally { setLoadingScreen(false); }
 	}
 
@@ -197,7 +195,6 @@ const InvImportCreate: React.FC = () => {
 		setLoadingScreen(true);
 		try {
 			await invoiceApi.update(invImportCreateReq).then((response) => {
-				console.log(response)
 				switch (response.meta.code) {
 					case 200:
 						notification['success']({
@@ -232,7 +229,6 @@ const InvImportCreate: React.FC = () => {
 				message: "Lỗi",
 				description: 'Có một lỗi nào đó xảy ra, vui lòng thử lại',
 			});
-			console.log(err);
 		} finally { setLoadingScreen(false); }
 	}
 
@@ -248,7 +244,6 @@ const InvImportCreate: React.FC = () => {
 				page: 0,
 				size: 0
 			});
-			console.log(response)
 			if (response.meta.code === 200) {
 				setOptionsProvider(response.data.data.map((provider: IProviderResponse) => {
 					return {
@@ -260,7 +255,7 @@ const InvImportCreate: React.FC = () => {
 				setOptionsProvider([]);
 			}
 		} catch (err) {
-			console.log(err);
+			
 		} finally { setLoading(false); }
 	}
 
@@ -268,7 +263,6 @@ const InvImportCreate: React.FC = () => {
 		setLoading(true);
 		try {
 			await drugApi.getList(productReq).then((response) => {
-				console.log(response)
 				switch (response.meta.code) {
 					case 200:
 						setProductRes(prevState => [...prevState, ...response.data.data]);
@@ -288,7 +282,7 @@ const InvImportCreate: React.FC = () => {
 					});
 				})
 		} catch (err) {
-			console.log(err);
+			
 		} finally { setLoading(false); }
 	}
 
@@ -629,6 +623,7 @@ const InvImportCreate: React.FC = () => {
 											}
 										>
 											<Input
+												type="number"
 												size="middle"
 												min={0}
 												name='discount_amount'
@@ -648,7 +643,7 @@ const InvImportCreate: React.FC = () => {
 													}
 
 													// var discountAmtCurrent = (invImportCreateReq.info.discount_amount || 0);
-													console.log(amountTotal(invImportCreateReq.info.amount_original, invImportCreateReq.info.discount_amount, invImportCreateReq.info.vat))
+													(amountTotal(invImportCreateReq.info.amount_original, invImportCreateReq.info.discount_amount, invImportCreateReq.info.vat))
 													invImportCreateReq.info.discount_amount = Math.min(value, amountTotal(invImportCreateReq.info.amount_original, invImportCreateReq.info.discount_amount, invImportCreateReq.info.vat));
 													updateAmtInfo(invImportCreateReq.info.amount_original || 0);
 												}}
@@ -677,7 +672,17 @@ const InvImportCreate: React.FC = () => {
 												<span style={{ fontWeight: "550", fontSize: "14px" }}>Ghi nợ</span>
 											}
 										>
-											<Checkbox disabled={invImportCreateReq.info.amount === 0} onChange={(e) => setIsDebt(e.target.checked)}></Checkbox>
+											<Checkbox disabled={invImportCreateReq.info.amount === 0}
+												checked={((isUpdate && isDebt) || isDebt) && invImportCreateReq.info.amount !== 0}
+												onChange={(e) => {
+													setIsDebt(e.target.checked)
+													if (!e.target.checked) {
+														invImportCreateReq.info.amount_paid = invImportCreateReq.info.amount;
+														invImportCreateReq.info.amount_debt = 0;
+
+														setInvImportCreateReq({ ...invImportCreateReq });
+													}
+												}}></Checkbox>
 										</Form.Item>
 									</div>
 									{isDebt ? <>
@@ -691,6 +696,7 @@ const InvImportCreate: React.FC = () => {
 												}
 											>
 												<Input
+													type="number"
 													size="middle"
 													placeholder={"Đã thanh toán"}
 													name={'amount_paid'}
@@ -761,7 +767,7 @@ const InvImportCreate: React.FC = () => {
 											}}
 										>
 											<PlusCircleOutlined style={{ verticalAlign: "baseline" }} />
-											<span>Nhập kho</span>
+											<span>{isUpdate ? 'Cập nhập' : 'Nhập kho'}</span>
 										</Button>
 									</Flex>
 								</Flex>

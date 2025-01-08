@@ -312,7 +312,6 @@ const UserManager = () => {
   useEffect(() => {
     setIsReload(false);
     getListUserManger();
-    console.log('request', userRoleReq);
   }, [userRoleReq, isReload])
 
   useEffect(() => {

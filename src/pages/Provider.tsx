@@ -133,7 +133,6 @@ const Provider: React.FC = () => {
 		setLoading(true);
 		try {
 			await providerApi.getList(providerReq).then((response) => {
-				console.log(response.meta);
 				switch (response.meta.code) {
 					case 200:
 						setProviderRes(response.data);

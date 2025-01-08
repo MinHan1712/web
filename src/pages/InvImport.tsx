@@ -15,8 +15,10 @@ import { IPageResponse } from "../interfaces/common";
 import { IInventoryImportPageRequest, IInvoiceImportResponse } from "../interfaces/inventoryImport";
 import { IProperty } from "../interfaces/property";
 import { IProviderResponse } from "../interfaces/provider";
-import { getImportType, getListImportTypeOption, getPayMethods } from "../utils/local";
-
+import { getImportType, getInvSource, getListImportTypeOption, getPayMethods } from "../utils/local";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { sign } from "crypto";
 
 const InvoiceImport: React.FC = () => {
 	const [loading, setLoading] = useState(false);
@@ -28,6 +30,7 @@ const InvoiceImport: React.FC = () => {
 	const [importTypeOptions, setImportTypeOptions] = useState<SelectProps<string>['options']>([]);
 	const [listImportType, setListImportType] = useState<IProperty[]>([]);
 	const [listPayMenthods, setListPayMenthods] = useState<IProperty[]>([]);
+	const [isExcel, setIsExcel] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -62,8 +65,7 @@ const InvoiceImport: React.FC = () => {
 			width: "12%",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					{/* {ListImportType.find((x) => x.unit_cd == text)?.value} */}
-					{text}
+					{listImportType.find((x) => x.unit_cd == text)?.value}
 				</div>
 			)
 		},
@@ -118,7 +120,7 @@ const InvoiceImport: React.FC = () => {
 			width: "11%",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					<span style={{ color: "red" }}>{Number(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
+					<span style={{ fontWeight: "600", color: "red" }}>{Number(text || '0').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}₫</span>
 				</div>
 			)
 		},
@@ -142,7 +144,7 @@ const InvoiceImport: React.FC = () => {
 			width: "calc(15% - 30px)",
 			render: (text) => (
 				<div className="style-text-limit-number-line2">
-					<span>
+					<span style={{ fontWeight: "600", padding: '3px' }}>
 						<Tag color={ImportStatus.find((x) => x.value == text)?.name} key={text}>
 							{ImportStatus.find((x) => x.value == text)?.label}
 						</Tag>
@@ -165,15 +167,26 @@ const InvoiceImport: React.FC = () => {
 		classification: false
 	});
 
+
 	const getListInvImport = async () => {
 		setLoading(true);
 		try {
-			await invoiceApi.getList(invImportReq).then((response) => {
-				console.log(response)
+			var request = {
+				...invImportReq,
+				page: isExcel ? 0 : invImportReq.page,
+				size: isExcel ? 0 : invImportReq.size
+			}
+
+			await invoiceApi.getList(request).then((response) => {
 				switch (response.meta.code) {
 					case 200:
-						setInvImportRes(response.data);
-						console.log(response);
+						if (isExcel) {
+							exportToExcel(response.data);
+							setIsExcel(false);
+						} else {
+							setInvImportRes(response.data);
+						}
+
 						break;
 					default:
 						notification['error']({
@@ -215,9 +228,56 @@ const InvoiceImport: React.FC = () => {
 				}
 			})
 		} catch (err) {
-			console.log(err);
+
 		} finally { }
 	}
+
+	const exportAndCallApi = async () => {
+		setIsExcel(true);
+		getListInvImport();
+	}
+
+	const exportToExcel = (result: IPageResponse<IInvoiceImportResponse[]>) => {
+		if (result) {
+			const importData = result.data?.map((item) => {
+				// Kiểm tra nếu có chi tiết hàng tồn kho
+				if (item.drg_inv_inventory_details) {
+					// Sử dụng `map` để tạo ra các bản ghi cho từng chi tiết trong `drg_inv_inventory_details`
+					return item.drg_inv_inventory_details.map((drg) => ({
+						"Mã phiếu": item.inventory_code,
+						"Loại nhập": listImportType.find((x) => x.unit_cd === item.inventory_type)?.value,
+						"Nhà cung cấp": item.provider_name,
+						"Ngày nhập thực tế": item.process_date,
+						"Mã sản phẩm": drg.drug_code,
+						"Tên sản phẩm": drg.drug_name,
+						"Số lô": drg.lot,
+						"Hạn sử dụng": drg.exp_date,
+						"Số lượng": drg.quantity,
+						"Đơn vị": drg.unit_name,
+						"Đơn giá": drg.price,
+						"VAT": drg.vat_percent,
+						"Tổng tiền": drg.total_amount,
+						"Trạng thái": ImportStatus.find((x) => x.value === item.status?.toString())?.label
+					}));
+				}
+				return [];
+			}).flat();
+
+			console.log(result.data);
+
+			const ws = XLSX.utils.json_to_sheet(importData);
+			const wb = XLSX.utils.book_new();
+			XLSX.utils.book_append_sheet(wb, ws, "Import Data");
+			const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+			const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+			saveAs(file, `Lich-su-nhap-kho${new Date().toISOString().split('T')[0]}.xlsx`);
+		} else {
+			notification['info']({
+				message: "Thông báo",
+				description: 'Không có dữ liệu để xuất file',
+			});
+		}
+	};
 
 	const triggerFormEvent = (value: IInventoryImportPageRequest) => {
 		setInvImportReq({
@@ -226,8 +286,6 @@ const InvoiceImport: React.FC = () => {
 			size: invImportReq.size,
 			classification: invImportReq.classification
 		});
-
-		console.log(invImportReq);
 	}
 
 	const handleCreateReceipt = () => {
@@ -243,7 +301,6 @@ const InvoiceImport: React.FC = () => {
 
 	useEffect(() => {
 		getListInvImport();
-		console.log('request', invImportReq);
 	}, [invImportReq])
 
 	return (
@@ -259,7 +316,7 @@ const InvoiceImport: React.FC = () => {
 						<span>Thêm mới</span>
 					</Button>
 				</Flex>
-				<InvImportSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} Provides={provides} ImportType={importTypeOptions} />
+				<InvImportSearch InvImportReq={invImportReq} triggerFormEvent={triggerFormEvent} Provides={provides} ImportType={importTypeOptions} exportToExcel={exportAndCallApi} />
 			</Flex>
 			<div className="table-wrapper">
 				<Table

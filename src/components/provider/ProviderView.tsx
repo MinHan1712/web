@@ -62,10 +62,8 @@ const ProviderView = (props: IModalProviderViewProps) => {
         status: props.data.status,
         email: value.email
       };
-      console.log("providerUpdate", providerUpdate);
 
       await providerApi.update(providerUpdate).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             notification['success']({
@@ -227,13 +225,13 @@ const ProviderView = (props: IModalProviderViewProps) => {
                 label={
                   <span style={{ fontWeight: "550", fontSize: "14px" }}>Số điện thoại</span>
                 }
-              // rules={[
-              //     {
-              //         required: false,
-              //         pattern: new RegExp("/\S+@\S+\.\S+/"),
-              //         message:'Định dạng số điện thoại không đúng',
-              //     },
-              //   ]}
+              rules={[
+                  {
+                      required: false,
+                      pattern: /^[0-9]{10}$/,
+                      message:'Định dạng số điện thoại không đúng',
+                  },
+                ]}
               >
                 <Input
                   className="form-input d-flex"

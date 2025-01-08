@@ -29,7 +29,6 @@ const CustomerGroupCreate = (props: ICustomerGroupInformationProps) => {
   const createCustomerGroup = async (value: ICustomerGroupCreate) => {
     try {
       await customerGroupApi.create(value).then((response) => {
-        console.log(response)
         switch (response.meta.code) {
           case 200:
             notification['success']({
@@ -116,7 +115,7 @@ const CustomerGroupCreate = (props: ICustomerGroupInformationProps) => {
       >
         <Flex gap="middle" vertical justify="flex-end" align={'center'} style={{ width: '100%' }}>
           <div className="wrapper-column" style={{ width: '100%' }}>
-            <Form.Item<ICustomerGroupCreate>
+            {/* <Form.Item<ICustomerGroupCreate>
               {...formItemLayout}
               labelAlign={"left"}
               name={'customer_group_cd'}
@@ -131,7 +130,7 @@ const CustomerGroupCreate = (props: ICustomerGroupInformationProps) => {
                 name={'customer_group_code'}
                 id={'customer_group_code'}
               />
-            </Form.Item>
+            </Form.Item> */}
           </div>
           <div className="wrapper-column" style={{ width: '100%' }}>
             <Form.Item<ICustomerGroupCreate>

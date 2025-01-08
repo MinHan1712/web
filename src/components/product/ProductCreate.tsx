@@ -80,7 +80,6 @@ const ProductCreate = (props: IModalProductViewProps) => {
                 unit_parent_id: drugUnitItem && drugUnitItem.length > 1 ? drugUnitItem[0]['unit_id'] : e,
               };
               setDrugUnitItem(updatedDrugUnitItem);
-              console.log(updatedDrugUnitItem);
             }}
           />
         );
@@ -118,7 +117,6 @@ const ProductCreate = (props: IModalProductViewProps) => {
                   unit_qty: e,
                 };
                 setDrugUnitItem(updatedDrugUnitItem);
-                console.log(updatedDrugUnitItem);
               }}
             />
           </Flex >
@@ -148,7 +146,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
     //             import_price: e,
     //           };
     //           setDrugUnitItem(updatedDrugUnitItem);
-    //           console.log(updatedDrugUnitItem);
+    //           (updatedDrugUnitItem);
     //         }}
     //       />
     //     );
@@ -177,7 +175,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
     //             price: e,
     //           };
     //           setDrugUnitItem(updatedDrugUnitItem);
-    //           console.log(updatedDrugUnitItem);
+    //           (updatedDrugUnitItem);
     //         }}
     //       />
     //     );
@@ -253,9 +251,7 @@ const ProductCreate = (props: IModalProductViewProps) => {
   const createDrugToApi = async (value: IDrugRequest) => {
     setLoading(true);
     value.drug_units = drugUnitItem;
-    console.log(value);
     return await drugApi.create(value).then((response) => {
-      console.log(response)
       switch (response.meta.code) {
         case 200:
           notification['success']({
@@ -373,7 +369,6 @@ const ProductCreate = (props: IModalProductViewProps) => {
                   }
                   var drg = [...drugUnitItem, item];
                   setDrugUnitItem([...drugUnitItem, item]);
-                  console.log(drg, drugUnitItem);
                   setKey(key + 1);
                 }}
                 className="button btn-add d-block"
